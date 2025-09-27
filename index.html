@@ -112,8 +112,7 @@
             width: 180px;
             height: 180px;
             margin: 0 auto 30px;
-            /* Replace with actual logo */
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="85" fill="none" stroke="%23F4B643" stroke-width="2" opacity="0.3"/><circle cx="100" cy="100" r="75" fill="none" stroke="%23F4B643" stroke-width="1" opacity="0.5"/><text x="100" y="120" font-family="Black Ops One" font-size="72" fill="%23F4B643" text-anchor="middle">44</text></svg>') center/contain no-repeat;
+            object-fit: contain;
             filter: drop-shadow(0 0 30px rgba(244, 182, 67, 0.5));
             animation: pulse 2s infinite;
         }
@@ -430,8 +429,7 @@
     <div class="container">
         <!-- Header -->
         <header class="header">
-            <!-- Replace with actual logo: <img src="logo.png" alt="44th RAR Badge" class="header-badge"> -->
-            <div class="header-badge"></div>
+            <img src="Logo.png" alt="44th RAR Badge" class="header-badge">
             <h1>44TH ROYAL ANGLIAN REGIMENT</h1>
             <p class="header-subtitle">Training Management System</p>
         </header>
@@ -462,7 +460,8 @@
                     <i class="fas fa-users"></i> All Members
                 </span>
                 <p class="option-description">
-                    Submit a request for training.
+                    Submit a request for training. Select your desired courses, 
+                    preferred times, and track your request status.
                 </p>
                 <a href="request.html" class="btn-action">
                     SUBMIT REQUEST
@@ -496,7 +495,7 @@
     </div>
 
     <footer class="footer">
-        <p>&copy; 2025 44th Royal Anglian Regiment - D&E </p>
+        <p>&copy; 2024 44th Royal Anglian Regiment - Training Command</p>
     </footer>
 
     <script>
