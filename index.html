@@ -438,19 +438,19 @@
 
         <!-- Main Options -->
         <div class="options-grid">
-            <!-- Book Training (Instructors Only) -->
+            <!-- Booking Portal (Restricted Access) -->
             <div class="option-card">
                 <i class="fas fa-calendar-plus option-icon"></i>
-                <h2 class="option-title">Book Training</h2>
+                <h2 class="option-title">Booking Portal</h2>
                 <span class="access-label">
-                    <i class="fas fa-lock"></i> Instructors Only
+                    <i class="fas fa-lock"></i> Restricted Access
                 </span>
                 <p class="option-description">
-                    Reserve server time for conducting training sessions. 
-                    Schedule courses, allocate resources, and coordinate with other instructors.
+                    Access the training management system. Reserve server time, 
+                    view statistics, and manage training schedules.
                 </p>
                 <button class="btn-action" onclick="checkAccess()">
-                    ACCESS BOOKING SYSTEM
+                    ACCESS BOOKING PORTAL
                 </button>
             </div>
 
@@ -462,8 +462,7 @@
                     <i class="fas fa-users"></i> All Members
                 </span>
                 <p class="option-description">
-                    Submit a request for training. Select your desired courses, 
-                    preferred times, and track your request status.
+                    Submit a request for training.
                 </p>
                 <a href="request.html" class="btn-action">
                     SUBMIT REQUEST
@@ -476,13 +475,13 @@
     <div id="accessModal" class="modal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()">&times;</button>
-            <h3 class="modal-header">Instructor Verification</h3>
+            <h3 class="modal-header">Access Verification</h3>
             
             <form id="accessForm">
                 <div class="form-group">
                     <label class="form-label">Access Code</label>
                     <input type="password" id="accessCode" class="form-control" 
-                           placeholder="Enter instructor access code" required autofocus>
+                           placeholder="Enter access code" required autofocus>
                 </div>
                 
                 <button type="submit" class="btn-action">
@@ -497,7 +496,7 @@
     </div>
 
     <footer class="footer">
-        <p>&copy; 2024 44th Royal Anglian Regiment - Training Command</p>
+        <p>&copy; 2025 44th Royal Anglian Regiment - D&E </p>
     </footer>
 
     <script>
