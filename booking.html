@@ -106,20 +106,9 @@
             width: 150px;
             height: 150px;
             margin: 0 auto 20px;
-            /* TEMPORARY PLACEHOLDER - Replace with actual logo */
             background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="85" fill="none" stroke="%23F4B643" stroke-width="2" opacity="0.3"/><circle cx="100" cy="100" r="75" fill="none" stroke="%23F4B643" stroke-width="1" opacity="0.5"/><text x="100" y="120" font-family="Black Ops One" font-size="72" fill="%23F4B643" text-anchor="middle">44</text></svg>') center/contain no-repeat;
             filter: drop-shadow(0 0 20px rgba(244, 182, 67, 0.3));
         }
-        
-        /* When you add your real logo, use this instead:
-        .header-badge {
-            width: 150px;
-            height: 150px;
-            margin: 0 auto 20px;
-            object-fit: contain;
-            filter: drop-shadow(0 0 20px rgba(244, 182, 67, 0.3));
-        }
-        */
 
         .header h1 {
             font-family: 'Gunplay', 'Black Ops One', sans-serif;
@@ -226,6 +215,17 @@
             background-position: right 15px center;
             background-size: 20px;
             padding-right: 45px;
+        }
+
+        /* Fix dropdown option background */
+        select.form-control option {
+            background: var(--primary-black);
+            color: var(--white);
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
         }
 
         /* Submit Button */
@@ -465,11 +465,7 @@
     <div class="container">
         <!-- Header -->
         <header class="header">
-            <!-- TO ADD YOUR LOGO: Replace the div below with:
-                 <img src="YOUR-LOGO-URL.png" alt="44th RAR Badge" class="header-badge">
-                 OR use base64 encoded image:
-                 <img src="data:image/png;base64,YOUR-BASE64-HERE" alt="44th RAR Badge" class="header-badge"> -->
-            <img src="Logo.png" alt="44th RAR Badge" class="header-badge">
+            <div class="header-badge"></div>
             <h1>44TH ROYAL ANGLIAN REGIMENT</h1>
             <p style="font-family: 'Russo One', sans-serif; color: var(--grey-light); text-transform: uppercase; letter-spacing: 4px; margin-top: 10px;">Server Booking System</p>
         </header>
@@ -484,6 +480,12 @@
                 </div>
                 <div class="panel-body">
                     <form id="bookingForm">
+                        <!-- Training Date (MOVED TO TOP) -->
+                        <div class="form-group">
+                            <label class="form-label">Training Date</label>
+                            <input type="date" id="date" class="form-control" required>
+                        </div>
+
                         <!-- Training Category -->
                         <div class="form-group">
                             <label class="form-label">Training Category</label>
@@ -500,7 +502,7 @@
                             </select>
                         </div>
 
-                        <!-- Training Type -->
+                        <!-- Training Module -->
                         <div class="form-group">
                             <label class="form-label">Training Module</label>
                             <select id="training" class="form-control" required disabled>
@@ -513,12 +515,6 @@
                             <label class="form-label">Custom Training Details</label>
                             <input type="text" id="customTraining" class="form-control" 
                                    placeholder="Specify training requirements">
-                        </div>
-
-                        <!-- Date -->
-                        <div class="form-group">
-                            <label class="form-label">Training Date</label>
-                            <input type="date" id="date" class="form-control" required>
                         </div>
 
                         <!-- Start Time -->
@@ -607,55 +603,33 @@
     </div>
 
     <script>
-        
-		// Security Check - MUST BE FIRST
+        // Security Check - MUST BE FIRST
         (function() {
-            // Check if user is authorized
+            // Check if user is authorized (password: Grape44)
             if (sessionStorage.getItem('authorized') !== 'true') {
-                alert('Access Denied. Please login through the main page.');
-                window.location.href = 'index.html';
-                return; // Stop execution
+                const password = prompt('Enter instructor access code:');
+                if (password === 'Grape44') {
+                    sessionStorage.setItem('authorized', 'true');
+                } else {
+                    alert('Access Denied. Please login through the main page.');
+                    window.location.href = 'index.html';
+                    return;
+                }
             }
         })();
 
-        /* ===========================================================================
-           INSTRUCTOR SERVER BOOKING SYSTEM
-           
-           This system is for instructors to reserve server time for training sessions.
-           
-           GOOGLE SHEETS STRUCTURE REQUIRED:
-           
-           Tab 1 - "Bookings" (Server time reservations by instructors):
-           Category | Training | Duration | Zeus | Instructor Name | 
-           Instructor Discord | Server | Date | Time | Status | Notes
-           
-           Tab 2 - "Config" (Optional - for dynamic settings):
-           Setting | Value
-           Buffer Time | 15
-           Max Duration | 180
-           
-           Tab 3 - "Instructors" (For populating instructor dropdowns):
-           Training Type | Display Name | Discord ID
-           
-           Training Type values should be:
-           - For category-wide instructors: bootcamp, mbt, ifv, mechInf, pilot, motorInf
-           - For training-specific: LAT, HAT, Advanced AT Training, Engineer, etc.
-           - For custom training: custom
-           
-           Examples:
-           mbt | MAJ Thompson | Thompson#1234
-           mbt | CPT Roberts | Roberts#5678
-           LAT | SGT Johnson | Johnson#1234
-           HAT | LT Anderson | Anderson#9012
-           
-           NOTE: Bootcamp and GYN are the same - use "bootcamp" as Training Type
-        =========================================================================== */
+        // Configuration
+        const config = {
+            googleCalendarId: '40bb8c9aa7df59e2b7e22a850ac9b67b942e4ea00632b04b7590c3a4d5caa39c@group.calendar.google.com',
+            googleSheetsId: '1Akxvu6mWzE1o4tSOo0K9p6sg6ClYqXkzhHP0VeygIUM',
+            googleSheetsApiKey: 'AIzaSyAbZxnOvJjuOxRMeyNtr4R6zP39XfUNv-Q',
+            discordWebhookUrl: 'https://discord.com/api/webhooks/1421502096246837318/7ZAuF4xp3IN7p0oWjuHVpNdG4y9myhuaxMNpPP2aNTFehVuoW3nsh9so5PUtyxxljOVk',
+            googleAppsScriptUrl: 'https://script.google.com/macros/s/AKfycbwGZOXvdRUEXRGpt770eGtxEr858kf0LxgY3Onk8E7pVH7LY3raTUH1AE0KVU4Yg39rPQ/exec'
+        };
 
         // Training data structure
         const trainingData = {
-            bootcamp: [
-                'GYN'  // Bootcamp only has GYN
-            ],
+            bootcamp: ['GYN'],
             infantry: [
                 'LAT', 'HAT', 'Advanced AT Training', 'Engineer', 'Grenadier',
                 'Logistics', 'MG/AR', 'Marksman', 'Medic', 'Mortar', 'TOW',
@@ -672,7 +646,7 @@
                 'Emergency Procedures', 'Advanced Low Flying', 'Heli Teamwork',
                 'Insertion Tactics', 'Barrel Rolls'
             ],
-            ifv: [
+            vehicle: [
                 'IFV Qualified', 'IFV Certified', 
                 'Mechanised Infantry Qualified', 'Mechanised Infantry Certified'
             ],
@@ -686,135 +660,9 @@
             ]
         };
 
-        // Instructor data - REPLACE WITH DATA FROM GOOGLE SHEETS
-        // 
-        // INSTRUCTOR ASSIGNMENT LOGIC:
-        // Pattern 1 - Category-wide (all trainings in category use same instructors):
-        //   - Bootcamp/GYN, MBT, IFV, Mech Inf, Pilot, Motor Inf
-        // 
-        // Pattern 2 - Training-specific (each training has unique instructors):
-        //   - LAT, HAT, Advanced AT Training, Engineer, Grenadier, Logistics,
-        //   - MG/AR, Marksman, Medic, Mortar, TOW, Fibua Tier 1,
-        //   - Section Battle Drills, Squad Leading Tiers 1-3
-        //
-        const instructorData = {
-            // Category-wide instructors
-            'bootcamp': [  // Covers GYN training
-                { displayName: 'SGT Smith', discordId: 'Smith#1234' },
-                { displayName: 'CPL Jones', discordId: 'Jones#5678' }
-            ],
-            'mbt': [  // Covers all MBT trainings
-                { displayName: 'MAJ Thompson', discordId: 'Thompson#7890' },
-                { displayName: 'CPT Roberts', discordId: 'Roberts#2345' }
-            ],
-            'ifv': [  // Covers all IFV trainings
-                { displayName: 'SGT Davis', discordId: 'Davis#6789' },
-                { displayName: 'CPL Williams', discordId: 'Williams#5678' }
-            ],
-            'mechInf': [  // Covers all Mech Inf trainings
-                { displayName: 'LT Anderson', discordId: 'Anderson#9012' },
-                { displayName: 'SGT Johnson', discordId: 'Johnson#1234' }
-            ],
-            'pilot': [  // Covers all Pilot trainings
-                { displayName: 'WO1 Mitchell', discordId: 'Mitchell#4567' },
-                { displayName: 'CPT Roberts', discordId: 'Roberts#2345' }
-            ],
-            'motorInf': [  // Covers all Motor Inf trainings
-                { displayName: 'CPL Martinez', discordId: 'Martinez#3456' },
-                { displayName: 'SGT Wilson', discordId: 'Wilson#7890' }
-            ],
-            // Training-specific instructors (each training has its own list)
-            'LAT': [
-                { displayName: 'SGT Johnson', discordId: 'Johnson#1234' },
-                { displayName: 'CPL Adams', discordId: 'Adams#2345' }
-            ],
-            'HAT': [
-                { displayName: 'LT Brown', discordId: 'Brown#3456' },
-                { displayName: 'SGT Taylor', discordId: 'Taylor#4567' }
-            ],
-            'Advanced AT Training': [
-                { displayName: 'MAJ White', discordId: 'White#5678' }
-            ],
-            'Engineer': [
-                { displayName: 'SGT Harris', discordId: 'Harris#6789' }
-            ],
-            'Grenadier': [
-                { displayName: 'CPL Clark', discordId: 'Clark#7890' }
-            ],
-            'Logistics': [
-                { displayName: 'WO2 Lewis', discordId: 'Lewis#8901' }
-            ],
-            'MG/AR': [
-                { displayName: 'SGT Walker', discordId: 'Walker#9012' }
-            ],
-            'Marksman': [
-                { displayName: 'SGT Hall', discordId: 'Hall#0123' }
-            ],
-            'Medic': [
-                { displayName: 'CPL Allen', discordId: 'Allen#1234' }
-            ],
-            'Mortar': [
-                { displayName: 'SGT Young', discordId: 'Young#2345' }
-            ],
-            'TOW': [
-                { displayName: 'CPL King', discordId: 'King#3456' }
-            ],
-            'Fibua Tier 1': [
-                { displayName: 'LT Wright', discordId: 'Wright#4567' }
-            ],
-            'Section Battle Drills': [
-                { displayName: 'SGT Lopez', discordId: 'Lopez#5678' }
-            ],
-            'Squad Leading Tier 1': [
-                { displayName: 'LT Hill', discordId: 'Hill#6789' }
-            ],
-            'Squad Leading Tier 2': [
-                { displayName: 'CPT Scott', discordId: 'Scott#7890' }
-            ],
-            'Squad Leading Tier 3': [
-                { displayName: 'MAJ Green', discordId: 'Green#8901' }
-            ],
-            // Custom uses all available instructors
-            'custom': [
-                { displayName: 'SGT Johnson', discordId: 'Johnson#1234' },
-                { displayName: 'CPL Williams', discordId: 'Williams#5678' },
-                { displayName: 'LT Anderson', discordId: 'Anderson#9012' }
-            ]
-        };
-
-        // Mock booked sessions - REPLACE WITH REAL CALENDAR DATA
-        // This will be populated from Google Calendar API
-        const mockBookings = {
-            '2024-01-20': [
-                { 
-                    time: '14:00', 
-                    duration: 120, 
-                    training: 'LAT Training', 
-                    instructorName: 'SGT Johnson',
-                    instructorDiscord: 'Johnson#1234',
-                    zeus: 'Yes', 
-                    server: 'Primary' 
-                },
-                { 
-                    time: '18:00', 
-                    duration: 90, 
-                    training: 'Squad Leading Tier 1', 
-                    instructorName: 'CPL Williams',
-                    instructorDiscord: 'Williams#5678',
-                    zeus: 'No', 
-                    server: 'Backup' 
-                },
-                { 
-                    time: '20:00', 
-                    duration: 60, 
-                    training: 'Marksman', 
-                    instructorName: 'LT Anderson',
-                    instructorDiscord: 'Anderson#9012',
-                    zeus: 'Yes', 
-                    server: 'Primary' 
-                }
-            ]
-        };
+        // Instructor data - Will be loaded from Google Sheets
+        let instructorData = {};
+        let dayBookings = [];
 
         // Generate time slots
         function generateTimeSlots() {
@@ -845,22 +693,13 @@
             
             // Reset instructor dropdown
             instructorSelect.innerHTML = '<option value="">-- SELECT INSTRUCTOR --</option>';
-            instructorSelect.disabled = true; // Keep disabled until training is selected
+            instructorSelect.disabled = true;
             
             if (category === 'custom') {
                 customGroup.style.display = 'block';
                 trainingSelect.disabled = true;
-                // For custom, immediately populate instructors
-                if (instructorData['custom']) {
-                    instructorSelect.disabled = false;
-                    instructorData['custom'].forEach(instructor => {
-                        const option = document.createElement('option');
-                        option.value = instructor.discordId;
-                        option.textContent = instructor.displayName.toUpperCase();
-                        option.dataset.displayName = instructor.displayName;
-                        instructorSelect.appendChild(option);
-                    });
-                }
+                // Load all instructors for custom
+                loadInstructorsForTraining('custom');
             } else {
                 customGroup.style.display = 'none';
                 if (category && trainingData[category]) {
@@ -877,38 +716,63 @@
 
         // Handle training selection change
         document.getElementById('training').addEventListener('change', function() {
-            const category = document.getElementById('category').value;
             const training = this.value;
-            const instructorSelect = document.getElementById('instructor');
-            
-            // Reset instructor dropdown
-            instructorSelect.innerHTML = '<option value="">-- SELECT INSTRUCTOR --</option>';
-            instructorSelect.disabled = !training;
-            
             if (training) {
-                let instructorList = null;
-                
-                // First check if this specific training has its own instructors
-                if (instructorData[training]) {
-                    instructorList = instructorData[training];
-                } 
-                // Otherwise use category-wide instructors
-                else if (instructorData[category]) {
-                    instructorList = instructorData[category];
-                }
-                
-                // Populate instructor dropdown
-                if (instructorList) {
-                    instructorList.forEach(instructor => {
-                        const option = document.createElement('option');
-                        option.value = instructor.discordId;
-                        option.textContent = instructor.displayName.toUpperCase();
-                        option.dataset.displayName = instructor.displayName;
-                        instructorSelect.appendChild(option);
-                    });
-                }
+                loadInstructorsForTraining(training);
             }
         });
+
+        // Load instructors for specific training
+        async function loadInstructorsForTraining(training) {
+            const instructorSelect = document.getElementById('instructor');
+            instructorSelect.innerHTML = '<option value="">Loading instructors...</option>';
+            
+            try {
+                // Load from Google Sheets
+                const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${config.googleSheetsId}/values/Instructors!A:C?key=${config.googleSheetsApiKey}`);
+                const data = await response.json();
+                
+                if (data.values) {
+                    instructorSelect.innerHTML = '<option value="">-- SELECT INSTRUCTOR --</option>';
+                    instructorSelect.disabled = false;
+                    
+                    // Filter instructors for this training
+                    data.values.forEach((row, index) => {
+                        if (index === 0) return; // Skip header
+                        const [trainingType, displayName, discordId] = row;
+                        
+                        // Check if instructor is for this training or category
+                        if (trainingType === training || 
+                            trainingType === document.getElementById('category').value ||
+                            training === 'custom') {
+                            const option = document.createElement('option');
+                            option.value = discordId;
+                            option.textContent = displayName.toUpperCase();
+                            option.dataset.displayName = displayName;
+                            instructorSelect.appendChild(option);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading instructors:', error);
+                // Fallback hardcoded instructors
+                instructorSelect.innerHTML = '<option value="">-- SELECT INSTRUCTOR --</option>';
+                instructorSelect.disabled = false;
+                
+                const fallbackInstructors = [
+                    { name: 'SGT Smith', discord: 'Smith#1234' },
+                    { name: 'CPL Jones', discord: 'Jones#5678' }
+                ];
+                
+                fallbackInstructors.forEach(instructor => {
+                    const option = document.createElement('option');
+                    option.value = instructor.discord;
+                    option.textContent = instructor.name.toUpperCase();
+                    option.dataset.displayName = instructor.name;
+                    instructorSelect.appendChild(option);
+                });
+            }
+        }
 
         // Format duration display
         function formatDuration(minutes) {
@@ -920,7 +784,7 @@
         }
 
         // Update schedule display
-        function updateSchedule(date) {
+        async function updateSchedule(date) {
             const scheduleDiv = document.getElementById('daySchedule');
             const selectedDateDiv = document.getElementById('selectedDate');
             
@@ -929,46 +793,113 @@
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             selectedDateDiv.textContent = dateObj.toLocaleDateString('en-US', options).toUpperCase();
             
-            // Get bookings for this date (mock data for now)
-            const dayBookings = mockBookings[date] || [];
+            scheduleDiv.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
             
-            if (dayBookings.length === 0) {
-                scheduleDiv.innerHTML = '<div class="schedule-empty">No server bookings for this date</div>';
-                return;
-            }
-            
-            // Sort bookings by time
-            dayBookings.sort((a, b) => a.time.localeCompare(b.time));
-            
-            // Generate time slots HTML
-            let html = '';
-            dayBookings.forEach(booking => {
-                // Calculate end time
-                const [hours, minutes] = booking.time.split(':').map(Number);
-                const endMinutes = hours * 60 + minutes + booking.duration;
-                const endHours = Math.floor(endMinutes / 60);
-                const endMins = endMinutes % 60;
-                const endTime = `${endHours.toString().padStart(2, '0')}:${endMins.toString().padStart(2, '0')}`;
+            try {
+                // Load from Google Apps Script
+                const startDate = new Date(date + 'T00:00:00');
+                const endDate = new Date(date + 'T23:59:59');
                 
-                html += `
-                    <div class="time-slot booked">
-                        <div class="time-display">
-                            <div class="time-text">${booking.time}</div>
-                            <div class="time-duration">${formatDuration(booking.duration)}</div>
-                        </div>
-                        <div class="slot-details">
-                            <div class="slot-training">${booking.training.toUpperCase()}</div>
-                            <div class="slot-info">
-                                <span><i class="fas fa-user"></i> ${booking.instructorName}</span>
-                                <span><i class="fas fa-server"></i> ${booking.server}</span>
-                                <span><i class="fas fa-gamepad"></i> Zeus: ${booking.zeus}</span>
+                const response = await fetch(config.googleAppsScriptUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'getBookings',
+                        startDate: startDate.toISOString(),
+                        endDate: endDate.toISOString()
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success && result.data.bookings.length > 0) {
+                    dayBookings = result.data.bookings;
+                    
+                    // Sort by time
+                    const sortedBookings = result.data.bookings
+                        .sort((a, b) => new Date(a.start) - new Date(b.start));
+                    
+                    let html = '';
+                    sortedBookings.forEach(booking => {
+                        const startTime = new Date(booking.start);
+                        const endTime = new Date(booking.end);
+                        const duration = (endTime - startTime) / (1000 * 60);
+                        
+                        html += `
+                            <div class="time-slot booked">
+                                <div class="time-display">
+                                    <div class="time-text">${startTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                                    <div class="time-duration">${formatDuration(duration)}</div>
+                                </div>
+                                <div class="slot-details">
+                                    <div class="slot-training">${(booking.title || 'Training').toUpperCase()}</div>
+                                    <div class="slot-info">
+                                        <span><i class="fas fa-user"></i> ${booking.instructor || 'TBD'}</span>
+                                        <span><i class="fas fa-server"></i> ${booking.server || 'Primary'}</span>
+                                        <span><i class="fas fa-gamepad"></i> Zeus: ${booking.zeus || 'No'}</span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                `;
-            });
+                        `;
+                    });
+                    
+                    scheduleDiv.innerHTML = html;
+                } else {
+                    scheduleDiv.innerHTML = '<div class="schedule-empty">No server bookings for this date</div>';
+                }
+            } catch (error) {
+                console.error('Error loading schedule:', error);
+                // Fallback to Calendar API
+                loadFromCalendarAPI(date);
+            }
+        }
+
+        // Fallback: Load from Calendar API
+        async function loadFromCalendarAPI(date) {
+            const scheduleDiv = document.getElementById('daySchedule');
+            const startDate = new Date(date + 'T00:00:00');
+            const endDate = new Date(date + 'T23:59:59');
             
-            scheduleDiv.innerHTML = html;
+            const url = `https://www.googleapis.com/calendar/v3/calendars/${config.googleCalendarId}/events?` +
+                `key=${config.googleSheetsApiKey}` +
+                `&timeMin=${startDate.toISOString()}` +
+                `&timeMax=${endDate.toISOString()}` +
+                `&singleEvents=true` +
+                `&orderBy=startTime`;
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.items && data.items.length > 0) {
+                    let html = '';
+                    data.items.forEach(event => {
+                        const startTime = new Date(event.start.dateTime || event.start.date);
+                        const endTime = new Date(event.end.dateTime || event.end.date);
+                        const duration = (endTime - startTime) / (1000 * 60);
+                        
+                        html += `
+                            <div class="time-slot booked">
+                                <div class="time-display">
+                                    <div class="time-text">${startTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                                    <div class="time-duration">${formatDuration(duration)}</div>
+                                </div>
+                                <div class="slot-details">
+                                    <div class="slot-training">${(event.summary || 'Training').toUpperCase()}</div>
+                                    <div class="slot-info">
+                                        <span><i class="fas fa-calendar"></i> Scheduled</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    scheduleDiv.innerHTML = html;
+                } else {
+                    scheduleDiv.innerHTML = '<div class="schedule-empty">No server bookings for this date</div>';
+                }
+            } catch (error) {
+                console.error('Error loading calendar:', error);
+                scheduleDiv.innerHTML = '<div class="schedule-empty">Unable to load schedule</div>';
+            }
         }
 
         // Handle date change
@@ -1017,43 +948,76 @@
                 duration: document.getElementById('duration').value,
                 zeus: document.getElementById('zeus').value,
                 server: document.getElementById('server').value,
-                instructorName: selectedOption.dataset.displayName || selectedOption.text, // Display name
-                instructorDiscord: document.getElementById('instructor').value, // Discord ID
+                instructorName: selectedOption.dataset.displayName || selectedOption.text,
+                instructorDiscord: document.getElementById('instructor').value,
                 timestamp: new Date().toISOString()
             };
             
-            // Simulate API call
-            setTimeout(() => {
-                statusDiv.className = 'status-message success';
+            // Create start and end times
+            const startDateTime = new Date(`${formData.date}T${formData.time}:00`);
+            const endDateTime = new Date(startDateTime);
+            endDateTime.setMinutes(endDateTime.getMinutes() + parseInt(formData.duration));
+            
+            try {
+                // Format title: "Training - Server - Instructor"
+                const title = `${formData.training} - ${formData.server} - ${formData.instructorName}`;
+                
+                // Send to Google Apps Script
+                const response = await fetch(config.googleAppsScriptUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'createBooking',
+                        password: 'Grape44',
+                        startTime: startDateTime.toISOString(),
+                        endTime: endDateTime.toISOString(),
+                        server: formData.server,
+                        instructor: formData.instructorName,
+                        notes: `Category: ${formData.category}, Zeus: ${formData.zeus}`,
+                        bookedBy: formData.instructorName
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    statusDiv.className = 'status-message success';
+                    statusDiv.innerHTML = `
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <strong>SERVER TIME RESERVED</strong><br>
+                            Training slot successfully booked on ${formData.server.toUpperCase()} server
+                        </div>
+                    `;
+                    
+                    // Update schedule display
+                    updateSchedule(formData.date);
+                } else {
+                    statusDiv.className = 'status-message error';
+                    statusDiv.innerHTML = `
+                        <i class="fas fa-exclamation-circle"></i>
+                        <div>
+                            <strong>BOOKING FAILED</strong><br>
+                            ${result.message || 'Time slot may already be booked'}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Booking error:', error);
+                statusDiv.className = 'status-message error';
                 statusDiv.innerHTML = `
-                    <i class="fas fa-check-circle"></i>
+                    <i class="fas fa-exclamation-circle"></i>
                     <div>
-                        <strong>SERVER TIME RESERVED</strong><br>
-                        Training slot successfully booked on ${formData.server.toUpperCase()} server
+                        <strong>ERROR</strong><br>
+                        Failed to create booking. Please try again.
                     </div>
                 `;
-                
-                // Update schedule display
-                updateSchedule(formData.date);
-                
-                // Clear message after 5 seconds
-                setTimeout(() => {
-                    statusDiv.innerHTML = '';
-                    statusDiv.className = '';
-                }, 5000);
-            }, 1500);
+            }
             
-            console.log('Booking data:', formData);
-            
-            // TODO: Implement these API integrations
-            // 1. Google Calendar API - Create calendar event for server booking
-            // await createCalendarEvent(formData);
-            
-            // 2. Google Sheets API - Log server booking to spreadsheet  
-            // await logToGoogleSheets(formData);
-            
-            // 3. Discord Webhook - Send server reservation notification
-            // await sendDiscordNotification(formData);
+            // Clear message after 5 seconds
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+                statusDiv.className = '';
+            }, 5000);
         });
 
         // Initialize on page load
@@ -1061,81 +1025,6 @@
             generateTimeSlots();
             setMinDate();
         });
-
-        // API Configuration
-        // TODO: Replace these with your actual API credentials
-        const config = {
-            // Google Calendar API - Get from https://console.cloud.google.com
-            googleCalendarApiKey: 'YOUR_GOOGLE_CALENDAR_API_KEY',
-            googleCalendarId: 'YOUR_CALENDAR_ID@group.calendar.google.com',
-            
-            // Google Sheets - Get ID from your sheet URL
-            googleSheetsId: 'YOUR_GOOGLE_SHEETS_ID',
-            googleSheetsApiKey: 'YOUR_GOOGLE_SHEETS_API_KEY', // Same or different API key
-            
-            // Discord Webhook - Get from Discord channel settings → Integrations
-            discordWebhookUrl: 'YOUR_DISCORD_WEBHOOK_URL'
-        };
-        
-        // Function to load instructor data from Google Sheets
-        async function loadInstructorsFromSheets() {
-            // TODO: Implement Google Sheets API call to load Tab 3 (Instructors)
-            /*
-            const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${config.googleSheetsId}/values/Instructors!A:C?key=${config.googleSheetsApiKey}`);
-            const data = await response.json();
-            
-            // Process data into instructorData structure
-            const instructors = {};
-            data.values.forEach((row, index) => {
-                if (index === 0) return; // Skip header row
-                const [trainingType, displayName, discordId] = row;
-                
-                // trainingType can be:
-                // - Category names: bootcamp, mbt, ifv, mechInf, pilot, motorInf
-                // - Specific training names: LAT, HAT, Engineer, etc.
-                // - "custom" for custom trainings
-                
-                if (!instructors[trainingType]) {
-                    instructors[trainingType] = [];
-                }
-                instructors[trainingType].push({ displayName, discordId });
-            });
-            
-            // Replace the hardcoded data
-            instructorData = instructors;
-            */
-        }
-        
-        // Function to log booking to Google Sheets
-        async function logBookingToSheets(bookingData) {
-            // TODO: Implement Google Sheets API call to append to Tab 1 (Bookings)
-            // This will add a new row with all booking details
-            /*
-            const values = [[
-                bookingData.category,
-                bookingData.training,
-                bookingData.duration,
-                bookingData.zeus,
-                bookingData.instructorName,     // Display name for readability
-                bookingData.instructorDiscord,  // Discord ID for tracking
-                bookingData.server,
-                bookingData.date,
-                bookingData.time,
-                'Confirmed',                    // Status
-                ''                              // Notes (empty initially)
-            ]];
-            
-            const response = await fetch(
-                `https://sheets.googleapis.com/v4/spreadsheets/${config.googleSheetsId}/values/Bookings:append?valueInputOption=USER_ENTERED&key=${config.googleSheetsApiKey}`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ values })
-                }
-            );
-            */
-        }
     </script>
 </body>
-
 </html>
