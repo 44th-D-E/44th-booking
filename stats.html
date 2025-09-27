@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>44th RAR - Training Statistics Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Military Font Stack */
+        @font-face {
+            font-family: 'Gunplay';
+            src: url('https://cdn.jsdelivr.net/gh/max32002/webfont@master/Gunplay/Gunplay-Regular.woff2') format('woff2'),
+                 url('https://cdn.jsdelivr.net/gh/max32002/webfont@master/Gunplay/Gunplay-Regular.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Russo+One&family=Chakra+Petch:wght@400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-black: #0d0d0d;
+            --secondary-black: #1a1a1a;
+            --primary-yellow: #F4B643;
+            --accent-yellow: #FFD700;
+            --grey-dark: #2d2d2d;
+            --grey-medium: #4a4a4a;
+            --grey-light: #8a8a8a;
+            --white: #ffffff;
+            --success: #4CAF50;
+            --danger: #d32f2f;
+            --info: #2196F3;
+            --warning: #FF9800;
+        }
+
+        body {
+            font-family: 'Chakra Petch', monospace;
+            background: var(--primary-black);
+            color: var(--white);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Grid Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, 
+                    transparent, 
+                    transparent 100px, 
+                    rgba(244, 182, 67, 0.03) 100px, 
+                    rgba(244, 182, 67, 0.03) 101px),
+                repeating-linear-gradient(90deg, 
+                    transparent, 
+                    transparent 100px, 
+                    rgba(244, 182, 67, 0.03) 100px, 
+                    rgba(244, 182, 67, 0.03) 101px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--grey-dark);
+        }
+
+        .header h1 {
+            font-family: 'Gunplay', 'Black Ops One', sans-serif;
+            font-size: 2.5em;
+            color: var(--primary-yellow);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(244, 182, 67, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .header-subtitle {
+            font-family: 'Russo One', sans-serif;
+            font-size: 1.1em;
+            color: var(--grey-light);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+        }
+
+        /* Controls Bar */
+        .controls-bar {
+            background: var(--secondary-black);
+            border: 1px solid var(--grey-dark);
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-label {
+            font-family: 'Russo One', sans-serif;
+            font-size: 0.85em;
+            color: var(--grey-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .filter-control {
+            padding: 8px 12px;
+            background: var(--primary-black);
+            border: 1px solid var(--grey-medium);
+            color: var(--white);
+            font-family: 'Chakra Petch', monospace;
+            min-width: 180px;
+            cursor: pointer;
+        }
+
+        .filter-control:focus {
+            outline: none;
+            border-color: var(--primary-yellow);
+        }
+
+        .btn-refresh {
+            margin-left: auto;
+            padding: 10px 20px;
+            background: var(--primary-yellow);
+            border: 2px solid var(--primary-yellow);
+            color: var(--primary-black);
+            font-family: 'Russo One', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-refresh:hover {
+            background: transparent;
+            color: var(--primary-yellow);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--secondary-black), var(--grey-dark));
+            border: 1px solid var(--grey-medium);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary-yellow);
+        }
+
+        .stat-icon {
+            font-size: 2em;
+            color: var(--primary-yellow);
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+
+        .stat-value {
+            font-family: 'Black Ops One', sans-serif;
+            font-size: 2.5em;
+            color: var(--white);
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: var(--grey-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-trend {
+            display: inline-block;
+            margin-left: 10px;
+            font-size: 0.8em;
+        }
+
+        .trend-up {
+            color: var(--success);
+        }
+
+        .trend-down {
+            color: var(--danger);
+        }
+
+        /* Training Table */
+        .data-panel {
+            background: var(--secondary-black);
+            border: 1px solid var(--grey-dark);
+            margin-bottom: 30px;
+        }
+
+        .panel-header {
+            background: var(--grey-dark);
+            padding: 15px 20px;
+            border-bottom: 2px solid var(--primary-yellow);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .panel-header h2 {
+            font-family: 'Russo One', sans-serif;
+            font-size: 1.3em;
+            color: var(--primary-yellow);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .data-table {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--primary-black);
+            padding: 12px;
+            text-align: left;
+            font-family: 'Russo One', sans-serif;
+            color: var(--primary-yellow);
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--grey-medium);
+            position: sticky;
+            top: 0;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        th:hover {
+            background: rgba(244, 182, 67, 0.1);
+        }
+
+        th.sortable::after {
+            content: ' ↕';
+            opacity: 0.5;
+            font-size: 0.8em;
+        }
+
+        th.sorted-asc::after {
+            content: ' ↑';
+            opacity: 1;
+        }
+
+        th.sorted-desc::after {
+            content: ' ↓';
+            opacity: 1;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--grey-dark);
+            font-size: 0.95em;
+        }
+
+        tr:hover {
+            background: rgba(244, 182, 67, 0.05);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            font-size: 0.8em;
+            border-radius: 3px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .badge-high {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .badge-medium {
+            background: var(--warning);
+            color: var(--primary-black);
+        }
+
+        .badge-low {
+            background: var(--info);
+            color: var(--white);
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--primary-yellow);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--grey-medium);
+            border-top-color: var(--primary-yellow);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Back Button */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid var(--grey-medium);
+            color: var(--grey-light);
+            text-decoration: none;
+            font-family: 'Russo One', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            border-color: var(--primary-yellow);
+            color: var(--primary-yellow);
+            transform: translateX(-5px);
+        }
+
+        /* No Data Message */
+        .no-data {
+            padding: 40px;
+            text-align: center;
+            color: var(--grey-light);
+            font-style: italic;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .controls-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn-refresh {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Back Button -->
+        <a href="index.html" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back to Main
+        </a>
+
+        <!-- Header -->
+        <header class="header">
+            <h1>Training Statistics Dashboard</h1>
+            <p class="header-subtitle">44th Royal Anglian Regiment</p>
+        </header>
+
+        <!-- Controls Bar -->
+        <div class="controls-bar">
+            <div class="filter-group">
+                <label class="filter-label">Category</label>
+                <select id="categoryFilter" class="filter-control">
+                    <option value="all">All Categories</option>
+                    <option value="bootcamp">Bootcamp / GYN</option>
+                    <option value="infantry">Infantry</option>
+                    <option value="mbt">MBT - Trooper</option>
+                    <option value="pilot">Pilot</option>
+                    <option value="ifv">IFV</option>
+                    <option value="mechInf">Mech Inf</option>
+                    <option value="motorInf">Motor Inf</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Training</label>
+                <select id="trainingFilter" class="filter-control">
+                    <option value="all">All Trainings</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Time Period</label>
+                <select id="periodFilter" class="filter-control">
+                    <option value="7">Last 7 Days</option>
+                    <option value="30">Last 30 Days</option>
+                    <option value="90">Last 90 Days</option>
+                    <option value="all">All Time</option>
+                </select>
+            </div>
+
+            <button class="btn-refresh" onclick="refreshData()">
+                <i class="fas fa-sync-alt"></i> REFRESH
+            </button>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-clipboard-list stat-icon"></i>
+                <div class="stat-value" id="totalRequests">0</div>
+                <div class="stat-label">Total Requests</div>
+            </div>
+
+            <div class="stat-card">
+                <i class="fas fa-clock stat-icon"></i>
+                <div class="stat-value" id="pendingRequests">0</div>
+                <div class="stat-label">Pending</div>
+            </div>
+
+            <div class="stat-card">
+                <i class="fas fa-fire stat-icon"></i>
+                <div class="stat-value" id="hottestTraining">-</div>
+                <div class="stat-label">Most Requested</div>
+            </div>
+
+            <div class="stat-card">
+                <i class="fas fa-users stat-icon"></i>
+                <div class="stat-value" id="uniqueRequesters">0</div>
+                <div class="stat-label">Unique Members</div>
+            </div>
+        </div>
+
+        <!-- Training Requests Table -->
+        <div class="data-panel">
+            <div class="panel-header">
+                <i class="fas fa-table" style="color: var(--primary-yellow);"></i>
+                <h2>Training Request Details</h2>
+            </div>
+            <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="sortable" onclick="sortTable(0)">Training</th>
+                            <th class="sortable" onclick="sortTable(1)">Category</th>
+                            <th class="sortable" onclick="sortTable(2)">Requests Since Last</th>
+                            <th class="sortable" onclick="sortTable(3)">Last Booking</th>
+                            <th class="sortable" onclick="sortTable(4)">Days Since</th>
+                            <th>Demand Level</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trainingTableBody">
+                        <tr>
+                            <td colspan="6" class="loading">
+                                <div class="spinner"></div>
+                                <p>Loading training data...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Recent Requests -->
+        <div class="data-panel">
+            <div class="panel-header">
+                <i class="fas fa-history" style="color: var(--primary-yellow);"></i>
+                <h2>Recent Request Activity</h2>
+            </div>
+            <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Member</th>
+                            <th>Rank</th>
+                            <th>Training</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentRequestsBody">
+                        <tr>
+                            <td colspan="6" class="loading">
+                                <div class="spinner"></div>
+                                <p>Loading recent requests...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Security Check
+        (function() {
+            if (sessionStorage.getItem('authorized') !== 'true') {
+                alert('Access Denied. Please login through the main page.');
+                window.location.href = 'index.html';
+                return;
+            }
+        })();
+
+        // Training data structure
+        const trainingData = {
+            bootcamp: ['GYN'],
+            infantry: [
+                'LAT', 'HAT', 'Advanced AT Training', 'Engineer', 'Grenadier',
+                'Logistics', 'MG/AR', 'Marksman', 'Medic', 'Mortar', 'TOW',
+                'Fibua Tier 1', 'Section Battle Drills', 'Squad Leading Tier 1',
+                'Squad Leading Tier 2', 'Squad Leading Tier 3'
+            ],
+            mbt: [
+                'Principles of MBT', 'Principles of Driving', 'Principles of Gunning',
+                'Principles Commanding/Spotting', 'Positioning', 'MBT Masters Test',
+                'Expert Certification Exam'
+            ],
+            pilot: [
+                'Tier 1 Pilot', 'Advanced J-Hooks', 'Safe Spotting',
+                'Emergency Procedures', 'Advanced Low Flying', 'Heli Teamwork',
+                'Insertion Tactics', 'Barrel Rolls'
+            ],
+            ifv: [
+                'IFV Qualified', 'IFV Certified', 
+                'Mechanised Infantry Qualified', 'Mechanised Infantry Certified'
+            ],
+            mechInf: [
+                'Fighting in Open Areas', 'Raiding Tactics', 
+                'Fighting in Urban Areas', 'Small Unit Tactics',
+                'Squad Leading', 'Mech Inf Test'
+            ],
+            motorInf: [
+                'Motor Infantry Tier 1', 'Motor Infantry Tier 2', 'Motor Infantry Test'
+            ]
+        };
+
+        // Google Sheets configuration
+        const config = {
+            googleSheetsId: '1Akxvu6mWzE1o4tSOo0K9p6sg6ClYqXkzhHP0VeygIUM',
+            googleSheetsApiKey: 'YOUR_API_KEY'
+        };
+
+        // Mock data (will be replaced with real data from Google Sheets)
+        const mockBookings = [
+            { training: 'LAT', category: 'infantry', date: '2024-01-15', status: 'Completed' },
+            { training: 'HAT', category: 'infantry', date: '2024-01-10', status: 'Completed' },
+            { training: 'GYN', category: 'bootcamp', date: '2024-01-18', status: 'Completed' },
+            { training: 'Marksman', category: 'infantry', date: '2024-01-12', status: 'Completed' },
+            { training: 'Tier 1 Pilot', category: 'pilot', date: '2024-01-05', status: 'Completed' }
+        ];
+
+        const mockRequests = [
+            { training: 'LAT', category: 'infantry', date: '2024-01-16', member: 'Smith#1234', rank: 'Pvt' },
+            { training: 'LAT', category: 'infantry', date: '2024-01-17', member: 'Jones#5678', rank: 'Cpl' },
+            { training: 'LAT', category: 'infantry', date: '2024-01-19', member: 'Wilson#9012', rank: 'Spc' },
+            { training: 'LAT', category: 'infantry', date: '2024-01-20', member: 'Brown#3456', rank: 'LCpl' },
+            { training: 'LAT', category: 'infantry', date: '2024-01-21', member: 'Davis#7890', rank: 'Pvt' },
+            { training: 'HAT', category: 'infantry', date: '2024-01-19', member: 'Miller#2345', rank: 'Sgt' },
+            { training: 'HAT', category: 'infantry', date: '2024-01-20', member: 'Taylor#6789', rank: 'Pvt' },
+            { training: 'HAT', category: 'infantry', date: '2024-01-21', member: 'Anderson#0123', rank: 'Cpl' },
+            { training: 'GYN', category: 'bootcamp', date: '2024-01-19', member: 'Thomas#4567', rank: 'Rgl' },
+            { training: 'GYN', category: 'bootcamp', date: '2024-01-20', member: 'Jackson#8901', rank: 'Rgl' },
+            { training: 'GYN', category: 'bootcamp', date: '2024-01-21', member: 'White#2345', rank: 'Rgl' },
+            { training: 'Marksman', category: 'infantry', date: '2024-01-20', member: 'Harris#6789', rank: 'Spc' }
+        ];
+
+        // Handle category filter change
+        document.getElementById('categoryFilter').addEventListener('change', function() {
+            const category = this.value;
+            const trainingSelect = document.getElementById('trainingFilter');
+            
+            trainingSelect.innerHTML = '<option value="all">All Trainings</option>';
+            
+            if (category !== 'all' && trainingData[category]) {
+                trainingData[category].forEach(training => {
+                    const option = document.createElement('option');
+                    option.value = training;
+                    option.textContent = training;
+                    trainingSelect.appendChild(option);
+                });
+            }
+            
+            filterData();
+        });
+
+        // Calculate requests since last booking
+        function getRequestsSinceLastBooking(training) {
+            // Find last completed booking for this training
+            const lastBooking = mockBookings
+                .filter(b => b.training === training && b.status === 'Completed')
+                .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+            
+            if (!lastBooking) return { count: mockRequests.filter(r => r.training === training).length, lastDate: null };
+            
+            // Count requests after last booking
+            const count = mockRequests.filter(r => 
+                r.training === training && 
+                new Date(r.date) > new Date(lastBooking.date)
+            ).length;
+            
+            return { count, lastDate: lastBooking.date };
+        }
+
+        // Load initial data
+        function loadData() {
+            // Calculate stats
+            const uniqueMembers = new Set(mockRequests.map(r => r.member)).size;
+            const pendingCount = mockRequests.filter(r => 
+                new Date(r.date) > new Date(mockBookings[mockBookings.length - 1]?.date || '2024-01-01')
+            ).length;
+            
+            // Find most requested training
+            const requestCounts = {};
+            mockRequests.forEach(r => {
+                requestCounts[r.training] = (requestCounts[r.training] || 0) + 1;
+            });
+            const hottestTraining = Object.keys(requestCounts).reduce((a, b) => 
+                requestCounts[a] > requestCounts[b] ? a : b
+            );
+            
+            // Update stats
+            document.getElementById('totalRequests').textContent = mockRequests.length;
+            document.getElementById('pendingRequests').textContent = pendingCount;
+            document.getElementById('hottestTraining').textContent = hottestTraining;
+            document.getElementById('uniqueRequesters').textContent = uniqueMembers;
+
+            // Load tables
+            loadTrainingTable();
+            loadRecentRequests();
+        }
+
+        // Load training table
+        function loadTrainingTable() {
+            const tbody = document.getElementById('trainingTableBody');
+            
+            // Get unique trainings
+            const trainings = new Set([...mockBookings.map(b => b.training), ...mockRequests.map(r => r.training)]);
+            let html = '';
+
+            trainings.forEach(training => {
+                const { count, lastDate } = getRequestsSinceLastBooking(training);
+                const daysSince = lastDate ? calculateDaysSince(lastDate) : 'Never';
+                const demandLevel = getDemandLevel(count, typeof daysSince === 'number' ? daysSince : 999);
+                
+                // Find category for this training
+                let category = '';
+                for (const [cat, trainings] of Object.entries(trainingData)) {
+                    if (trainings.includes(training)) {
+                        category = cat;
+                        break;
+                    }
+                }
+                
+                html += `
+                    <tr>
+                        <td><strong>${training}</strong></td>
+                        <td>${category.toUpperCase()}</td>
+                        <td>${count}</td>
+                        <td>${lastDate ? formatDate(lastDate) : 'Never'}</td>
+                        <td>${daysSince}</td>
+                        <td><span class="badge badge-${demandLevel.toLowerCase()}">${demandLevel}</span></td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html || '<tr><td colspan="6" class="no-data">No training data available</td></tr>';
+        }
+
+        // Load recent requests
+        function loadRecentRequests() {
+            const tbody = document.getElementById('recentRequestsBody');
+            
+            // Sort by date descending
+            const sorted = [...mockRequests].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            let html = '';
+            sorted.slice(0, 10).forEach(request => {
+                html += `
+                    <tr>
+                        <td>${request.date}</td>
+                        <td>${request.member}</td>
+                        <td>${request.rank}</td>
+                        <td>${request.training}</td>
+                        <td>${request.category.toUpperCase()}</td>
+                        <td><span class="badge badge-medium">PENDING</span></td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html || '<tr><td colspan="6" class="no-data">No recent requests</td></tr>';
+        }
+
+        // Calculate days since
+        function calculateDaysSince(dateStr) {
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diff = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+            return diff;
+        }
+
+        // Get demand level
+        function getDemandLevel(count, daysSince) {
+            if (count > 10 || daysSince > 14) return 'HIGH';
+            if (count > 5 || daysSince > 7) return 'MEDIUM';
+            return 'LOW';
+        }
+
+        // Format date
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        // Sort table
+        let sortOrder = {};
+        function sortTable(columnIndex) {
+            const table = document.querySelector('.data-panel table');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            // Toggle sort order
+            sortOrder[columnIndex] = sortOrder[columnIndex] === 'asc' ? 'desc' : 'asc';
+            
+            // Update header classes
+            const headers = table.querySelectorAll('th');
+            headers.forEach((header, index) => {
+                header.classList.remove('sorted-asc', 'sorted-desc');
+                if (index === columnIndex) {
+                    header.classList.add(`sorted-${sortOrder[columnIndex]}`);
+                }
+            });
+            
+            // Sort rows
+            rows.sort((a, b) => {
+                const aValue = a.cells[columnIndex].textContent;
+                const bValue = b.cells[columnIndex].textContent;
+                
+                // Check if numeric
+                if (!isNaN(aValue) && !isNaN(bValue)) {
+                    return sortOrder[columnIndex] === 'asc' 
+                        ? parseFloat(aValue) - parseFloat(bValue)
+                        : parseFloat(bValue) - parseFloat(aValue);
+                }
+                
+                // String comparison
+                return sortOrder[columnIndex] === 'asc'
+                    ? aValue.localeCompare(bValue)
+                    : bValue.localeCompare(aValue);
+            });
+            
+            // Reorder rows
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        // Filter data
+        function filterData() {
+            // TODO: Implement filtering based on selected filters
+            loadData();
+        }
+
+        // Refresh data
+        function refreshData() {
+            const tables = document.querySelectorAll('tbody');
+            tables.forEach(table => {
+                table.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="loading">
+                            <div class="spinner"></div>
+                            <p>Refreshing data...</p>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            setTimeout(() => {
+                loadData();
+            }, 1000);
+        }
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+        });
+
+        // Auto-refresh every 30 seconds
+        setInterval(refreshData, 30000);
+
+        // TODO: Add Google Sheets API integration
+        async function loadFromGoogleSheets() {
+            // Load bookings
+            // const bookingsResponse = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${config.googleSheetsId}/values/Bookings!A:H?key=${config.googleSheetsApiKey}`);
+            // const bookingsData = await bookingsResponse.json();
+            
+            // Load requests
+            // const requestsResponse = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${config.googleSheetsId}/values/Requests!A:F?key=${config.googleSheetsApiKey}`);
+            // const requestsData = await requestsResponse.json();
+            
+            // Process and update displays
+        }
+    </script>
+</body>
+</html>

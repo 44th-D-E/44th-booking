@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>44th RAR - Training Server Booking System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Military Font Stack */
+        @font-face {
+            font-family: 'Gunplay';
+            src: url('https://cdn.jsdelivr.net/gh/max32002/webfont@master/Gunplay/Gunplay-Regular.woff2') format('woff2'),
+                 url('https://cdn.jsdelivr.net/gh/max32002/webfont@master/Gunplay/Gunplay-Regular.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Russo+One&family=Chakra+Petch:wght@400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-black: #0d0d0d;
+            --secondary-black: #1a1a1a;
+            --primary-yellow: #F4B643;
+            --accent-yellow: #FFD700;
+            --grey-dark: #2d2d2d;
+            --grey-medium: #4a4a4a;
+            --grey-light: #8a8a8a;
+            --white: #ffffff;
+            --success: #4CAF50;
+            --danger: #d32f2f;
+            --warning: #FF9800;
+        }
+
+        body {
+            font-family: 'Chakra Petch', monospace;
+            background: var(--primary-black);
+            color: var(--white);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Tactical Grid Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, 
+                    transparent, 
+                    transparent 100px, 
+                    rgba(244, 182, 67, 0.03) 100px, 
+                    rgba(244, 182, 67, 0.03) 101px),
+                repeating-linear-gradient(90deg, 
+                    transparent, 
+                    transparent 100px, 
+                    rgba(244, 182, 67, 0.03) 100px, 
+                    rgba(244, 182, 67, 0.03) 101px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 20px 30px;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .header::before,
+        .header::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 30%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-yellow), transparent);
+        }
+
+        .header::before {
+            left: 0;
+        }
+
+        .header::after {
+            right: 0;
+        }
+
+        .header-badge {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+            /* TEMPORARY PLACEHOLDER - Replace with actual logo */
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="85" fill="none" stroke="%23F4B643" stroke-width="2" opacity="0.3"/><circle cx="100" cy="100" r="75" fill="none" stroke="%23F4B643" stroke-width="1" opacity="0.5"/><text x="100" y="120" font-family="Black Ops One" font-size="72" fill="%23F4B643" text-anchor="middle">44</text></svg>') center/contain no-repeat;
+            filter: drop-shadow(0 0 20px rgba(244, 182, 67, 0.3));
+        }
+        
+        /* When you add your real logo, use this instead:
+        .header-badge {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 20px rgba(244, 182, 67, 0.3));
+        }
+        */
+
+        .header h1 {
+            font-family: 'Gunplay', 'Black Ops One', sans-serif;
+            font-size: 3.2em;
+            color: var(--primary-yellow);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 
+                0 0 10px rgba(244, 182, 67, 0.5),
+                0 0 20px rgba(244, 182, 67, 0.3);
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Panels */
+        .panel {
+            background: var(--secondary-black);
+            border: 1px solid var(--grey-dark);
+            position: relative;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            background: linear-gradient(45deg, var(--primary-yellow), transparent);
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .panel-header {
+            background: var(--grey-dark);
+            padding: 15px 20px;
+            border-bottom: 2px solid var(--primary-yellow);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .panel-header h2 {
+            font-family: 'Russo One', sans-serif;
+            font-size: 1.4em;
+            color: var(--primary-yellow);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .panel-body {
+            padding: 30px;
+        }
+
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            font-family: 'Russo One', sans-serif;
+            font-size: 0.9em;
+            color: var(--grey-light);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--primary-black);
+            border: 1px solid var(--grey-medium);
+            color: var(--white);
+            font-family: 'Chakra Petch', monospace;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-yellow);
+            background: rgba(244, 182, 67, 0.05);
+            box-shadow: 0 0 0 2px rgba(244, 182, 67, 0.1);
+        }
+
+        select.form-control {
+            cursor: pointer;
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23F4B643"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 20px;
+            padding-right: 45px;
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary-yellow);
+            border: 2px solid var(--primary-yellow);
+            color: var(--primary-black);
+            font-family: 'Gunplay', 'Black Ops One', sans-serif;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-submit::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-submit:hover::before {
+            left: 100%;
+        }
+
+        .btn-submit:hover {
+            background: transparent;
+            color: var(--primary-yellow);
+            box-shadow: 0 0 20px rgba(244, 182, 67, 0.3);
+        }
+
+        .btn-submit:active {
+            transform: scale(0.98);
+        }
+
+        /* Schedule Display */
+        .schedule-container {
+            margin-top: 20px;
+        }
+
+        .schedule-date {
+            font-family: 'Gunplay', 'Black Ops One', sans-serif;
+            font-size: 1.6em;
+            color: var(--primary-yellow);
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--grey-dark);
+            border-left: 4px solid var(--primary-yellow);
+        }
+
+        .schedule-empty {
+            text-align: center;
+            padding: 40px;
+            color: var(--grey-light);
+            font-style: italic;
+        }
+
+        .time-slot {
+            background: var(--grey-dark);
+            border: 1px solid var(--grey-medium);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .time-slot::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--grey-medium);
+        }
+
+        .time-slot.available::before {
+            background: var(--success);
+        }
+
+        .time-slot.booked::before {
+            background: var(--danger);
+        }
+
+        .time-slot:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .time-display {
+            padding: 20px;
+            background: rgba(244, 182, 67, 0.1);
+            border-right: 1px solid var(--grey-medium);
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .time-text {
+            font-family: 'Russo One', sans-serif;
+            font-size: 1.2em;
+            color: var(--primary-yellow);
+        }
+
+        .time-duration {
+            font-size: 0.8em;
+            color: var(--grey-light);
+            margin-top: 5px;
+        }
+
+        .slot-details {
+            flex: 1;
+            padding: 15px 20px;
+        }
+
+        .slot-training {
+            font-family: 'Russo One', sans-serif;
+            font-size: 1.1em;
+            color: var(--white);
+            margin-bottom: 8px;
+        }
+
+        .slot-info {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9em;
+            color: var(--grey-light);
+        }
+
+        .slot-info span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .slot-info i {
+            color: var(--primary-yellow);
+            font-size: 0.9em;
+        }
+
+        /* Status Messages */
+        .status-message {
+            margin-top: 20px;
+            padding: 15px 20px;
+            border-left: 4px solid;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .status-message.success {
+            background: rgba(76, 175, 80, 0.1);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .status-message.error {
+            background: rgba(211, 47, 47, 0.1);
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .status-message.loading {
+            background: rgba(244, 182, 67, 0.1);
+            border-color: var(--primary-yellow);
+            color: var(--primary-yellow);
+        }
+
+        /* Loading Spinner */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--primary-yellow);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--grey-medium);
+            border-top-color: var(--primary-yellow);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.2em;
+            }
+            
+            .header-badge {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .time-display {
+                min-width: 100px;
+                padding: 15px;
+            }
+            
+            .slot-info {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <!-- TO ADD YOUR LOGO: Replace the div below with:
+                 <img src="YOUR-LOGO-URL.png" alt="44th RAR Badge" class="header-badge">
+                 OR use base64 encoded image:
+                 <img src="data:image/png;base64,YOUR-BASE64-HERE" alt="44th RAR Badge" class="header-badge"> -->
+            <div class="header-badge"></div>
+            <h1>44TH ROYAL ANGLIAN REGIMENT</h1>
+            <p style="font-family: 'Russo One', sans-serif; color: var(--grey-light); text-transform: uppercase; letter-spacing: 4px; margin-top: 10px;">Server Booking System</p>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-container">
+            <!-- Booking Form Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <i class="fas fa-crosshairs" style="color: var(--primary-yellow);"></i>
+                    <h2>Book Server Time</h2>
+                </div>
+                <div class="panel-body">
+                    <form id="bookingForm">
+                        <!-- Training Category -->
+                        <div class="form-group">
+                            <label class="form-label">Training Category</label>
+                            <select id="category" class="form-control" required>
+                                <option value="">-- SELECT CATEGORY --</option>
+                                <option value="bootcamp">BOOTCAMP</option>
+                                <option value="infantry">INFANTRY</option>
+                                <option value="mbt">MBT - TROOPER</option>
+                                <option value="pilot">PILOT</option>
+                                <option value="vehicle">VEHICLE</option>
+                                <option value="mechInf">MECH INF</option>
+                                <option value="motorInf">MOTOR INF</option>
+                                <option value="custom">CUSTOM</option>
+                            </select>
+                        </div>
+
+                        <!-- Training Type -->
+                        <div class="form-group">
+                            <label class="form-label">Training Module</label>
+                            <select id="training" class="form-control" required disabled>
+                                <option value="">-- SELECT MODULE --</option>
+                            </select>
+                        </div>
+
+                        <!-- Custom Training (Hidden by default) -->
+                        <div class="form-group" id="customTrainingGroup" style="display: none;">
+                            <label class="form-label">Custom Training Details</label>
+                            <input type="text" id="customTraining" class="form-control" 
+                                   placeholder="Specify training requirements">
+                        </div>
+
+                        <!-- Date -->
+                        <div class="form-group">
+                            <label class="form-label">Training Date</label>
+                            <input type="date" id="date" class="form-control" required>
+                        </div>
+
+                        <!-- Start Time -->
+                        <div class="form-group">
+                            <label class="form-label">Start Time</label>
+                            <select id="time" class="form-control" required>
+                                <option value="">-- SELECT TIME --</option>
+                            </select>
+                        </div>
+
+                        <!-- Duration -->
+                        <div class="form-group">
+                            <label class="form-label">Duration</label>
+                            <select id="duration" class="form-control" required>
+                                <option value="15">15 MINS</option>
+                                <option value="30">30 MINS</option>
+                                <option value="45">45 MINS</option>
+                                <option value="60">1 HOUR</option>
+                                <option value="75">1 HR 15 MINS</option>
+                                <option value="90">1 HR 30 MINS</option>
+                                <option value="105">1 HR 45 MINS</option>
+                                <option value="120" selected>2 HOURS</option>
+                                <option value="135">2 HRS 15 MINS</option>
+                                <option value="150">2 HRS 30 MINS</option>
+                                <option value="165">2 HRS 45 MINS</option>
+                                <option value="180">3 HOURS</option>
+                            </select>
+                        </div>
+
+                        <!-- Zeus Required -->
+                        <div class="form-group">
+                            <label class="form-label">Zeus Required</label>
+                            <select id="zeus" class="form-control" required>
+                                <option value="no">NEGATIVE</option>
+                                <option value="yes">AFFIRMATIVE</option>
+                            </select>
+                        </div>
+
+                        <!-- Server -->
+                        <div class="form-group">
+                            <label class="form-label">Server</label>
+                            <select id="server" class="form-control" required>
+                                <option value="primary">PRIMARY</option>
+                                <option value="backup">BACKUP</option>
+                                <option value="any">ANY AVAILABLE</option>
+                            </select>
+                        </div>
+
+                        <!-- Instructor -->
+                        <div class="form-group">
+                            <label class="form-label">Instructor</label>
+                            <select id="instructor" class="form-control" required disabled>
+                                <option value="">-- SELECT INSTRUCTOR --</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn-submit">
+                            RESERVE SERVER TIME
+                        </button>
+                    </form>
+
+                    <div id="statusMessage"></div>
+                </div>
+            </div>
+
+            <!-- Schedule Display Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <i class="fas fa-calendar-day" style="color: var(--primary-yellow);"></i>
+                    <h2>Server Schedule</h2>
+                </div>
+                <div class="panel-body">
+                    <div id="scheduleContainer">
+                        <div class="schedule-date" id="selectedDate">
+                            SELECT A DATE
+                        </div>
+                        <div class="schedule-container" id="daySchedule">
+                            <div class="schedule-empty">
+                                Select a date to view training schedule
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        
+		// Security Check - MUST BE FIRST
+        (function() {
+            // Check if user is authorized
+            if (sessionStorage.getItem('authorized') !== 'true') {
+                alert('Access Denied. Please login through the main page.');
+                window.location.href = 'index.html';
+                return; // Stop execution
+            }
+        })();
+
+        /* ===========================================================================
+           INSTRUCTOR SERVER BOOKING SYSTEM
+           
+           This system is for instructors to reserve server time for training sessions.
+           
+           GOOGLE SHEETS STRUCTURE REQUIRED:
+           
+           Tab 1 - "Bookings" (Server time reservations by instructors):
+           Category | Training | Duration | Zeus | Instructor Name | 
+           Instructor Discord | Server | Date | Time | Status | Notes
+           
+           Tab 2 - "Config" (Optional - for dynamic settings):
+           Setting | Value
+           Buffer Time | 15
+           Max Duration | 180
+           
+           Tab 3 - "Instructors" (For populating instructor dropdowns):
+           Training Type | Display Name | Discord ID
+           
+           Training Type values should be:
+           - For category-wide instructors: bootcamp, mbt, ifv, mechInf, pilot, motorInf
+           - For training-specific: LAT, HAT, Advanced AT Training, Engineer, etc.
+           - For custom training: custom
+           
+           Examples:
+           mbt | MAJ Thompson | Thompson#1234
+           mbt | CPT Roberts | Roberts#5678
+           LAT | SGT Johnson | Johnson#1234
+           HAT | LT Anderson | Anderson#9012
+           
+           NOTE: Bootcamp and GYN are the same - use "bootcamp" as Training Type
+        =========================================================================== */
+
+        // Training data structure
+        const trainingData = {
+            bootcamp: [
+                'GYN'  // Bootcamp only has GYN
+            ],
+            infantry: [
+                'LAT', 'HAT', 'Advanced AT Training', 'Engineer', 'Grenadier',
+                'Logistics', 'MG/AR', 'Marksman', 'Medic', 'Mortar', 'TOW',
+                'Fibua Tier 1', 'Section Battle Drills', 'Squad Leading Tier 1',
+                'Squad Leading Tier 2', 'Squad Leading Tier 3'
+            ],
+            mbt: [
+                'Principles of MBT', 'Principles of Driving', 'Principles of Gunning',
+                'Principles Commanding/Spotting', 'Positioning', 'MBT Masters Test',
+                'Expert Certification Exam'
+            ],
+            pilot: [
+                'Tier 1 Pilot', 'Advanced J-Hooks', 'Safe Spotting',
+                'Emergency Procedures', 'Advanced Low Flying', 'Heli Teamwork',
+                'Insertion Tactics', 'Barrel Rolls'
+            ],
+            ifv: [
+                'IFV Qualified', 'IFV Certified', 
+                'Mechanised Infantry Qualified', 'Mechanised Infantry Certified'
+            ],
+            mechInf: [
+                'Fighting in Open Areas', 'Raiding Tactics', 
+                'Fighting in Urban Areas', 'Small Unit Tactics',
+                'Squad Leading', 'Mech Inf Test'
+            ],
+            motorInf: [
+                'Motor Infantry Tier 1', 'Motor Infantry Tier 2', 'Motor Infantry Test'
+            ]
+        };
+
+        // Instructor data - REPLACE WITH DATA FROM GOOGLE SHEETS
+        // 
+        // INSTRUCTOR ASSIGNMENT LOGIC:
+        // Pattern 1 - Category-wide (all trainings in category use same instructors):
+        //   - Bootcamp/GYN, MBT, IFV, Mech Inf, Pilot, Motor Inf
+        // 
+        // Pattern 2 - Training-specific (each training has unique instructors):
+        //   - LAT, HAT, Advanced AT Training, Engineer, Grenadier, Logistics,
+        //   - MG/AR, Marksman, Medic, Mortar, TOW, Fibua Tier 1,
+        //   - Section Battle Drills, Squad Leading Tiers 1-3
+        //
+        const instructorData = {
+            // Category-wide instructors
+            'bootcamp': [  // Covers GYN training
+                { displayName: 'SGT Smith', discordId: 'Smith#1234' },
+                { displayName: 'CPL Jones', discordId: 'Jones#5678' }
+            ],
+            'mbt': [  // Covers all MBT trainings
+                { displayName: 'MAJ Thompson', discordId: 'Thompson#7890' },
+                { displayName: 'CPT Roberts', discordId: 'Roberts#2345' }
+            ],
+            'ifv': [  // Covers all IFV trainings
+                { displayName: 'SGT Davis', discordId: 'Davis#6789' },
+                { displayName: 'CPL Williams', discordId: 'Williams#5678' }
+            ],
+            'mechInf': [  // Covers all Mech Inf trainings
+                { displayName: 'LT Anderson', discordId: 'Anderson#9012' },
+                { displayName: 'SGT Johnson', discordId: 'Johnson#1234' }
+            ],
+            'pilot': [  // Covers all Pilot trainings
+                { displayName: 'WO1 Mitchell', discordId: 'Mitchell#4567' },
+                { displayName: 'CPT Roberts', discordId: 'Roberts#2345' }
+            ],
+            'motorInf': [  // Covers all Motor Inf trainings
+                { displayName: 'CPL Martinez', discordId: 'Martinez#3456' },
+                { displayName: 'SGT Wilson', discordId: 'Wilson#7890' }
+            ],
+            // Training-specific instructors (each training has its own list)
+            'LAT': [
+                { displayName: 'SGT Johnson', discordId: 'Johnson#1234' },
+                { displayName: 'CPL Adams', discordId: 'Adams#2345' }
+            ],
+            'HAT': [
+                { displayName: 'LT Brown', discordId: 'Brown#3456' },
+                { displayName: 'SGT Taylor', discordId: 'Taylor#4567' }
+            ],
+            'Advanced AT Training': [
+                { displayName: 'MAJ White', discordId: 'White#5678' }
+            ],
+            'Engineer': [
+                { displayName: 'SGT Harris', discordId: 'Harris#6789' }
+            ],
+            'Grenadier': [
+                { displayName: 'CPL Clark', discordId: 'Clark#7890' }
+            ],
+            'Logistics': [
+                { displayName: 'WO2 Lewis', discordId: 'Lewis#8901' }
+            ],
+            'MG/AR': [
+                { displayName: 'SGT Walker', discordId: 'Walker#9012' }
+            ],
+            'Marksman': [
+                { displayName: 'SGT Hall', discordId: 'Hall#0123' }
+            ],
+            'Medic': [
+                { displayName: 'CPL Allen', discordId: 'Allen#1234' }
+            ],
+            'Mortar': [
+                { displayName: 'SGT Young', discordId: 'Young#2345' }
+            ],
+            'TOW': [
+                { displayName: 'CPL King', discordId: 'King#3456' }
+            ],
+            'Fibua Tier 1': [
+                { displayName: 'LT Wright', discordId: 'Wright#4567' }
+            ],
+            'Section Battle Drills': [
+                { displayName: 'SGT Lopez', discordId: 'Lopez#5678' }
+            ],
+            'Squad Leading Tier 1': [
+                { displayName: 'LT Hill', discordId: 'Hill#6789' }
+            ],
+            'Squad Leading Tier 2': [
+                { displayName: 'CPT Scott', discordId: 'Scott#7890' }
+            ],
+            'Squad Leading Tier 3': [
+                { displayName: 'MAJ Green', discordId: 'Green#8901' }
+            ],
+            // Custom uses all available instructors
+            'custom': [
+                { displayName: 'SGT Johnson', discordId: 'Johnson#1234' },
+                { displayName: 'CPL Williams', discordId: 'Williams#5678' },
+                { displayName: 'LT Anderson', discordId: 'Anderson#9012' }
+            ]
+        };
+
+        // Mock booked sessions - REPLACE WITH REAL CALENDAR DATA
+        // This will be populated from Google Calendar API
+        const mockBookings = {
+            '2024-01-20': [
+                { 
+                    time: '14:00', 
+                    duration: 120, 
+                    training: 'LAT Training', 
+                    instructorName: 'SGT Johnson',
+                    instructorDiscord: 'Johnson#1234',
+                    zeus: 'Yes', 
+                    server: 'Primary' 
+                },
+                { 
+                    time: '18:00', 
+                    duration: 90, 
+                    training: 'Squad Leading Tier 1', 
+                    instructorName: 'CPL Williams',
+                    instructorDiscord: 'Williams#5678',
+                    zeus: 'No', 
+                    server: 'Backup' 
+                },
+                { 
+                    time: '20:00', 
+                    duration: 60, 
+                    training: 'Marksman', 
+                    instructorName: 'LT Anderson',
+                    instructorDiscord: 'Anderson#9012',
+                    zeus: 'Yes', 
+                    server: 'Primary' 
+                }
+            ]
+        };
+
+        // Generate time slots
+        function generateTimeSlots() {
+            const timeSelect = document.getElementById('time');
+            timeSelect.innerHTML = '<option value="">-- SELECT TIME --</option>';
+            
+            for (let hour = 0; hour <= 23; hour++) {
+                for (let minute = 0; minute < 60; minute += 15) {
+                    const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                    const option = document.createElement('option');
+                    option.value = time;
+                    option.textContent = `${time} HRS`;
+                    timeSelect.appendChild(option);
+                }
+            }
+        }
+
+        // Handle category change
+        document.getElementById('category').addEventListener('change', function() {
+            const category = this.value;
+            const trainingSelect = document.getElementById('training');
+            const instructorSelect = document.getElementById('instructor');
+            const customGroup = document.getElementById('customTrainingGroup');
+            
+            // Reset training dropdown
+            trainingSelect.innerHTML = '<option value="">-- SELECT MODULE --</option>';
+            trainingSelect.disabled = !category;
+            
+            // Reset instructor dropdown
+            instructorSelect.innerHTML = '<option value="">-- SELECT INSTRUCTOR --</option>';
+            instructorSelect.disabled = true; // Keep disabled until training is selected
+            
+            if (category === 'custom') {
+                customGroup.style.display = 'block';
+                trainingSelect.disabled = true;
+                // For custom, immediately populate instructors
+                if (instructorData['custom']) {
+                    instructorSelect.disabled = false;
+                    instructorData['custom'].forEach(instructor => {
+                        const option = document.createElement('option');
+                        option.value = instructor.discordId;
+                        option.textContent = instructor.displayName.toUpperCase();
+                        option.dataset.displayName = instructor.displayName;
+                        instructorSelect.appendChild(option);
+                    });
+                }
+            } else {
+                customGroup.style.display = 'none';
+                if (category && trainingData[category]) {
+                    // Populate training options
+                    trainingData[category].forEach(training => {
+                        const option = document.createElement('option');
+                        option.value = training;
+                        option.textContent = training.toUpperCase();
+                        trainingSelect.appendChild(option);
+                    });
+                }
+            }
+        });
+
+        // Handle training selection change
+        document.getElementById('training').addEventListener('change', function() {
+            const category = document.getElementById('category').value;
+            const training = this.value;
+            const instructorSelect = document.getElementById('instructor');
+            
+            // Reset instructor dropdown
+            instructorSelect.innerHTML = '<option value="">-- SELECT INSTRUCTOR --</option>';
+            instructorSelect.disabled = !training;
+            
+            if (training) {
+                let instructorList = null;
+                
+                // First check if this specific training has its own instructors
+                if (instructorData[training]) {
+                    instructorList = instructorData[training];
+                } 
+                // Otherwise use category-wide instructors
+                else if (instructorData[category]) {
+                    instructorList = instructorData[category];
+                }
+                
+                // Populate instructor dropdown
+                if (instructorList) {
+                    instructorList.forEach(instructor => {
+                        const option = document.createElement('option');
+                        option.value = instructor.discordId;
+                        option.textContent = instructor.displayName.toUpperCase();
+                        option.dataset.displayName = instructor.displayName;
+                        instructorSelect.appendChild(option);
+                    });
+                }
+            }
+        });
+
+        // Format duration display
+        function formatDuration(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            if (hours === 0) return `${mins}m`;
+            if (mins === 0) return `${hours}hr`;
+            return `${hours}hr ${mins}m`;
+        }
+
+        // Update schedule display
+        function updateSchedule(date) {
+            const scheduleDiv = document.getElementById('daySchedule');
+            const selectedDateDiv = document.getElementById('selectedDate');
+            
+            // Format date for display
+            const dateObj = new Date(date + 'T00:00:00');
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            selectedDateDiv.textContent = dateObj.toLocaleDateString('en-US', options).toUpperCase();
+            
+            // Get bookings for this date (mock data for now)
+            const dayBookings = mockBookings[date] || [];
+            
+            if (dayBookings.length === 0) {
+                scheduleDiv.innerHTML = '<div class="schedule-empty">No server bookings for this date</div>';
+                return;
+            }
+            
+            // Sort bookings by time
+            dayBookings.sort((a, b) => a.time.localeCompare(b.time));
+            
+            // Generate time slots HTML
+            let html = '';
+            dayBookings.forEach(booking => {
+                // Calculate end time
+                const [hours, minutes] = booking.time.split(':').map(Number);
+                const endMinutes = hours * 60 + minutes + booking.duration;
+                const endHours = Math.floor(endMinutes / 60);
+                const endMins = endMinutes % 60;
+                const endTime = `${endHours.toString().padStart(2, '0')}:${endMins.toString().padStart(2, '0')}`;
+                
+                html += `
+                    <div class="time-slot booked">
+                        <div class="time-display">
+                            <div class="time-text">${booking.time}</div>
+                            <div class="time-duration">${formatDuration(booking.duration)}</div>
+                        </div>
+                        <div class="slot-details">
+                            <div class="slot-training">${booking.training.toUpperCase()}</div>
+                            <div class="slot-info">
+                                <span><i class="fas fa-user"></i> ${booking.instructorName}</span>
+                                <span><i class="fas fa-server"></i> ${booking.server}</span>
+                                <span><i class="fas fa-gamepad"></i> Zeus: ${booking.zeus}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            scheduleDiv.innerHTML = html;
+        }
+
+        // Handle date change
+        document.getElementById('date').addEventListener('change', function() {
+            if (this.value) {
+                updateSchedule(this.value);
+            }
+        });
+
+        // Set minimum date to today
+        function setMinDate() {
+            const today = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById('date');
+            dateInput.min = today;
+            dateInput.value = today;
+            updateSchedule(today);
+        }
+
+        // Handle form submission
+        document.getElementById('bookingForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const statusDiv = document.getElementById('statusMessage');
+            
+            // Show loading
+            statusDiv.className = 'status-message loading';
+            statusDiv.innerHTML = `
+                <div class="spinner"></div>
+                <div>
+                    <strong>PROCESSING...</strong><br>
+                    Reserving server time...
+                </div>
+            `;
+            
+            // Collect form data
+            const instructorSelect = document.getElementById('instructor');
+            const selectedOption = instructorSelect.options[instructorSelect.selectedIndex];
+            
+            const formData = {
+                category: document.getElementById('category').value,
+                training: document.getElementById('category').value === 'custom' 
+                    ? document.getElementById('customTraining').value 
+                    : document.getElementById('training').value,
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value,
+                duration: document.getElementById('duration').value,
+                zeus: document.getElementById('zeus').value,
+                server: document.getElementById('server').value,
+                instructorName: selectedOption.dataset.displayName || selectedOption.text, // Display name
+                instructorDiscord: document.getElementById('instructor').value, // Discord ID
+                timestamp: new Date().toISOString()
+            };
+            
+            // Simulate API call
+            setTimeout(() => {
+                statusDiv.className = 'status-message success';
+                statusDiv.innerHTML = `
+                    <i class="fas fa-check-circle"></i>
+                    <div>
+                        <strong>SERVER TIME RESERVED</strong><br>
+                        Training slot successfully booked on ${formData.server.toUpperCase()} server
+                    </div>
+                `;
+                
+                // Update schedule display
+                updateSchedule(formData.date);
+                
+                // Clear message after 5 seconds
+                setTimeout(() => {
+                    statusDiv.innerHTML = '';
+                    statusDiv.className = '';
+                }, 5000);
+            }, 1500);
+            
+            console.log('Booking data:', formData);
+            
+            // TODO: Implement these API integrations
+            // 1. Google Calendar API - Create calendar event for server booking
+            // await createCalendarEvent(formData);
+            
+            // 2. Google Sheets API - Log server booking to spreadsheet  
+            // await logToGoogleSheets(formData);
+            
+            // 3. Discord Webhook - Send server reservation notification
+            // await sendDiscordNotification(formData);
+        });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            generateTimeSlots();
+            setMinDate();
+        });
+
+        // API Configuration
+        // TODO: Replace these with your actual API credentials
+        const config = {
+            // Google Calendar API - Get from https://console.cloud.google.com
+            googleCalendarApiKey: 'YOUR_GOOGLE_CALENDAR_API_KEY',
+            googleCalendarId: 'YOUR_CALENDAR_ID@group.calendar.google.com',
+            
+            // Google Sheets - Get ID from your sheet URL
+            googleSheetsId: 'YOUR_GOOGLE_SHEETS_ID',
+            googleSheetsApiKey: 'YOUR_GOOGLE_SHEETS_API_KEY', // Same or different API key
+            
+            // Discord Webhook - Get from Discord channel settings → Integrations
+            discordWebhookUrl: 'YOUR_DISCORD_WEBHOOK_URL'
+        };
+        
+        // Function to load instructor data from Google Sheets
+        async function loadInstructorsFromSheets() {
+            // TODO: Implement Google Sheets API call to load Tab 3 (Instructors)
+            /*
+            const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${config.googleSheetsId}/values/Instructors!A:C?key=${config.googleSheetsApiKey}`);
+            const data = await response.json();
+            
+            // Process data into instructorData structure
+            const instructors = {};
+            data.values.forEach((row, index) => {
+                if (index === 0) return; // Skip header row
+                const [trainingType, displayName, discordId] = row;
+                
+                // trainingType can be:
+                // - Category names: bootcamp, mbt, ifv, mechInf, pilot, motorInf
+                // - Specific training names: LAT, HAT, Engineer, etc.
+                // - "custom" for custom trainings
+                
+                if (!instructors[trainingType]) {
+                    instructors[trainingType] = [];
+                }
+                instructors[trainingType].push({ displayName, discordId });
+            });
+            
+            // Replace the hardcoded data
+            instructorData = instructors;
+            */
+        }
+        
+        // Function to log booking to Google Sheets
+        async function logBookingToSheets(bookingData) {
+            // TODO: Implement Google Sheets API call to append to Tab 1 (Bookings)
+            // This will add a new row with all booking details
+            /*
+            const values = [[
+                bookingData.category,
+                bookingData.training,
+                bookingData.duration,
+                bookingData.zeus,
+                bookingData.instructorName,     // Display name for readability
+                bookingData.instructorDiscord,  // Discord ID for tracking
+                bookingData.server,
+                bookingData.date,
+                bookingData.time,
+                'Confirmed',                    // Status
+                ''                              // Notes (empty initially)
+            ]];
+            
+            const response = await fetch(
+                `https://sheets.googleapis.com/v4/spreadsheets/${config.googleSheetsId}/values/Bookings:append?valueInputOption=USER_ENTERED&key=${config.googleSheetsApiKey}`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ values })
+                }
+            );
+            */
+        }
+    </script>
+</body>
+</html>

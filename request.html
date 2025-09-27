@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>44th RAR - Request Training</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Military Font Stack */
+        @font-face {
+            font-family: 'Gunplay';
+            src: url('https://cdn.jsdelivr.net/gh/max32002/webfont@master/Gunplay/Gunplay-Regular.woff2') format('woff2'),
+                 url('https://cdn.jsdelivr.net/gh/max32002/webfont@master/Gunplay/Gunplay-Regular.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Russo+One&family=Chakra+Petch:wght@400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-black: #0d0d0d;
+            --secondary-black: #1a1a1a;
+            --primary-yellow: #F4B643;
+            --accent-yellow: #FFD700;
+            --grey-dark: #2d2d2d;
+            --grey-medium: #4a4a4a;
+            --grey-light: #8a8a8a;
+            --white: #ffffff;
+            --success: #4CAF50;
+            --danger: #d32f2f;
+            --info: #2196F3;
+        }
+
+        body {
+            font-family: 'Chakra Petch', monospace;
+            background: var(--primary-black);
+            color: var(--white);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Grid Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, 
+                    transparent, 
+                    transparent 100px, 
+                    rgba(244, 182, 67, 0.03) 100px, 
+                    rgba(244, 182, 67, 0.03) 101px),
+                repeating-linear-gradient(90deg, 
+                    transparent, 
+                    transparent 100px, 
+                    rgba(244, 182, 67, 0.03) 100px, 
+                    rgba(244, 182, 67, 0.03) 101px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 20px 30px;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .header::before,
+        .header::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 25%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-yellow), transparent);
+        }
+
+        .header::before {
+            left: 0;
+        }
+
+        .header::after {
+            right: 0;
+        }
+
+        .header-badge {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="85" fill="none" stroke="%23F4B643" stroke-width="2" opacity="0.3"/><circle cx="100" cy="100" r="75" fill="none" stroke="%23F4B643" stroke-width="1" opacity="0.5"/><text x="100" y="120" font-family="Black Ops One" font-size="72" fill="%23F4B643" text-anchor="middle">44</text></svg>') center/contain no-repeat;
+            filter: drop-shadow(0 0 20px rgba(244, 182, 67, 0.3));
+        }
+
+        .header h1 {
+            font-family: 'Gunplay', 'Black Ops One', sans-serif;
+            font-size: 3em;
+            color: var(--primary-yellow);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 
+                0 0 10px rgba(244, 182, 67, 0.5),
+                0 0 20px rgba(244, 182, 67, 0.3);
+        }
+
+        .header-subtitle {
+            font-family: 'Russo One', sans-serif;
+            font-size: 1.2em;
+            color: var(--grey-light);
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin-top: 10px;
+        }
+
+        /* Back Button */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid var(--grey-medium);
+            color: var(--grey-light);
+            text-decoration: none;
+            font-family: 'Russo One', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            border-color: var(--primary-yellow);
+            color: var(--primary-yellow);
+            transform: translateX(-5px);
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Panels */
+        .panel {
+            background: var(--secondary-black);
+            border: 1px solid var(--grey-dark);
+            position: relative;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            background: linear-gradient(45deg, var(--primary-yellow), transparent);
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .panel-header {
+            background: var(--grey-dark);
+            padding: 15px 20px;
+            border-bottom: 2px solid var(--primary-yellow);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .panel-header h2 {
+            font-family: 'Russo One', sans-serif;
+            font-size: 1.4em;
+            color: var(--primary-yellow);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .panel-body {
+            padding: 30px;
+        }
+
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            font-family: 'Russo One', sans-serif;
+            font-size: 0.9em;
+            color: var(--grey-light);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--primary-black);
+            border: 1px solid var(--grey-medium);
+            color: var(--white);
+            font-family: 'Chakra Petch', monospace;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-yellow);
+            background: rgba(244, 182, 67, 0.05);
+            box-shadow: 0 0 0 2px rgba(244, 182, 67, 0.1);
+        }
+
+        select.form-control {
+            cursor: pointer;
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23F4B643"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 20px;
+            padding-right: 45px;
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Priority Selection */
+        .priority-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .priority-option {
+            flex: 1;
+            position: relative;
+        }
+
+        .priority-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .priority-label {
+            display: block;
+            padding: 12px;
+            background: var(--grey-dark);
+            border: 2px solid var(--grey-medium);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+
+        .priority-option input[type="radio"]:checked + .priority-label {
+            background: var(--primary-yellow);
+            color: var(--primary-black);
+            border-color: var(--primary-yellow);
+            font-weight: bold;
+        }
+
+        .priority-option:hover .priority-label {
+            border-color: var(--primary-yellow);
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary-yellow);
+            border: 2px solid var(--primary-yellow);
+            color: var(--primary-black);
+            font-family: 'Gunplay', 'Black Ops One', sans-serif;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-submit:hover {
+            background: transparent;
+            color: var(--primary-yellow);
+            box-shadow: 0 0 20px rgba(244, 182, 67, 0.3);
+        }
+
+        .btn-submit:disabled {
+            background: var(--grey-medium);
+            border-color: var(--grey-medium);
+            color: var(--grey-dark);
+            cursor: not-allowed;
+        }
+
+        /* Status Card */
+        .status-card {
+            background: var(--grey-dark);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 3px solid var(--primary-yellow);
+        }
+
+        .status-title {
+            font-family: 'Russo One', sans-serif;
+            color: var(--primary-yellow);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--grey-medium);
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            color: var(--grey-light);
+            font-size: 0.9em;
+        }
+
+        .status-value {
+            color: var(--white);
+            font-weight: bold;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            background: var(--info);
+            color: var(--white);
+            font-size: 0.8em;
+            border-radius: 3px;
+        }
+
+        /* Recent Requests */
+        .request-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .request-item {
+            background: var(--grey-dark);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--grey-medium);
+            transition: border-color 0.3s;
+        }
+
+        .request-item:hover {
+            border-color: var(--primary-yellow);
+        }
+
+        .request-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .request-training {
+            font-weight: bold;
+            color: var(--primary-yellow);
+        }
+
+        .request-date {
+            font-size: 0.8em;
+            color: var(--grey-light);
+        }
+
+        .request-status {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 0.8em;
+            background: var(--warning);
+            color: var(--primary-black);
+        }
+
+        /* Message boxes */
+        .message {
+            padding: 15px 20px;
+            margin-top: 20px;
+            border-left: 4px solid;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.success {
+            background: rgba(76, 175, 80, 0.1);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .message.error {
+            background: rgba(211, 47, 47, 0.1);
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .message.info {
+            background: rgba(33, 150, 243, 0.1);
+            border-color: var(--info);
+            color: var(--info);
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--primary-yellow);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--grey-medium);
+            border-top-color: var(--primary-yellow);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <!-- Replace with actual logo: <img src="logo.png" alt="44th RAR Badge" class="header-badge"> -->
+            <div class="header-badge"></div>
+            <h1>44TH ROYAL ANGLIAN REGIMENT</h1>
+            <p class="header-subtitle">Training Request System</p>
+        </header>
+
+        <!-- Back Button -->
+        <a href="index.html" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back to Main
+        </a>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Request Form Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <i class="fas fa-clipboard-check" style="color: var(--primary-yellow);"></i>
+                    <h2>Request Training</h2>
+                </div>
+                <div class="panel-body">
+                    <form id="requestForm">
+                        <!-- Discord Username -->
+                        <div class="form-group">
+                            <label class="form-label">Discord Username</label>
+                            <input type="text" id="discordUsername" class="form-control" 
+                                   placeholder="YourName#1234" required>
+                        </div>
+
+                        <!-- Rank -->
+                        <div class="form-group">
+                            <label class="form-label">Rank</label>
+                            <select id="rank" class="form-control" required>
+                                <option value="">-- SELECT RANK --</option>
+                                <option value="PVT">Private (PVT)</option>
+                                <option value="PFC">Private First Class (PFC)</option>
+                                <option value="LCPL">Lance Corporal (LCPL)</option>
+                                <option value="CPL">Corporal (CPL)</option>
+                                <option value="SGT">Sergeant (SGT)</option>
+                                <option value="SSGT">Staff Sergeant (SSGT)</option>
+                                <option value="WO2">Warrant Officer 2 (WO2)</option>
+                                <option value="WO1">Warrant Officer 1 (WO1)</option>
+                                <option value="2LT">Second Lieutenant (2LT)</option>
+                                <option value="LT">Lieutenant (LT)</option>
+                                <option value="CPT">Captain (CPT)</option>
+                                <option value="MAJ">Major (MAJ)</option>
+                            </select>
+                        </div>
+
+                        <!-- Training Category -->
+                        <div class="form-group">
+                            <label class="form-label">Training Category</label>
+                            <select id="category" class="form-control" required>
+                                <option value="">-- SELECT CATEGORY --</option>
+                                <option value="bootcamp">BOOTCAMP / GYN</option>
+                                <option value="infantry">INFANTRY</option>
+                                <option value="mbt">MBT - TROOPER</option>
+                                <option value="pilot">PILOT</option>
+                                <option value="ifv">IFV</option>
+                                <option value="mechInf">MECH INF</option>
+                                <option value="motorInf">MOTOR INF</option>
+                            </select>
+                        </div>
+
+                        <!-- Training Type -->
+                        <div class="form-group">
+                            <label class="form-label">Training Requested</label>
+                            <select id="training" class="form-control" required disabled>
+                                <option value="">-- SELECT TRAINING --</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn-submit">
+                            SUBMIT REQUEST
+                        </button>
+                    </form>
+
+                    <div id="statusMessage"></div>
+                </div>
+            </div>
+
+            <!-- Status Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <i class="fas fa-info-circle" style="color: var(--primary-yellow);"></i>
+                    <h2>Request Information</h2>
+                </div>
+                <div class="panel-body">
+                    <!-- Simple Status Card -->
+                    <div class="status-card">
+                        <h3 class="status-title">How It Works</h3>
+                        <ol style="color: var(--grey-light); line-height: 1.8;">
+                            <li>Select your desired training from the form</li>
+                            <li>Submit your request</li>
+                            <li>Instructors review all pending requests</li>
+                            <li>Training sessions are scheduled based on demand</li>
+                            <li>You'll be notified via Discord when scheduled</li>
+                        </ol>
+                    </div>
+
+                    <!-- Current Request Status -->
+                    <div class="status-card">
+                        <h3 class="status-title">Your Current Request</h3>
+                        <div class="status-item">
+                            <span class="status-label">Training Selected:</span>
+                            <span class="status-value" id="selectedTraining">None</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Request Status:</span>
+                            <span class="status-value" id="requestStatus">Not Submitted</span>
+                        </div>
+                    </div>
+
+                    <!-- Success Message Placeholder -->
+                    <div id="requestConfirmation" style="display: none;">
+                        <div class="message success">
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                Your request has been logged. You'll receive a Discord notification when training is scheduled.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Training data structure
+        const trainingData = {
+            bootcamp: ['GYN'],
+            infantry: [
+                'LAT', 'HAT', 'Advanced AT Training', 'Engineer', 'Grenadier',
+                'Logistics', 'MG/AR', 'Marksman', 'Medic', 'Mortar', 'TOW',
+                'Fibua Tier 1', 'Section Battle Drills', 'Squad Leading Tier 1',
+                'Squad Leading Tier 2', 'Squad Leading Tier 3'
+            ],
+            mbt: [
+                'Principles of MBT', 'Principles of Driving', 'Principles of Gunning',
+                'Principles Commanding/Spotting', 'Positioning', 'MBT Masters Test',
+                'Expert Certification Exam'
+            ],
+            pilot: [
+                'Tier 1 Pilot', 'Advanced J-Hooks', 'Safe Spotting',
+                'Emergency Procedures', 'Advanced Low Flying', 'Heli Teamwork',
+                'Insertion Tactics', 'Barrel Rolls'
+            ],
+            ifv: [
+                'IFV Qualified', 'IFV Certified', 
+                'Mechanised Infantry Qualified', 'Mechanised Infantry Certified'
+            ],
+            mechInf: [
+                'Fighting in Open Areas', 'Raiding Tactics', 
+                'Fighting in Urban Areas', 'Small Unit Tactics',
+                'Squad Leading', 'Mech Inf Test'
+            ],
+            motorInf: [
+                'Motor Infantry Tier 1', 'Motor Infantry Tier 2', 'Motor Infantry Test'
+            ]
+        };
+
+        // API Configuration
+        const config = {
+            googleSheetsId: '1Akxvu6mWzE1o4tSOo0K9p6sg6ClYqXkzhHP0VeygIUM',
+            googleSheetsApiKey: 'YOUR_API_KEY',
+            discordWebhookUrl: 'YOUR_DISCORD_WEBHOOK_URL'
+        };
+
+        // Handle category change
+        document.getElementById('category').addEventListener('change', function() {
+            const category = this.value;
+            const trainingSelect = document.getElementById('training');
+            
+            trainingSelect.innerHTML = '<option value="">-- SELECT TRAINING --</option>';
+            trainingSelect.disabled = !category;
+            
+            if (category && trainingData[category]) {
+                trainingData[category].forEach(training => {
+                    const option = document.createElement('option');
+                    option.value = training;
+                    option.textContent = training.toUpperCase();
+                    trainingSelect.appendChild(option);
+                });
+            }
+        });
+
+        // Handle training selection
+        document.getElementById('training').addEventListener('change', function() {
+            const training = this.value;
+            if (training) {
+                document.getElementById('selectedTraining').textContent = training;
+                document.getElementById('requestStatus').textContent = 'Ready to Submit';
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('requestForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const statusDiv = document.getElementById('statusMessage');
+            
+            // Show loading
+            statusDiv.className = 'message info';
+            statusDiv.innerHTML = `
+                <div class="spinner"></div>
+                <div>Processing your request...</div>
+            `;
+            
+            // Collect form data
+            const formData = {
+                discordUsername: document.getElementById('discordUsername').value,
+                rank: document.getElementById('rank').value,
+                category: document.getElementById('category').value,
+                training: document.getElementById('training').value,
+                requestDate: new Date().toISOString(),
+                status: 'Pending'
+            };
+            
+            // TODO: Send to Google Sheets
+            // await logRequestToSheets(formData);
+            
+            // TODO: Send Discord notification
+            // await sendDiscordNotification(formData);
+            
+            // Simulate success
+            setTimeout(() => {
+                statusDiv.className = 'message success';
+                statusDiv.innerHTML = `
+                    <i class="fas fa-check-circle"></i>
+                    <div>
+                        <strong>Request Submitted Successfully!</strong><br>
+                        Your training request has been logged.
+                    </div>
+                `;
+                
+                // Update status display
+                document.getElementById('requestStatus').innerHTML = 
+                    '<span style="color: var(--success);">SUBMITTED</span>';
+                
+                // Show confirmation message
+                document.getElementById('requestConfirmation').style.display = 'block';
+                
+                // Reset form after delay
+                setTimeout(() => {
+                    this.reset();
+                    document.getElementById('training').disabled = true;
+                    document.getElementById('selectedTraining').textContent = 'None';
+                    document.getElementById('requestStatus').textContent = 'Not Submitted';
+                    statusDiv.innerHTML = '';
+                }, 5000);
+            }, 1500);
+        });
+
+        // Function to log request to Google Sheets
+        async function logRequestToSheets(requestData) {
+            // TODO: Implement Google Sheets API call
+            /*
+            const values = [[
+                requestData.discordUsername,
+                requestData.rank,
+                requestData.category,
+                requestData.training,
+                requestData.requestDate,
+                requestData.status
+            ]];
+            
+            const response = await fetch(
+                `https://sheets.googleapis.com/v4/spreadsheets/${config.googleSheetsId}/values/Requests:append?valueInputOption=USER_ENTERED&key=${config.googleSheetsApiKey}`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ values })
+                }
+            );
+            */
+        }
+    </script>
+</body>
+</html>
