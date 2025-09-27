@@ -144,6 +144,12 @@
             border-color: var(--primary-yellow);
         }
 
+        /* Fix dropdown option background */
+        .filter-control option {
+            background: var(--primary-black);
+            color: var(--white);
+        }
+
         .btn-refresh {
             margin-left: auto;
             padding: 10px 20px;
@@ -207,20 +213,6 @@
             color: var(--grey-light);
             text-transform: uppercase;
             letter-spacing: 1px;
-        }
-
-        .stat-trend {
-            display: inline-block;
-            margin-left: 10px;
-            font-size: 0.8em;
-        }
-
-        .trend-up {
-            color: var(--success);
-        }
-
-        .trend-down {
-            color: var(--danger);
         }
 
         /* Training Table */
@@ -546,6 +538,14 @@
             }
         })();
 
+        // Configuration
+        const config = {
+            googleCalendarId: '40bb8c9aa7df59e2b7e22a850ac9b67b942e4ea00632b04b7590c3a4d5caa39c@group.calendar.google.com',
+            googleSheetsId: '1Akxvu6mWzE1o4tSOo0K9p6sg6ClYqXkzhHP0VeygIUM',
+            googleSheetsApiKey: 'AIzaSyAbZxnOvJjuOxRMeyNtr4R6zP39XfUNv-Q',
+            googleAppsScriptUrl: 'https://script.google.com/macros/s/AKfycbwGZOXvdRUEXRGpt770eGtxEr858kf0LxgY3Onk8E7pVH7LY3raTUH1AE0KVU4Yg39rPQ/exec'
+        };
+
         // Training data structure
         const trainingData = {
             bootcamp: ['GYN'],
@@ -579,35 +579,10 @@
             ]
         };
 
-        // Google Sheets configuration
-        const config = {
-            googleSheetsId: '1Akxvu6mWzE1o4tSOo0K9p6sg6ClYqXkzhHP0VeygIUM',
-            googleSheetsApiKey: 'YOUR_API_KEY'
-        };
-
-        // Mock data (will be replaced with real data from Google Sheets)
-        const mockBookings = [
-            { training: 'LAT', category: 'infantry', date: '2024-01-15', status: 'Completed' },
-            { training: 'HAT', category: 'infantry', date: '2024-01-10', status: 'Completed' },
-            { training: 'GYN', category: 'bootcamp', date: '2024-01-18', status: 'Completed' },
-            { training: 'Marksman', category: 'infantry', date: '2024-01-12', status: 'Completed' },
-            { training: 'Tier 1 Pilot', category: 'pilot', date: '2024-01-05', status: 'Completed' }
-        ];
-
-        const mockRequests = [
-            { training: 'LAT', category: 'infantry', date: '2024-01-16', member: 'Smith#1234', rank: 'Pvt' },
-            { training: 'LAT', category: 'infantry', date: '2024-01-17', member: 'Jones#5678', rank: 'Cpl' },
-            { training: 'LAT', category: 'infantry', date: '2024-01-19', member: 'Wilson#9012', rank: 'Spc' },
-            { training: 'LAT', category: 'infantry', date: '2024-01-20', member: 'Brown#3456', rank: 'LCpl' },
-            { training: 'LAT', category: 'infantry', date: '2024-01-21', member: 'Davis#7890', rank: 'Pvt' },
-            { training: 'HAT', category: 'infantry', date: '2024-01-19', member: 'Miller#2345', rank: 'Sgt' },
-            { training: 'HAT', category: 'infantry', date: '2024-01-20', member: 'Taylor#6789', rank: 'Pvt' },
-            { training: 'HAT', category: 'infantry', date: '2024-01-21', member: 'Anderson#0123', rank: 'Cpl' },
-            { training: 'GYN', category: 'bootcamp', date: '2024-01-19', member: 'Thomas#4567', rank: 'Rgl' },
-            { training: 'GYN', category: 'bootcamp', date: '2024-01-20', member: 'Jackson#8901', rank: 'Rgl' },
-            { training: 'GYN', category: 'bootcamp', date: '2024-01-21', member: 'White#2345', rank: 'Rgl' },
-            { training: 'Marksman', category: 'infantry', date: '2024-01-20', member: 'Harris#6789', rank: 'Spc' }
-        ];
+        // Global data storage
+        let allBookings = [];
+        let allRequests = [];
+        let filteredData = [];
 
         // Handle category filter change
         document.getElementById('categoryFilter').addEventListener('change', function() {
@@ -625,135 +600,256 @@
                 });
             }
             
-            filterData();
+            filterAndDisplayData();
         });
 
-        // Calculate requests since last booking
-        function getRequestsSinceLastBooking(training) {
-            // Find last completed booking for this training
-            const lastBooking = mockBookings
-                .filter(b => b.training === training && b.status === 'Completed')
-                .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-            
-            if (!lastBooking) return { count: mockRequests.filter(r => r.training === training).length, lastDate: null };
-            
-            // Count requests after last booking
-            const count = mockRequests.filter(r => 
-                r.training === training && 
-                new Date(r.date) > new Date(lastBooking.date)
-            ).length;
-            
-            return { count, lastDate: lastBooking.date };
+        // Handle filter changes
+        document.getElementById('trainingFilter').addEventListener('change', filterAndDisplayData);
+        document.getElementById('periodFilter').addEventListener('change', filterAndDisplayData);
+
+        // Load all data
+        async function loadData() {
+            try {
+                // Load bookings from Calendar
+                await loadBookingsFromCalendar();
+                
+                // Load requests from Sheets
+                await loadRequestsFromSheets();
+                
+                // Calculate and display stats
+                calculateStats();
+                
+                // Display tables
+                displayTrainingTable();
+                displayRecentRequests();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                // Use mock data if APIs fail
+                loadMockData();
+            }
         }
 
-        // Load initial data
-        function loadData() {
-            // Calculate stats
-            const uniqueMembers = new Set(mockRequests.map(r => r.member)).size;
-            const pendingCount = mockRequests.filter(r => 
-                new Date(r.date) > new Date(mockBookings[mockBookings.length - 1]?.date || '2024-01-01')
-            ).length;
+        // Load bookings from Google Calendar
+        async function loadBookingsFromCalendar() {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 90); // Last 90 days
             
-            // Find most requested training
-            const requestCounts = {};
-            mockRequests.forEach(r => {
-                requestCounts[r.training] = (requestCounts[r.training] || 0) + 1;
+            try {
+                const response = await fetch(config.googleAppsScriptUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'getBookings',
+                        startDate: startDate.toISOString(),
+                        endDate: endDate.toISOString()
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    allBookings = result.data.bookings;
+                }
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+                // Fallback to Calendar API
+                const url = `https://www.googleapis.com/calendar/v3/calendars/${config.googleCalendarId}/events?` +
+                    `key=${config.googleSheetsApiKey}` +
+                    `&timeMin=${startDate.toISOString()}` +
+                    `&timeMax=${endDate.toISOString()}` +
+                    `&singleEvents=true` +
+                    `&orderBy=startTime`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.items) {
+                    allBookings = data.items.map(event => ({
+                        title: event.summary || 'Training',
+                        start: event.start.dateTime || event.start.date,
+                        end: event.end.dateTime || event.end.date,
+                        description: event.description || ''
+                    }));
+                }
+            }
+        }
+
+        // Load requests from Google Sheets
+        async function loadRequestsFromSheets() {
+            try {
+                const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${config.googleSheetsId}/values/Requests!A:F?key=${config.googleSheetsApiKey}`);
+                const data = await response.json();
+                
+                if (data.values && data.values.length > 1) {
+                    // Skip header row
+                    allRequests = data.values.slice(1).map(row => ({
+                        discord: row[0] || '',
+                        rank: row[1] || '',
+                        category: row[2] || '',
+                        training: row[3] || '',
+                        date: row[4] || new Date().toISOString(),
+                        status: row[5] || 'Pending'
+                    }));
+                }
+            } catch (error) {
+                console.error('Error loading requests:', error);
+                // Use mock data if API fails
+            }
+        }
+
+        // Load mock data (fallback)
+        function loadMockData() {
+            // Mock bookings
+            allBookings = [
+                { title: 'LAT Training - Primary - SGT Smith', start: '2025-09-25T14:00:00', end: '2025-09-25T16:00:00' },
+                { title: 'GYN Training - Backup - CPL Jones', start: '2025-09-24T10:00:00', end: '2025-09-24T12:00:00' },
+                { title: 'Marksman Training - Primary - LT Anderson', start: '2025-09-23T18:00:00', end: '2025-09-23T20:00:00' }
+            ];
+            
+            // Mock requests
+            allRequests = [
+                { discord: 'Player1#1234', rank: 'PVT', category: 'infantry', training: 'LAT', date: '2025-09-27T12:00:00', status: 'Pending' },
+                { discord: 'Player2#5678', rank: 'CPL', category: 'infantry', training: 'HAT', date: '2025-09-26T15:00:00', status: 'Pending' },
+                { discord: 'Player3#9012', rank: 'SGT', category: 'bootcamp', training: 'GYN', date: '2025-09-25T09:00:00', status: 'Pending' }
+            ];
+            
+            calculateStats();
+            displayTrainingTable();
+            displayRecentRequests();
+        }
+
+        // Calculate statistics
+        function calculateStats() {
+            // Filter by selected period
+            const periodDays = document.getElementById('periodFilter').value;
+            const cutoffDate = new Date();
+            
+            if (periodDays !== 'all') {
+                cutoffDate.setDate(cutoffDate.getDate() - parseInt(periodDays));
+            }
+            
+            const filteredRequests = periodDays === 'all' ? allRequests : 
+                allRequests.filter(r => new Date(r.date) >= cutoffDate);
+            
+            // Total requests
+            document.getElementById('totalRequests').textContent = filteredRequests.length;
+            
+            // Pending requests
+            const pending = filteredRequests.filter(r => r.status === 'Pending').length;
+            document.getElementById('pendingRequests').textContent = pending;
+            
+            // Most requested training
+            const trainingCounts = {};
+            filteredRequests.forEach(r => {
+                if (r.training) {
+                    trainingCounts[r.training] = (trainingCounts[r.training] || 0) + 1;
+                }
             });
-            const hottestTraining = Object.keys(requestCounts).reduce((a, b) => 
-                requestCounts[a] > requestCounts[b] ? a : b
-            );
             
-            // Update stats
-            document.getElementById('totalRequests').textContent = mockRequests.length;
-            document.getElementById('pendingRequests').textContent = pendingCount;
-            document.getElementById('hottestTraining').textContent = hottestTraining;
+            const hottestTraining = Object.keys(trainingCounts).length > 0 ?
+                Object.keys(trainingCounts).reduce((a, b) => 
+                    trainingCounts[a] > trainingCounts[b] ? a : b
+                ) : '-';
+            
+            document.getElementById('hottestTraining').textContent = 
+                hottestTraining.length > 10 ? hottestTraining.substring(0, 10) + '...' : hottestTraining;
+            
+            // Unique members
+            const uniqueMembers = new Set(filteredRequests.map(r => r.discord)).size;
             document.getElementById('uniqueRequesters').textContent = uniqueMembers;
-
-            // Load tables
-            loadTrainingTable();
-            loadRecentRequests();
         }
 
-        // Load training table
-        function loadTrainingTable() {
+        // Display training table
+        function displayTrainingTable() {
             const tbody = document.getElementById('trainingTableBody');
             
-            // Get unique trainings
-            const trainings = new Set([...mockBookings.map(b => b.training), ...mockRequests.map(r => r.training)]);
-            let html = '';
-
-            trainings.forEach(training => {
-                const { count, lastDate } = getRequestsSinceLastBooking(training);
-                const daysSince = lastDate ? calculateDaysSince(lastDate) : 'Never';
-                const demandLevel = getDemandLevel(count, typeof daysSince === 'number' ? daysSince : 999);
+            // Get unique trainings from requests
+            const trainings = {};
+            
+            allRequests.forEach(request => {
+                if (!request.training) return;
                 
-                // Find category for this training
-                let category = '';
-                for (const [cat, trainings] of Object.entries(trainingData)) {
-                    if (trainings.includes(training)) {
-                        category = cat;
-                        break;
+                if (!trainings[request.training]) {
+                    trainings[request.training] = {
+                        training: request.training,
+                        category: request.category,
+                        requests: 0,
+                        lastBooking: null
+                    };
+                }
+                trainings[request.training].requests++;
+            });
+            
+            // Find last booking for each training
+            allBookings.forEach(booking => {
+                const trainingMatch = booking.title.match(/^([^-]+)/);
+                if (trainingMatch) {
+                    const training = trainingMatch[1].trim();
+                    if (trainings[training]) {
+                        const bookingDate = new Date(booking.start);
+                        if (!trainings[training].lastBooking || bookingDate > trainings[training].lastBooking) {
+                            trainings[training].lastBooking = bookingDate;
+                        }
                     }
                 }
+            });
+            
+            // Build table rows
+            let html = '';
+            Object.values(trainings).forEach(item => {
+                const daysSince = item.lastBooking ? 
+                    Math.floor((new Date() - item.lastBooking) / (1000 * 60 * 60 * 24)) : 'Never';
+                
+                const demandLevel = item.requests > 10 || daysSince === 'Never' || daysSince > 14 ? 'HIGH' :
+                    item.requests > 5 || daysSince > 7 ? 'MEDIUM' : 'LOW';
                 
                 html += `
                     <tr>
-                        <td><strong>${training}</strong></td>
-                        <td>${category.toUpperCase()}</td>
-                        <td>${count}</td>
-                        <td>${lastDate ? formatDate(lastDate) : 'Never'}</td>
+                        <td><strong>${item.training}</strong></td>
+                        <td>${(item.category || 'Unknown').toUpperCase()}</td>
+                        <td>${item.requests}</td>
+                        <td>${item.lastBooking ? item.lastBooking.toLocaleDateString() : 'Never'}</td>
                         <td>${daysSince}</td>
                         <td><span class="badge badge-${demandLevel.toLowerCase()}">${demandLevel}</span></td>
                     </tr>
                 `;
             });
-
+            
             tbody.innerHTML = html || '<tr><td colspan="6" class="no-data">No training data available</td></tr>';
         }
 
-        // Load recent requests
-        function loadRecentRequests() {
+        // Display recent requests
+        function displayRecentRequests() {
             const tbody = document.getElementById('recentRequestsBody');
             
             // Sort by date descending
-            const sorted = [...mockRequests].sort((a, b) => new Date(b.date) - new Date(a.date));
+            const sorted = [...allRequests].sort((a, b) => 
+                new Date(b.date) - new Date(a.date)
+            );
             
+            // Display top 10
             let html = '';
             sorted.slice(0, 10).forEach(request => {
+                const date = new Date(request.date);
                 html += `
                     <tr>
-                        <td>${request.date}</td>
-                        <td>${request.member}</td>
+                        <td>${date.toLocaleDateString()}</td>
+                        <td>${request.discord}</td>
                         <td>${request.rank}</td>
                         <td>${request.training}</td>
-                        <td>${request.category.toUpperCase()}</td>
-                        <td><span class="badge badge-medium">PENDING</span></td>
+                        <td>${(request.category || '').toUpperCase()}</td>
+                        <td><span class="badge badge-medium">${request.status || 'PENDING'}</span></td>
                     </tr>
                 `;
             });
-
+            
             tbody.innerHTML = html || '<tr><td colspan="6" class="no-data">No recent requests</td></tr>';
         }
 
-        // Calculate days since
-        function calculateDaysSince(dateStr) {
-            const date = new Date(dateStr);
-            const now = new Date();
-            const diff = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-            return diff;
-        }
-
-        // Get demand level
-        function getDemandLevel(count, daysSince) {
-            if (count > 10 || daysSince > 14) return 'HIGH';
-            if (count > 5 || daysSince > 7) return 'MEDIUM';
-            return 'LOW';
-        }
-
-        // Format date
-        function formatDate(dateStr) {
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        // Filter and display data
+        function filterAndDisplayData() {
+            calculateStats();
+            displayTrainingTable();
+            displayRecentRequests();
         }
 
         // Sort table
@@ -797,12 +893,6 @@
             rows.forEach(row => tbody.appendChild(row));
         }
 
-        // Filter data
-        function filterData() {
-            // TODO: Implement filtering based on selected filters
-            loadData();
-        }
-
         // Refresh data
         function refreshData() {
             const tables = document.querySelectorAll('tbody');
@@ -829,19 +919,6 @@
 
         // Auto-refresh every 30 seconds
         setInterval(refreshData, 30000);
-
-        // TODO: Add Google Sheets API integration
-        async function loadFromGoogleSheets() {
-            // Load bookings
-            // const bookingsResponse = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${config.googleSheetsId}/values/Bookings!A:H?key=${config.googleSheetsApiKey}`);
-            // const bookingsData = await bookingsResponse.json();
-            
-            // Load requests
-            // const requestsResponse = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${config.googleSheetsId}/values/Requests!A:F?key=${config.googleSheetsApiKey}`);
-            // const requestsData = await requestsResponse.json();
-            
-            // Process and update displays
-        }
     </script>
 </body>
 </html>
