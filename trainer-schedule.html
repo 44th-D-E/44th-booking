@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1150,10 +1150,14 @@
 
         // Delete booking
         async function deleteBooking(eventId) {
+            console.log('Deleting event with ID:', eventId);  // Add this
+    
             if (!eventId) {
                 alert('Cannot delete this booking - no event ID');
                 return;
             }
+            // ... rest of function
+        }
             
             if (!confirm('Are you sure you want to delete this booking?')) {
                 return;
@@ -1189,8 +1193,13 @@
 
         // Cancel booking (same as delete but with different message)
        async function cancelBooking() {
+            console.log('Selected booking:', selectedBooking);
+            console.log('Event ID:', selectedBooking?.eventId || selectedBooking?.id);
+    
             if (selectedBooking && (selectedBooking.eventId || selectedBooking.id)) {
                 await deleteBooking(selectedBooking.eventId || selectedBooking.id);
+            } else {
+                alert('No event ID available for this booking');
             }
         }
 
@@ -1217,6 +1226,7 @@
 </body>
 
 </html>
+
 
 
 
