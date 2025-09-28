@@ -890,7 +890,7 @@
             } catch (error) {
                 console.error('Error loading instructors:', error);
             }
-        };
+        }
                     
                     // Add "Other" option
                     const otherOption = document.createElement('option');
@@ -899,7 +899,8 @@
                     instructorSelect.appendChild(otherOption);
                     
                     instructorSelect.disabled = false;
-                } else {
+                } 
+                else {
                     // If no instructors found, enable with just "Other" option
                     const instructorSelect = document.getElementById('instructor');
                     instructorSelect.innerHTML = `
@@ -1065,6 +1066,7 @@
 </body>
 
 </html>
+
 
 
 
