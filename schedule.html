@@ -590,17 +590,7 @@
                 const endDate = new Date(startDate);
                 endDate.setDate(endDate.getDate() + 30); // Get 30 days of data
 
-                const response = await fetch(config.googleAppsScriptUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        action: 'getSchedule',
-                        startDate: startDate.toISOString(),
-                        endDate: endDate.toISOString()
-                    })
-                });
+                const response = await fetch(`${url}?action=someAction&param=${encodeURIComponent(value)}`);
 
                 const result = await response.json();
                 
@@ -821,3 +811,4 @@
 </body>
 
 </html>
+
