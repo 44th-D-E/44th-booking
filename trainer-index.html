@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" type="image/png" href="Logo.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>44th RAR - Trainer Dashboard</title>
@@ -499,7 +500,7 @@
             window.location.href = 'index.html';
         }
 
-        // Load dashboard data - FIXED VERSION
+        // Load dashboard data 
         async function loadDashboardData() {
             try {
                 const userEmail = sessionStorage.getItem('userEmail');
@@ -522,6 +523,64 @@
                 console.error('Error loading dashboard data:', error);
                 showErrorMessage();
             }
+        }
+
+        // Load upcoming sessions from calendar
+        async function loadUpcomingSessions() {
+            try {
+                const response = await fetch(`${config.googleAppsScriptUrl}?action=getSchedule`);
+                const result = await response.json();
+        
+                if (result.success && result.data) {
+                    const events = result.data.events || [];
+                    const now = new Date();
+                    const today = new Date().toDateString();
+                    const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+            
+                    // Count today's sessions
+                    const todayCount = events.filter(e => 
+                        new Date(e.start).toDateString() === today
+                    ).length;
+                    document.getElementById('todaySessions').textContent = todayCount;
+            
+                    // Count this week's sessions
+                    const weekCount = events.filter(e => {
+                        const eventDate = new Date(e.start);
+                        return eventDate >= now && eventDate <= weekFromNow;
+                    }).length;
+                    document.getElementById('weekSessions').textContent = weekCount;
+            
+                    // Update recent activity with real upcoming sessions
+                    const upcomingEvents = events
+                        .filter(e => new Date(e.start) >= now)
+                        .sort((a, b) => new Date(a.start) - new Date(b.start))
+                        .slice(0, 5);
+            
+                    updateActivityFromEvents(upcomingEvents);
+                }
+            } catch (error) {
+                console.error('Error loading sessions:', error);
+            }
+        }
+
+        // Update activity list with calendar events
+        function updateActivityFromEvents(events) {
+            const activityList = document.getElementById('activityList');
+    
+            if (events.length === 0) {
+                activityList.innerHTML = '<p style="text-align: center; color: var(--grey-light);">No upcoming sessions</p>';
+                return;
+            }
+    
+            activityList.innerHTML = events.map(event => {
+                const eventDate = new Date(event.start);
+                return `
+                    <div class="activity-item">
+                        <span class="activity-text">${event.training} - ${event.server} - ${event.instructor}</span>
+                        <span class="activity-time">${eventDate.toLocaleDateString()} at ${eventDate.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'})}</span>
+                    </div>
+                `;
+            }).join('');
         }
 
         // Helper functions
@@ -585,8 +644,10 @@
             if (checkAuth()) {
                 loadUserInfo();
                 loadDashboardData();
+                loadUpcomingSessions();  // Add this line
             }
         });
     </script>
 </body>
 </html>
+
