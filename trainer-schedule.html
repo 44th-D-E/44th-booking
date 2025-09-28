@@ -872,24 +872,42 @@
 
         // Load bookings
         async function loadBookings() {
-            try {
-                const userEmail = sessionStorage.getItem('userEmail');
+    try {
+        // Get events from Google Calendar
+        const response = await fetch(`${config.googleAppsScriptUrl}?action=getSchedule`);
+        const result = await response.json();
+        
+        if (result.success) {
+            // Convert calendar events to booking format
+            bookings = result.data.events.map(event => {
+                // Parse the title format: "Training - Server - Instructor"
+                const parts = event.title.split(' - ');
                 
-                const response = await fetch(`${config.googleAppsScriptUrl}?action=getBookings`);
-
-                const result = await response.json();
-                
-                if (result.success) {
-                    bookings = result.data.bookings;
-                    applyFilters();
-                    updateStats();
-                } else {
-                    console.error('Failed to load bookings:', result.message);
-                }
-            } catch (error) {
-                console.error('Error loading bookings:', error);
-            }
+                return {
+                    eventId: event.id,
+                    training: parts[0] || event.training,
+                    server: parts[1] || event.server,
+                    instructor: parts[2] || event.instructor,
+                    date: event.start.split('T')[0],
+                    time: new Date(event.start).toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}),
+                    category: 'Training', // Default since calendar doesn't store this
+                    duration: Math.round((new Date(event.end) - new Date(event.start)) / 60000),
+                    zeus: event.description && event.description.includes('Zeus Required: Yes') ? 'Yes' : 'No',
+                    status: new Date(event.end) < new Date() ? 'Completed' : 'Scheduled',
+                    discordName: 'Unknown', // Not stored in calendar
+                    bookedBy: 'Via Calendar'
+                };
+            });
+            
+            applyFilters();
+            updateStats();
+        } else {
+            console.error('Failed to load schedule:', result.message);
         }
+    } catch (error) {
+        console.error('Error loading schedule:', error);
+    }
+}
 
         // Apply filters
         function applyFilters() {
@@ -1198,6 +1216,7 @@
 </body>
 
 </html>
+
 
 
 
