@@ -638,8 +638,7 @@
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
-            // Temporarily disable auth check for debugging
-            // checkAuth();
+            checkAuth();
             setupFormHandlers();
             setMinDate();
             populateTimeDropdown();
