@@ -491,14 +491,14 @@
                             <label class="form-label">Training Category</label>
                             <select id="category" class="form-control" required>
                                 <option value="">-- SELECT CATEGORY --</option>
-                                <option value="bootcamp">BOOTCAMP</option>
-                                <option value="infantry">INFANTRY</option>
-                                <option value="mbt">MBT - TROOPER</option>
-                                <option value="pilot">PILOT</option>
-                                <option value="vehicle">VEHICLE</option>
-                                <option value="mechInf">MECH INF</option>
-                                <option value="motorInf">MOTOR INF</option>
-                                <option value="custom">CUSTOM</option>
+                                <option value="Bootcamp">BOOTCAMP</option>
+                                <option value="Infantry">INFANTRY</option>
+                                <option value="MBT - Trooper">MBT - TROOPER</option>
+                                <option value="Pilot">PILOT</option>
+                                <option value="Vehicle">VEHICLE</option>
+                                <option value="Mech Inf">MECH INF</option>
+                                <option value="Motor Inf">MOTOR INF</option>
+                                <option value="Custom">CUSTOM</option>
                             </select>
                         </div>
 
@@ -548,8 +548,8 @@
                         <div class="form-group">
                             <label class="form-label">Zeus Required</label>
                             <select id="zeus" class="form-control" required>
-                                <option value="no">NEGATIVE</option>
-                                <option value="yes">AFFIRMATIVE</option>
+                                <option value="No">NEGATIVE</option>
+                                <option value="Yes">AFFIRMATIVE</option>
                             </select>
                         </div>
 
@@ -557,9 +557,14 @@
                         <div class="form-group">
                             <label class="form-label">Server</label>
                             <select id="server" class="form-control" required>
-                                <option value="primary">SERVER 6</option>
-                                <option value="backup">SERVER 7</option>
-                                <option value="any">ANY AVAILABLE</option>
+                                <option value="PRIMARY">PRIMARY</option>
+                                <option value="BACKUP">BACKUP</option>
+                                <option value="US1">US1</option>
+                                <option value="US2">US2</option>
+                                <option value="US3">US3</option>
+                                <option value="EU1">EU1</option>
+                                <option value="EU2">EU2</option>
+                                <option value="EU3">EU3</option>
                             </select>
                         </div>
 
@@ -629,38 +634,38 @@
 
         // Training data structure
         const trainingData = {
-            bootcamp: ['GYN'],
-            infantry: [
+            'Bootcamp': ['GYN'],
+            'Infantry': [
                 'LAT', 'HAT', 'Advanced AT Training', 'Engineer', 'Grenadier',
                 'Logistics', 'MG/AR', 'Marksman', 'Medic', 'Mortar', 'TOW',
                 'Fibua Tier 1', 'Section Battle Drills', 'Squad Leading Tier 1',
                 'Squad Leading Tier 2', 'Squad Leading Tier 3'
             ],
-            mbt: [
-                'Principles of MBT', 'Principles of Driving', 'Principles of Gunning',
-                'Principles Commanding/Spotting', 'Positioning', 'MBT Masters Test',
-                'Expert Certification Exam'
+            'MBT - Trooper': [
+                'Principles of MBT', 'Driving', 'Gunning',
+                'Commanding/Spotting', 'Positioning', 'Masters Test',
+                'Expert Cert'
             ],
-            pilot: [
-                'Tier 1 Pilot', 'Advanced J-Hooks', 'Safe Spotting',
+            'Pilot': [
+                'Tier 1', 'Advanced J-Hooks', 'Safe Spotting',
                 'Emergency Procedures', 'Advanced Low Flying', 'Heli Teamwork',
                 'Insertion Tactics', 'Barrel Rolls'
             ],
-            vehicle: [
+            'Vehicle': [
                 'IFV Qualified', 'IFV Certified', 
-                'Mechanised Infantry Qualified', 'Mechanised Infantry Certified'
+                'Mech Infantry Qualified', 'Mech Infantry Certified'
             ],
-            mechInf: [
+            'Mech Inf': [
                 'Fighting in Open Areas', 'Raiding Tactics', 
-                'Fighting in Urban Areas', 'Small Unit Tactics',
+                'Urban Areas', 'Small Unit Tactics',
                 'Squad Leading', 'Mech Inf Test'
             ],
-            motorInf: [
-                'Motor Infantry Tier 1', 'Motor Infantry Tier 2', 'Motor Infantry Test'
+            'Motor Inf': [
+                'Tier 1', 'Tier 2', 'Motor Inf Test'
             ]
         };
 
-        // Instructor data - Will be loaded from Google Sheets
+        // Instructor data - Will be loaded from Google Apps Script
         let instructorData = {};
         let dayBookings = [];
 
@@ -695,11 +700,11 @@
             instructorSelect.innerHTML = '<option value="">-- SELECT INSTRUCTOR --</option>';
             instructorSelect.disabled = true;
             
-            if (category === 'custom') {
+            if (category === 'Custom') {
                 customGroup.style.display = 'block';
                 trainingSelect.disabled = true;
-                // Load all instructors for custom
-                loadInstructorsForTraining('custom');
+                // Load instructors for this category
+                loadInstructorsForCategory(category);
             } else {
                 customGroup.style.display = 'none';
                 if (category && trainingData[category]) {
@@ -711,66 +716,108 @@
                         trainingSelect.appendChild(option);
                     });
                 }
+                // Load instructors for this category
+                if (category) {
+                    loadInstructorsForCategory(category);
+                }
             }
         });
 
         // Handle training selection change
         document.getElementById('training').addEventListener('change', function() {
+            const category = document.getElementById('category').value;
             const training = this.value;
-            if (training) {
-                loadInstructorsForTraining(training);
+            
+            // Reload instructors when training changes
+            if (category) {
+                loadInstructorsForCategory(category);
             }
         });
 
-        // Load instructors for specific training
-        async function loadInstructorsForTraining(training) {
+        // Load instructors for specific category from Google Apps Script
+        async function loadInstructorsForCategory(category) {
             const instructorSelect = document.getElementById('instructor');
             instructorSelect.innerHTML = '<option value="">Loading instructors...</option>';
+            instructorSelect.disabled = true;
             
             try {
-                // Load from Google Sheets
-                const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${config.googleSheetsId}/values/Instructors!A:C?key=${config.googleSheetsApiKey}`);
-                const data = await response.json();
+                console.log('Fetching instructors for category:', category);
                 
-                if (data.values) {
-                    instructorSelect.innerHTML = '<option value="">-- SELECT INSTRUCTOR --</option>';
-                    instructorSelect.disabled = false;
-                    
-                    // Filter instructors for this training
-                    data.values.forEach((row, index) => {
-                        if (index === 0) return; // Skip header
-                        const [trainingType, displayName, discordId] = row;
-                        
-                        // Check if instructor is for this training or category
-                        if (trainingType === training || 
-                            trainingType === document.getElementById('category').value ||
-                            training === 'custom') {
-                            const option = document.createElement('option');
-                            option.value = discordId;
-                            option.textContent = displayName.toUpperCase();
-                            option.dataset.displayName = displayName;
-                            instructorSelect.appendChild(option);
-                        }
-                    });
+                const response = await fetch(config.googleAppsScriptUrl, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'getInstructors',
+                        category: category
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
+                
+                const result = await response.json();
+                console.log('Instructor response:', result);
+                
+                instructorSelect.innerHTML = '<option value="">-- SELECT INSTRUCTOR --</option>';
+                
+                if (result.success && result.data) {
+                    const instructors = result.data.instructors;
+                    
+                    if (Array.isArray(instructors) && instructors.length > 0) {
+                        instructorSelect.disabled = false;
+                        
+                        instructors.forEach(instructor => {
+                            const option = document.createElement('option');
+                            option.value = instructor.name;
+                            option.textContent = instructor.name.toUpperCase();
+                            option.dataset.discord = instructor.discord || '';
+                            instructorSelect.appendChild(option);
+                        });
+                        
+                        console.log(`Added ${instructors.length} instructors`);
+                    } else if (typeof instructors === 'object') {
+                        // If it returns all categories, look for the current one
+                        const categoryInstructors = instructors[category];
+                        if (categoryInstructors && categoryInstructors.length > 0) {
+                            instructorSelect.disabled = false;
+                            
+                            categoryInstructors.forEach(instructor => {
+                                const option = document.createElement('option');
+                                option.value = instructor.name;
+                                option.textContent = instructor.name.toUpperCase();
+                                option.dataset.discord = instructor.discord || '';
+                                instructorSelect.appendChild(option);
+                            });
+                            
+                            console.log(`Added ${categoryInstructors.length} instructors`);
+                        }
+                    }
+                }
+                
+                // If no instructors found, enable manual entry
+                if (instructorSelect.options.length === 1) {
+                    console.log('No instructors found, adding fallback options');
+                    const fallbackOption = document.createElement('option');
+                    fallbackOption.value = 'Manual Entry';
+                    fallbackOption.textContent = 'MANUAL ENTRY';
+                    instructorSelect.appendChild(fallbackOption);
+                    instructorSelect.disabled = false;
+                }
+                
             } catch (error) {
                 console.error('Error loading instructors:', error);
-                // Fallback hardcoded instructors
+                
+                // Fallback - enable dropdown with manual option
                 instructorSelect.innerHTML = '<option value="">-- SELECT INSTRUCTOR --</option>';
+                const fallbackOption = document.createElement('option');
+                fallbackOption.value = 'Manual Entry';
+                fallbackOption.textContent = 'MANUAL ENTRY';
+                instructorSelect.appendChild(fallbackOption);
                 instructorSelect.disabled = false;
-                
-                const fallbackInstructors = [
-                    { name: 'SGT Smith', discord: 'Smith#1234' },
-                    { name: 'CPL Jones', discord: 'Jones#5678' }
-                ];
-                
-                fallbackInstructors.forEach(instructor => {
-                    const option = document.createElement('option');
-                    option.value = instructor.discord;
-                    option.textContent = instructor.name.toUpperCase();
-                    option.dataset.displayName = instructor.name;
-                    instructorSelect.appendChild(option);
-                });
             }
         }
 
@@ -802,6 +849,9 @@
                 
                 const response = await fetch(config.googleAppsScriptUrl, {
                     method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                     body: JSON.stringify({
                         action: 'getBookings',
                         startDate: startDate.toISOString(),
@@ -811,7 +861,7 @@
                 
                 const result = await response.json();
                 
-                if (result.success && result.data.bookings.length > 0) {
+                if (result.success && result.data.bookings && result.data.bookings.length > 0) {
                     dayBookings = result.data.bookings;
                     
                     // Sort by time
@@ -831,7 +881,7 @@
                                     <div class="time-duration">${formatDuration(duration)}</div>
                                 </div>
                                 <div class="slot-details">
-                                    <div class="slot-training">${(booking.title || 'Training').toUpperCase()}</div>
+                                    <div class="slot-training">${(booking.training || booking.title || 'Training').toUpperCase()}</div>
                                     <div class="slot-info">
                                         <span><i class="fas fa-user"></i> ${booking.instructor || 'TBD'}</span>
                                         <span><i class="fas fa-server"></i> ${booking.server || 'Primary'}</span>
@@ -918,6 +968,16 @@
             updateSchedule(today);
         }
 
+        // Format duration for display
+        function formatDurationText(minutes) {
+            const mins = parseInt(minutes);
+            if (mins < 60) return `${mins} mins`;
+            const hours = Math.floor(mins / 60);
+            const remainingMins = mins % 60;
+            if (remainingMins === 0) return `${hours} hour${hours > 1 ? 's' : ''}`;
+            return `${hours}hr ${remainingMins}mins`;
+        }
+
         // Handle form submission
         document.getElementById('bookingForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -935,49 +995,52 @@
             `;
             
             // Collect form data
-            const instructorSelect = document.getElementById('instructor');
-            const selectedOption = instructorSelect.options[instructorSelect.selectedIndex];
-            
-            const formData = {
-                category: document.getElementById('category').value,
-                training: document.getElementById('category').value === 'custom' 
-                    ? document.getElementById('customTraining').value 
-                    : document.getElementById('training').value,
-                date: document.getElementById('date').value,
-                time: document.getElementById('time').value,
-                duration: document.getElementById('duration').value,
-                zeus: document.getElementById('zeus').value,
-                server: document.getElementById('server').value,
-                instructorName: selectedOption.dataset.displayName || selectedOption.text,
-                instructorDiscord: document.getElementById('instructor').value,
-                timestamp: new Date().toISOString()
-            };
+            const category = document.getElementById('category').value;
+            const isCustom = category === 'Custom';
+            const training = isCustom 
+                ? document.getElementById('customTraining').value 
+                : document.getElementById('training').value;
+            const instructor = document.getElementById('instructor').value;
             
             // Create start and end times
-            const startDateTime = new Date(`${formData.date}T${formData.time}:00`);
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('time').value;
+            const duration = document.getElementById('duration').value;
+            
+            const startDateTime = new Date(`${date}T${time}:00`);
             const endDateTime = new Date(startDateTime);
-            endDateTime.setMinutes(endDateTime.getMinutes() + parseInt(formData.duration));
+            endDateTime.setMinutes(endDateTime.getMinutes() + parseInt(duration));
+            
+            const bookingData = {
+                action: 'createBooking',
+                password: 'Grape44',
+                startTime: startDateTime.toISOString(),
+                endTime: endDateTime.toISOString(),
+                category: category,
+                training: training,
+                trainingType: training, // Alternative field name
+                duration: formatDurationText(duration),
+                zeus: document.getElementById('zeus').value,
+                server: document.getElementById('server').value,
+                instructor: instructor,
+                notes: isCustom ? `Custom Training: ${training}` : '',
+                bookedBy: instructor
+            };
+            
+            console.log('Submitting booking:', bookingData);
             
             try {
-                // Format title: "Training - Server - Instructor"
-                const title = `${formData.training} - ${formData.server} - ${formData.instructorName}`;
-                
-                // Send to Google Apps Script
                 const response = await fetch(config.googleAppsScriptUrl, {
                     method: 'POST',
-                    body: JSON.stringify({
-                        action: 'createBooking',
-                        password: 'Grape44',
-                        startTime: startDateTime.toISOString(),
-                        endTime: endDateTime.toISOString(),
-                        server: formData.server,
-                        instructor: formData.instructorName,
-                        notes: `Category: ${formData.category}, Zeus: ${formData.zeus}`,
-                        bookedBy: formData.instructorName
-                    })
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(bookingData)
                 });
                 
                 const result = await response.json();
+                console.log('Booking result:', result);
                 
                 if (result.success) {
                     statusDiv.className = 'status-message success';
@@ -985,12 +1048,16 @@
                         <i class="fas fa-check-circle"></i>
                         <div>
                             <strong>SERVER TIME RESERVED</strong><br>
-                            Training slot successfully booked on ${formData.server.toUpperCase()} server
+                            Training slot successfully booked on ${bookingData.server.toUpperCase()} server
                         </div>
                     `;
                     
+                    // Clear form
+                    this.reset();
+                    setMinDate(); // Reset date to today
+                    
                     // Update schedule display
-                    updateSchedule(formData.date);
+                    updateSchedule(date);
                 } else {
                     statusDiv.className = 'status-message error';
                     statusDiv.innerHTML = `
@@ -1020,13 +1087,43 @@
             }, 5000);
         });
 
+        // Test function for debugging instructors
+        window.testInstructorFetch = async function() {
+            console.log('Testing instructor fetch...');
+            
+            try {
+                const response = await fetch(config.googleAppsScriptUrl, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'getInstructors',
+                        category: 'MBT - Trooper'
+                    })
+                });
+                
+                const data = await response.json();
+                console.log('Test result:', data);
+                
+                if (data.success) {
+                    console.log('Instructors found:', data.data.instructors);
+                }
+            } catch (error) {
+                console.error('Test failed:', error);
+            }
+        };
+
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             generateTimeSlots();
             setMinDate();
+            
+            // Log for debugging
+            console.log('Booking system initialized');
+            console.log('To test instructors, run: testInstructorFetch()');
         });
     </script>
 </body>
-
 </html>
-
