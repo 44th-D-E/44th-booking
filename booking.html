@@ -892,7 +892,7 @@ async function loadInstructors(category, training) {
             result.data.instructors.forEach(instructor => {
                 const option = document.createElement('option');
                 option.value = instructor.name;
-                option.textContent = `${instructor.name} (${instructor.discord})`;
+                option.textContent = instructor.name;
                 instructorSelect.appendChild(option);
             });
             
@@ -1066,6 +1066,7 @@ async function loadInstructors(category, training) {
 </body>
 
 </html>
+
 
 
 
