@@ -459,7 +459,7 @@
 
         <!-- Recent Activity -->
         <div class="activity-section">
-            <h2 class="activity-header">Recent Activity</h2>
+            <h2 class="activity-header">Upcoming Sessions</h2>
             <div class="activity-list" id="activityList">
                 <div class="loading">
                     <div class="spinner"></div>
@@ -500,34 +500,10 @@
             window.location.href = 'index.html';
         }
 
-        // Load dashboard data 
+                // Load dashboard data from calendar
         async function loadDashboardData() {
             try {
-                const userEmail = sessionStorage.getItem('userEmail');
-                
-                // Single call to getStats for all data
-                const response = await fetch(`${config.googleAppsScriptUrl}?action=getStats&userEmail=${encodeURIComponent(userEmail)}`);
-                const result = await response.json();
-                
-                if (result.data) {
-                    // Update stats from the data
-                    document.getElementById('todaySessions').textContent = getTodayCount(result.data.upcomingBookings || []);
-                    document.getElementById('weekSessions').textContent = getWeekCount(result.data.upcomingBookings || []);
-                    document.getElementById('totalRequests').textContent = result.data.totalRequests || 0;
-                    document.getElementById('serverUtilization').textContent = calculateUtilization(result.data.serverUtilization || {});
-                    
-                    // Update recent activity
-                    updateRecentActivity(result.data.recentRequests || [], result.data.upcomingBookings || []);
-                }
-            } catch (error) {
-                console.error('Error loading dashboard data:', error);
-                showErrorMessage();
-            }
-        }
-
-        // Load upcoming sessions from calendar
-        async function loadUpcomingSessions() {
-            try {
+                // Get calendar events
                 const response = await fetch(`${config.googleAppsScriptUrl}?action=getSchedule`);
                 const result = await response.json();
         
@@ -550,17 +526,47 @@
                     }).length;
                     document.getElementById('weekSessions').textContent = weekCount;
             
-                    // Update recent activity with real upcoming sessions
+                    // Set other stats (you can update these based on real data if needed)
+                    document.getElementById('totalRequests').textContent = '0';
+                    document.getElementById('serverUtilization').textContent = Math.round(events.length * 5) + '%';
+            
+                    // Get next 3 upcoming events
                     const upcomingEvents = events
                         .filter(e => new Date(e.start) >= now)
                         .sort((a, b) => new Date(a.start) - new Date(b.start))
-                        .slice(0, 5);
+                        .slice(0, 3); // Only show next 3 events
             
-                    updateActivityFromEvents(upcomingEvents);
+                    updateUpcomingEvents(upcomingEvents);
                 }
             } catch (error) {
-                console.error('Error loading sessions:', error);
+                console.error('Error loading dashboard data:', error);
+                showErrorMessage();
             }
+        }
+
+        // Update upcoming events display
+        function updateUpcomingEvents(events) {
+            const activityList = document.getElementById('activityList');
+    
+            if (events.length === 0) {
+                activityList.innerHTML = '<p style="text-align: center; color: var(--grey-light);">No upcoming sessions</p>';
+                return;
+            }
+    
+            activityList.innerHTML = events.map(event => {
+                const eventDate = new Date(event.start);
+                return `
+                    <div class="activity-item">
+                        <span class="activity-text">${event.training} - ${event.server} - ${event.instructor}</span>
+                        <span class="activity-time">${eventDate.toLocaleDateString()} at ${eventDate.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'})}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function showErrorMessage() {
+            const activityList = document.getElementById('activityList');
+            activityList.innerHTML = '<p style="text-align: center; color: var(--danger);">Failed to load data. Please refresh the page.</p>';
         }
 
         // Update activity list with calendar events
@@ -639,15 +645,16 @@
             activityList.innerHTML = '<p style="text-align: center; color: var(--danger);">Failed to load data. Please refresh the page.</p>';
         }
 
-        // Initialize on page load
+                // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             if (checkAuth()) {
                 loadUserInfo();
-                loadDashboardData();
-                loadUpcomingSessions();  // Add this line
+                loadDashboardData();  // Only call this one function
+                // Remove loadUpcomingSessions() call
             }
         });
     </script>
 </body>
 </html>
+
 
