@@ -876,6 +876,9 @@ async function loadInstructors(category, training) {
         const response = await fetch(`${config.googleAppsScriptUrl}?action=getInstructors&category=${encodeURIComponent(category)}&training=${encodeURIComponent(training)}`);
         const result = await response.json();
         
+        // ADD THIS DEBUG LINE
+        console.log('Instructor response:', result);
+        
         const instructorSelect = document.getElementById('instructor');
         
         if (result.success && result.data.instructors && result.data.instructors.length > 0) {
@@ -914,7 +917,6 @@ async function loadInstructors(category, training) {
         instructorSelect.disabled = false;
     }
 }
-
         // Check availability
         async function checkAvailability() {
             const date = document.getElementById('date').value;
@@ -1060,6 +1062,7 @@ async function loadInstructors(category, training) {
 </body>
 
 </html>
+
 
 
 
