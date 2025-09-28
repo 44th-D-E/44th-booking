@@ -86,11 +86,27 @@ function handleGetInstructors(data) {
       const training = row[1];
       const instructor = row[2];
       
-      // Match instructors by category (instructors are qualified for entire categories)
-      // Case-insensitive matching for robustness
-      if (category && instructor && 
-          category.toLowerCase() === data.category.toLowerCase()) {
-        instructors.push(instructor);
+      // Hybrid instructor matching logic
+      // Category-based: pilot, mbt, ifv, mechInf, bootcamp instructors can teach any training in their category
+      // Module-specific: infantry and other instructors are certified for specific trainings
+      
+      const categoryBasedTypes = ['pilot', 'mbt', 'ifv', 'mechinf', 'bootcamp'];
+      const isCategoryBased = categoryBasedTypes.includes(data.category.toLowerCase());
+      
+      if (category && instructor) {
+        if (isCategoryBased) {
+          // Match by category for category-based instructors
+          if (category.toLowerCase() === data.category.toLowerCase()) {
+            instructors.push(instructor);
+          }
+        } else {
+          // Match by specific training for module-specific instructors
+          if (training && 
+              category.toLowerCase() === data.category.toLowerCase() && 
+              training.toLowerCase() === data.training.toLowerCase()) {
+            instructors.push(instructor);
+          }
+        }
       }
     }
     
