@@ -167,31 +167,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            padding-top: 40px;
-            padding-bottom: 35px;
-        }
-
-        .options-grid .option-card:not(.full-width) .option-icon {
-            margin-bottom: 20px;
-        }
-
-        .options-grid .option-card:not(.full-width) .option-title {
-            margin-bottom: 12px;
-        }
-
-        .options-grid .option-card:not(.full-width) .access-label {
-            margin-bottom: 20px;
+            justify-content: center;
+            padding: 40px 30px;
+            cursor: pointer;
         }
 
         .options-grid .option-card:not(.full-width) .option-description {
-            margin-bottom: 25px;
-            flex-grow: 0;
-        }
-
-        .options-grid .option-card:not(.full-width) .btn-action {
-            margin-top: auto;
-            margin-bottom: 10px;
+            margin-bottom: 0;
         }
 
         .option-card.full-width {
@@ -555,13 +537,13 @@
                 <img src="Logo.png" alt="44th RAR Badge" onerror="this.style.display='none'; this.parentElement.classList.add('no-image')">
             </div>
             <h1>44th Royal Anglian Regiment</h1>
-            <p class="header-subtitle">Training Management System</p>
+            <p class="header-subtitle">Schedule Management System</p>
         </header>
 
         <!-- Options -->
         <div class="options-grid">
             <!-- Booking Portal (Restricted) -->
-            <div class="option-card">
+            <div class="option-card" onclick="openAuthModal()" style="cursor: pointer;">
                 <i class="fas fa-calendar-plus option-icon"></i>
                 <h2 class="option-title">Booking Portal</h2>
                 <span class="access-label">
@@ -572,13 +554,10 @@
                     Create instant bookings, view schedules, and access analytics.
                     <strong>D&E and authorized trainers only.</strong>
                 </p>
-                <button class="btn-action" onclick="openAuthModal()">
-                    ACCESS BOOKING PORTAL
-                </button>
             </div>
 
             <!-- Request Training (Public) -->
-            <div class="option-card">
+            <a href="request.html" class="option-card" style="text-decoration: none; color: inherit;">
                 <i class="fas fa-hand-paper option-icon"></i>
                 <h2 class="option-title">Request Training</h2>
                 <span class="access-label public">
@@ -589,10 +568,7 @@
                     Your requests help us understand demand and schedule 
                     the most needed training sessions.
                 </p>
-                <a href="request.html" class="btn-action">
-                    SUBMIT REQUEST
-                </a>
-            </div>
+            </a>
 
             <!-- View Schedule (Public) - Full Width Bottom -->
             <a href="schedule.html" class="option-card full-width" style="text-decoration: none; color: inherit;">
