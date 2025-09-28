@@ -467,19 +467,28 @@
         // Load all statistics
         async function loadStats() {
             try {
-                const userEmail = sessionStorage.getItem('userEmail');
-                
-                const response = await fetch(`${config.googleAppsScriptUrl}?action=getStats&userEmail=${encodeURIComponent(userEmail)}`);
-
+                const response = await fetch(`${config.googleAppsScriptUrl}?action=getStats`);
                 const result = await response.json();
-                
-                if (result.success) {
-                    updateDashboard(result.data);
-                } else {
-                    console.error('Failed to load stats:', result.message);
-                }
+        
+                if (result.success && result.data) {
+            // Ensure arrays exist with default empty arrays
+                    const bookings = result.data.bookings || [];
+                    const requests = result.data.requests || [];
+            
+            function updateDashboard(bookings, requests) {
+            // Ensure we have arrays
+            bookings = bookings || [];
+            requests = requests || [];
+    
+            // Total counts
+            document.getElementById('totalBookings').textContent = bookings.length;
+            document.getElementById('totalRequests').textContent = requests.length;
+    
+      }
             } catch (error) {
                 console.error('Error loading stats:', error);
+                // Show empty dashboard on error
+                updateDashboard([], []);
             }
         }
 
@@ -807,6 +816,7 @@
 </body>
 
 </html>
+
 
 
 
