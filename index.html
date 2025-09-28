@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>44th RAR - Training Management System</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <title>44th D&E Booking System</title>
     
-    <!-- Google Sign-In -->
-    <script src="https://accounts.google.com/gsi/client" async defer crossorigin="anonymous"></script>
+    <!-- Fix CORS headers -->
+    <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
+    
+    <!-- Google Sign-In - load before your scripts -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Russo+One&family=Chakra+Petch:wght@400;600;700&display=swap');
@@ -426,6 +427,13 @@
     </style>
 </head>
 <body>
+
+    <div id="g_id_onload"
+         data-client_id="810988176883-mft5ved25drb88shoo4hsut878if8b4g.apps.googleusercontent.com"
+         data-callback="handleCredentialResponse"
+         data-auto_prompt="false">
+    </div>
+    
     <div class="container">
         <!-- Header -->
         <header class="header">
@@ -538,76 +546,27 @@
             document.getElementById('authError').style.display = 'none';
         }
 
-        // Handle Google Sign-In response
+        // Handle the credential response
         function handleCredentialResponse(response) {
-            // Show loading state
-            document.getElementById('googleSignIn').style.display = 'none';
-            document.getElementById('loadingState').style.display = 'block';
-            document.getElementById('authError').style.display = 'none';
-            
-            // Decode JWT to get user email
-            const payload = JSON.parse(atob(response.credential.split('.')[1]));
-            const userEmail = payload.email;
-            const userName = payload.name;
-            
-            // Verify authorization with backend
-            checkAuthorization(userEmail, userName);
-        }
-
-        // Check if user is authorized
-        async function checkAuthorization(email, name) {
-            try {
-                const response = await fetch(config.googleAppsScriptUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        action: 'checkAuth',
-                        userEmail: email
-                    })
-                });
-
-                const result = await response.json();
-                
-                if (result.success && result.data.authorized) {
-                    // Store user info in session
-                    sessionStorage.setItem('userEmail', email);
-                    sessionStorage.setItem('userName', result.data.name || name);
-                    sessionStorage.setItem('userDiscord', result.data.discordName);
-                    sessionStorage.setItem('userRole', result.data.role);
-                    sessionStorage.setItem('authorized', 'true');
-                    
-                    // Redirect to trainer dashboard
+            // Send token to your Apps Script for verification
+            fetch(config.googleAppsScriptUrl + '?action=verifyToken', {
+                method: 'POST',
+                body: JSON.stringify({ credential: response.credential }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.authorized) {
+                    localStorage.setItem('userEmail', data.email);
+                    localStorage.setItem('userRole', data.role);
                     window.location.href = 'trainer-index.html';
                 } else {
-                    // Show error
-                    document.getElementById('loadingState').style.display = 'none';
-                    document.getElementById('googleSignIn').style.display = 'block';
-                    document.getElementById('authError').style.display = 'block';
-                    document.getElementById('errorMessage').textContent = 
-                        'You are not authorized to access this system. Please contact D&E for access.';
+                    alert('Not authorized. Contact D&E team.');
                 }
-            } catch (error) {
-                console.error('Authorization error:', error);
-                document.getElementById('loadingState').style.display = 'none';
-                document.getElementById('googleSignIn').style.display = 'block';
-                document.getElementById('authError').style.display = 'block';
-                document.getElementById('errorMessage').textContent = 
-                    'Authentication error. Please try again.';
-            }
-        }
-
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('authModal');
-            if (event.target === modal) {
-                closeAuthModal();
-            }
+            });
         }
     </script>
 </body>
-
 </html>
 
 
