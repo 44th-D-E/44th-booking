@@ -1112,7 +1112,7 @@
                             <button class="btn-action" onclick="showBookingDetails('${booking.eventId || booking.timestamp}')">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button class="btn-action danger" onclick="deleteBooking('${booking.eventId}')">
+                            <button class="btn-action danger" onclick="deleteBooking('${booking.eventId || booking.id}')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -1188,9 +1188,11 @@
         }
 
         // Cancel booking (same as delete but with different message)
-        async function cancelBooking() {
-            if (selectedBooking && selectedBooking.eventId) {
-                await deleteBooking(selectedBooking.eventId);
+       async function cancelBooking() {
+    if (selectedBooking && (selectedBooking.eventId || selectedBooking.id)) {
+        await deleteBooking(selectedBooking.eventId || selectedBooking.id);
+    }
+}
             }
         }
 
@@ -1216,6 +1218,7 @@
 </body>
 
 </html>
+
 
 
 
