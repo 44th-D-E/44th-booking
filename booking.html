@@ -754,7 +754,7 @@
                         result.data.instructors.forEach(instructor => {
                             const option = document.createElement('option');
                             option.value = instructor.name;
-                            option.textContent = `${instructor.name} (${instructor.discord || 'No Discord'})`;
+                            option.textContent = instructor.name;
                             instructorSelect.appendChild(option);
                         });
                     }
@@ -896,6 +896,7 @@
     </script>
 </body>
 </html>
+
 
 
 
