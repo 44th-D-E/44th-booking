@@ -870,56 +870,50 @@
             }
         }
 
-        // Load instructors for training
-        async function loadInstructors(category, training) {
-            try {
-                const response = await fetch(`${config.googleAppsScriptUrl}?action=getInstructors&category=${encodeURIComponent(category)}&training=${encodeURIComponent(training)}`);
-                const result = await response.json();
+      // Load instructors for training
+async function loadInstructors(category, training) {
+    try {
+        const response = await fetch(`${config.googleAppsScriptUrl}?action=getInstructors&category=${encodeURIComponent(category)}&training=${encodeURIComponent(training)}`);
+        const result = await response.json();
         
-                if (result.success) {
-                    const instructorSelect = document.getElementById('instructor');
-                    instructorSelect.innerHTML = '<option value="">-- SELECT INSTRUCTOR --</option>';
+        const instructorSelect = document.getElementById('instructor');
+        
+        if (result.success && result.data.instructors && result.data.instructors.length > 0) {
+            instructorSelect.innerHTML = '<option value="">-- SELECT INSTRUCTOR --</option>';
             
-                    result.data.instructors.forEach(instructor => {
-                        const option = document.createElement('option');
-                        option.value = instructor.name;
-                        option.textContent = `${instructor.name} (${instructor.discord})`;
-                        instructorSelect.appendChild(option);
-                    });
-                }
-            } catch (error) {
-                console.error('Error loading instructors:', error);
-            }
+            result.data.instructors.forEach(instructor => {
+                const option = document.createElement('option');
+                option.value = instructor.name;
+                option.textContent = `${instructor.name} (${instructor.discord})`;
+                instructorSelect.appendChild(option);
+            });
+            
+            // Add "Other" option
+            const otherOption = document.createElement('option');
+            otherOption.value = 'Other';
+            otherOption.textContent = 'OTHER (SPECIFY)';
+            instructorSelect.appendChild(otherOption);
+        } else {
+            // If no instructors found, enable with just "Other" option
+            instructorSelect.innerHTML = `
+                <option value="">-- SELECT INSTRUCTOR --</option>
+                <option value="Other">OTHER (SPECIFY)</option>
+            `;
         }
-                    
-                    // Add "Other" option
-                    const otherOption = document.createElement('option');
-                    otherOption.value = 'Other';
-                    otherOption.textContent = 'OTHER (SPECIFY)';
-                    instructorSelect.appendChild(otherOption);
-                    
-                    instructorSelect.disabled = false;
-                } 
-                else {
-                    // If no instructors found, enable with just "Other" option
-                    const instructorSelect = document.getElementById('instructor');
-                    instructorSelect.innerHTML = `
-                        <option value="">-- SELECT INSTRUCTOR --</option>
-                        <option value="Other">OTHER (SPECIFY)</option>
-                    `;
-                    instructorSelect.disabled = false;
-                }
-            } catch (error) {
-                console.error('Error loading instructors:', error);
-                // Enable with "Other" option on error
-                const instructorSelect = document.getElementById('instructor');
-                instructorSelect.innerHTML = `
-                    <option value="">-- SELECT INSTRUCTOR --</option>
-                    <option value="Other">OTHER (SPECIFY)</option>
-                `;
-                instructorSelect.disabled = false;
-            }
-        }
+        
+        instructorSelect.disabled = false;
+        
+    } catch (error) {
+        console.error('Error loading instructors:', error);
+        // Enable with "Other" option on error
+        const instructorSelect = document.getElementById('instructor');
+        instructorSelect.innerHTML = `
+            <option value="">-- SELECT INSTRUCTOR --</option>
+            <option value="Other">OTHER (SPECIFY)</option>
+        `;
+        instructorSelect.disabled = false;
+    }
+}
 
         // Check availability
         async function checkAvailability() {
@@ -1066,6 +1060,7 @@
 </body>
 
 </html>
+
 
 
 
