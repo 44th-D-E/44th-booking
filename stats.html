@@ -465,28 +465,143 @@
         }
 
         // Load all statistics
-       async function loadStats() {
-    try {
-        const response = await fetch(`${config.googleAppsScriptUrl}?action=getStats`);
-        const result = await response.json();
-        
-        if (result.success && result.data) {
-            // Ensure arrays exist with default empty arrays
-            const bookings = result.data.bookings || [];
-            const requests = result.data.requests || [];
-            
-            updateDashboard(bookings, requests);
-        } else {
-            console.error('Failed to load stats:', result.message);
-            // Show empty dashboard if no data
-            updateDashboard([], []);
+        async function loadStats() {
+            try {
+                const response = await fetch(`${config.googleAppsScriptUrl}?action=getStats`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    // Ensure arrays exist with default empty arrays
+                    const bookings = result.data.bookings || [];
+                    const requests = result.data.requests || [];
+                    
+                    // Process the raw data into analytics format
+                    const processedData = processStatsData(bookings, requests);
+                    updateDashboard(processedData);
+                } else {
+                    console.error('Failed to load stats:', result.message);
+                    // Show empty dashboard if no data
+                    updateDashboard(getEmptyDashboardData());
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                // Show empty dashboard on error
+                updateDashboard(getEmptyDashboardData());
+            }
         }
-    } catch (error) {
-        console.error('Error loading stats:', error);
-        // Show empty dashboard on error
-        updateDashboard([], []);
-    }
-}
+
+        // Process raw data into dashboard format
+        function processStatsData(bookings, requests) {
+            const now = new Date();
+            
+            // Process bookings
+            const upcomingBookings = [];
+            let completedBookings = 0;
+            const bookingsByCategory = {};
+            const bookingsByServer = {};
+            const bookingsByInstructor = {};
+            const popularTimes = {};
+            
+            bookings.forEach(booking => {
+                // Parse date - booking[8] is date column
+                const bookingDate = new Date(booking[8]);
+                
+                // Count upcoming
+                if (bookingDate > now) {
+                    upcomingBookings.push({
+                        date: booking[8],
+                        time: booking[9] || '00:00',
+                        training: booking[3],
+                        instructor: booking[6],
+                        server: booking[7]
+                    });
+                }
+                
+                // Count completed
+                if (booking[10] === 'Completed') {
+                    completedBookings++;
+                }
+                
+                // By category - booking[2] is category
+                const category = booking[2] || 'Other';
+                bookingsByCategory[category] = (bookingsByCategory[category] || 0) + 1;
+                
+                // By server - booking[7] is server
+                const server = booking[7] || 'Unknown';
+                bookingsByServer[server] = (bookingsByServer[server] || 0) + 1;
+                
+                // By instructor - booking[6] is instructor
+                const instructor = booking[6] || 'Unknown';
+                bookingsByInstructor[instructor] = (bookingsByInstructor[instructor] || 0) + 1;
+                
+                // Popular times - booking[9] is time
+                if (booking[9]) {
+                    const hour = booking[9].split(':')[0];
+                    popularTimes[hour] = (popularTimes[hour] || 0) + 1;
+                }
+            });
+            
+            // Process requests
+            const requestsByCategory = {};
+            const requestsByTraining = {};
+            const recentRequests = [];
+            
+            requests.forEach(request => {
+                // By category - request[2] is category
+                const category = request[2] || 'Other';
+                requestsByCategory[category] = (requestsByCategory[category] || 0) + 1;
+                
+                // By training - request[3] is training
+                const training = request[3] || 'Unknown';
+                requestsByTraining[training] = (requestsByTraining[training] || 0) + 1;
+                
+                // Recent requests
+                recentRequests.push({
+                    date: request[0],
+                    name: request[1] || 'Anonymous',
+                    category: request[2] || 'N/A',
+                    training: request[3] || 'N/A',
+                    notes: request[4] || ''
+                });
+            });
+            
+            // Sort recent requests by date
+            recentRequests.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Sort upcoming bookings by date
+            upcomingBookings.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            return {
+                totalRequests: requests.length,
+                totalBookings: bookings.length,
+                upcomingBookings: upcomingBookings,
+                completedBookings: completedBookings,
+                requestsByCategory: requestsByCategory,
+                bookingsByCategory: bookingsByCategory,
+                bookingsByServer: bookingsByServer,
+                popularTimes: popularTimes,
+                requestsByTraining: requestsByTraining,
+                bookingsByInstructor: bookingsByInstructor,
+                recentRequests: recentRequests
+            };
+        }
+
+        // Get empty dashboard data structure
+        function getEmptyDashboardData() {
+            return {
+                totalRequests: 0,
+                totalBookings: 0,
+                upcomingBookings: [],
+                completedBookings: 0,
+                requestsByCategory: {},
+                bookingsByCategory: {},
+                bookingsByServer: {},
+                popularTimes: {},
+                requestsByTraining: {},
+                bookingsByInstructor: {},
+                recentRequests: []
+            };
+        }
 
         // Update dashboard with data
         function updateDashboard(data) {
@@ -500,13 +615,25 @@
                 Math.round((data.completedBookings / data.totalBookings) * 100) : 0;
             document.getElementById('completionRate').textContent = completionRate + '%';
 
-            // Update charts
-            updateRequestsCategoryChart(data.requestsByCategory);
-            updateBookingsCategoryChart(data.bookingsByCategory);
-            updateServerChart(data.bookingsByServer);
-            updateTimeChart(data.popularTimes);
-            updateTopRequestedChart(data.requestsByTraining);
-            updateInstructorChart(data.bookingsByInstructor);
+            // Update charts - only if data exists
+            if (Object.keys(data.requestsByCategory).length > 0) {
+                updateRequestsCategoryChart(data.requestsByCategory);
+            }
+            if (Object.keys(data.bookingsByCategory).length > 0) {
+                updateBookingsCategoryChart(data.bookingsByCategory);
+            }
+            if (Object.keys(data.bookingsByServer).length > 0) {
+                updateServerChart(data.bookingsByServer);
+            }
+            if (Object.keys(data.popularTimes).length > 0) {
+                updateTimeChart(data.popularTimes);
+            }
+            if (Object.keys(data.requestsByTraining).length > 0) {
+                updateTopRequestedChart(data.requestsByTraining);
+            }
+            if (Object.keys(data.bookingsByInstructor).length > 0) {
+                updateInstructorChart(data.bookingsByInstructor);
+            }
             
             // Update tables
             updateRecentRequestsTable(data.recentRequests);
@@ -810,10 +937,4 @@
         }
     </script>
 </body>
-
 </html>
-
-
-
-
-
