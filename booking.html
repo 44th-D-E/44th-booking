@@ -904,7 +904,12 @@
                 return;
             }
             
+            const checkBtn = document.querySelector('button[onclick="checkAvailability()"]');
             const resultDiv = document.getElementById('availabilityResult');
+            
+            // Show loading state
+            checkBtn.disabled = true;
+            checkBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> CHECKING...';
             resultDiv.style.display = 'none';
             
             try {
@@ -934,6 +939,10 @@
             } catch (error) {
                 console.error('Error checking availability:', error);
                 console.log('Failed to check availability');
+            } finally {
+                // Restore button state
+                checkBtn.disabled = false;
+                checkBtn.innerHTML = '<i class="fas fa-search"></i> CHECK AVAILABILITY';
             }
         }
 
