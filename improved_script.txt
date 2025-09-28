@@ -90,7 +90,7 @@ function handleGetInstructors(data) {
       // Category-based: pilot, mbt, ifv, mechInf, bootcamp instructors can teach any training in their category
       // Module-specific: infantry and other instructors are certified for specific trainings
       
-      const categoryBasedTypes = ['pilot', 'mbt', 'ifv', 'mechinf', 'bootcamp'];
+      const categoryBasedTypes = ['pilot', 'mbt', 'ifv', 'mechinf', 'motorinf', 'bootcamp'];
       const isCategoryBased = categoryBasedTypes.includes(data.category.toLowerCase());
       
       if (category && instructor) {
