@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>44th RAR - Training Schedule Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Chakra+Petch:wght@400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-black: #0d0d0d;
+            --secondary-black: #1a1a1a;
+            --primary-yellow: #F4B643;
+            --accent-yellow: #FFD700;
+            --grey-dark: #2d2d2d;
+            --grey-medium: #4a4a4a;
+            --grey-light: #8a8a8a;
+            --white: #ffffff;
+            --success: #4CAF50;
+            --danger: #d32f2f;
+            --info: #2196F3;
+            --warning: #FF9800;
+        }
+
+        body {
+            font-family: 'Chakra Petch', monospace;
+            background: var(--primary-black);
+            color: var(--white);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Grid Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, 
+                    transparent, 
+                    transparent 100px, 
+                    rgba(244, 182, 67, 0.03) 100px, 
+                    rgba(244, 182, 67, 0.03) 101px),
+                repeating-linear-gradient(90deg, 
+                    transparent, 
+                    transparent 100px, 
+                    rgba(244, 182, 67, 0.03) 100px, 
+                    rgba(244, 182, 67, 0.03) 101px);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, rgba(244, 182, 67, 0.1), transparent);
+            border: 2px solid var(--primary-yellow);
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-left h1 {
+            font-family: 'Russo One', sans-serif;
+            font-size: 2.5em;
+            color: var(--primary-yellow);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(244, 182, 67, 0.5);
+        }
+
+        .header-subtitle {
+            color: var(--grey-light);
+            font-size: 1.1em;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn-header {
+            padding: 12px 24px;
+            background: var(--primary-yellow);
+            color: var(--primary-black);
+            border: none;
+            border-radius: 5px;
+            font-family: 'Russo One', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-header:hover {
+            background: var(--accent-yellow);
+            transform: scale(1.05);
+        }
+
+        .btn-header.secondary {
+            background: transparent;
+            color: var(--primary-yellow);
+            border: 2px solid var(--primary-yellow);
+        }
+
+        .btn-header.secondary:hover {
+            background: var(--primary-yellow);
+            color: var(--primary-black);
+        }
+
+        /* Controls Bar */
+        .controls-bar {
+            background: var(--secondary-black);
+            border: 1px solid var(--grey-medium);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .view-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .view-btn {
+            padding: 10px 20px;
+            background: var(--grey-dark);
+            border: 1px solid var(--grey-medium);
+            color: var(--white);
+            cursor: pointer;
+            border-radius: 5px;
+            font-family: 'Russo One', sans-serif;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn.active {
+            background: var(--primary-yellow);
+            color: var(--primary-black);
+            border-color: var(--primary-yellow);
+        }
+
+        .view-btn:hover:not(.active) {
+            border-color: var(--primary-yellow);
+            color: var(--primary-yellow);
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .filter-select {
+            padding: 8px 15px;
+            background: var(--grey-dark);
+            border: 1px solid var(--grey-medium);
+            color: var(--white);
+            border-radius: 5px;
+            font-family: 'Chakra Petch', monospace;
+            cursor: pointer;
+        }
+
+        .refresh-btn {
+            padding: 10px 20px;
+            background: var(--info);
+            border: none;
+            color: var(--white);
+            cursor: pointer;
+            border-radius: 5px;
+            font-family: 'Russo One', sans-serif;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: #1976D2;
+            transform: scale(1.05);
+        }
+
+        /* Calendar Container */
+        .calendar-container {
+            background: var(--secondary-black);
+            border: 1px solid var(--grey-medium);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary-yellow);
+        }
+
+        .calendar-title {
+            font-family: 'Russo One', sans-serif;
+            font-size: 1.5em;
+            color: var(--primary-yellow);
+            text-transform: uppercase;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            padding: 8px 15px;
+            background: var(--grey-dark);
+            border: 1px solid var(--grey-medium);
+            color: var(--white);
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--primary-yellow);
+            color: var(--primary-yellow);
+        }
+
+        /* Month View Grid */
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: var(--grey-medium);
+            border: 1px solid var(--grey-medium);
+        }
+
+        .month-grid > div {
+            background: var(--secondary-black);
+            min-height: 100px;
+            padding: 8px;
+            position: relative;
+        }
+
+        .day-header {
+            background: var(--grey-dark);
+            color: var(--primary-yellow);
+            text-align: center;
+            font-weight: bold;
+            text-transform: uppercase;
+            padding: 10px;
+            min-height: 40px;
+        }
+
+        .day-cell {
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .day-cell:hover {
+            background: rgba(244, 182, 67, 0.1);
+        }
+
+        .day-number {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--grey-light);
+        }
+
+        .day-cell.today .day-number {
+            background: var(--primary-yellow);
+            color: var(--primary-black);
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .day-cell.other-month {
+            opacity: 0.3;
+        }
+
+        /* Event Pills */
+        .event-pill {
+            background: var(--primary-yellow);
+            color: var(--primary-black);
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-bottom: 2px;
+            font-size: 0.75em;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: all 0.3s ease;
+        }
+
+        .event-pill:hover {
+            transform: scale(1.05);
+            z-index: 10;
+            position: relative;
+            white-space: normal;
+            overflow: visible;
+        }
+
+        .event-pill.zeus {
+            background: linear-gradient(45deg, var(--primary-yellow), var(--warning));
+        }
+
+        .event-pill.completed {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .event-pill.cancelled {
+            background: var(--grey-medium);
+            text-decoration: line-through;
+        }
+
+        /* Table View */
+        .table-container {
+            background: var(--secondary-black);
+            border: 1px solid var(--grey-medium);
+            border-radius: 10px;
+            padding: 20px;
+            display: none;
+            overflow-x: auto;
+        }
+
+        .table-container.active {
+            display: block;
+        }
+
+        .calendar-container.active {
+            display: block;
+        }
+
+        .calendar-container:not(.active) {
+            display: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        th {
+            background: var(--grey-dark);
+            color: var(--primary-yellow);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid var(--primary-yellow);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--grey-dark);
+            color: var(--white);
+        }
+
+        tr:hover td {
+            background: rgba(244, 182, 67, 0.1);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.scheduled {
+            background: var(--info);
+            color: var(--white);
+        }
+
+        .status-badge.completed {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .status-badge.cancelled {
+            background: var(--grey-medium);
+            color: var(--white);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
+            padding: 5px 10px;
+            background: transparent;
+            border: 1px solid var(--grey-medium);
+            color: var(--grey-light);
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-action:hover {
+            border-color: var(--primary-yellow);
+            color: var(--primary-yellow);
+        }
+
+        .btn-action.danger:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        /* Event Details Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--secondary-black);
+            border: 2px solid var(--primary-yellow);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            font-family: 'Russo One', sans-serif;
+            font-size: 1.5em;
+            color: var(--primary-yellow);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .modal-body {
+            display: grid;
+            gap: 15px;
+        }
+
+        .detail-row {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 15px;
+        }
+
+        .detail-label {
+            color: var(--grey-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+
+        .detail-value {
+            color: var(--white);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--grey-light);
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: var(--primary-yellow);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--grey-medium);
+        }
+
+        .btn-modal {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-family: 'Russo One', sans-serif;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-modal.primary {
+            background: var(--primary-yellow);
+            color: var(--primary-black);
+        }
+
+        .btn-modal.danger {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-modal:hover {
+            transform: scale(1.05);
+        }
+
+        /* Stats Summary */
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--secondary-black);
+            border: 1px solid var(--grey-medium);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Russo One', sans-serif;
+            font-size: 2em;
+            color: var(--primary-yellow);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--grey-light);
+            font-size: 0.9em;
+            text-transform: uppercase;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--grey-light);
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--grey-medium);
+            border-top-color: var(--primary-yellow);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .controls-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-controls {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .stats-summary {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .month-grid {
+                font-size: 0.8em;
+            }
+            
+            .month-grid > div {
+                min-height: 80px;
+            }
+            
+            .table-container {
+                font-size: 0.9em;
+            }
+            
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <h1>Training Schedule Management</h1>
+                <p class="header-subtitle">Full control over all training sessions</p>
+            </div>
+            <div class="header-actions">
+                <a href="trainer-index.html" class="btn-header secondary">
+                    <i class="fas fa-arrow-left"></i> Dashboard
+                </a>
+                <a href="booking.html" class="btn-header">
+                    <i class="fas fa-plus"></i> New Booking
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats Summary -->
+        <div class="stats-summary">
+            <div class="stat-card">
+                <div class="stat-value" id="monthTotal">0</div>
+                <div class="stat-label">This Month</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="upcomingTotal">0</div>
+                <div class="stat-label">Upcoming</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="completedTotal">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="cancelledTotal">0</div>
+                <div class="stat-label">Cancelled</div>
+            </div>
+        </div>
+
+        <!-- Controls Bar -->
+        <div class="controls-bar">
+            <div class="view-controls">
+                <button class="view-btn active" onclick="switchView('month')">
+                    <i class="fas fa-calendar-alt"></i> Month
+                </button>
+                <button class="view-btn" onclick="switchView('table')">
+                    <i class="fas fa-table"></i> Table
+                </button>
+            </div>
+            
+            <div class="filter-controls">
+                <select class="filter-select" id="serverFilter" onchange="applyFilters()">
+                    <option value="">All Servers</option>
+                    <option value="Server 6">Server 6</option>
+                    <option value="Server 7">Server 7</option>
+                    <option value="Backup">Backup</option>
+                </select>
+                
+                <select class="filter-select" id="statusFilter" onchange="applyFilters()">
+                    <option value="">All Status</option>
+                    <option value="Scheduled">Scheduled</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+                
+                <button class="refresh-btn" onclick="loadBookings()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- Month View -->
+        <div id="monthView" class="calendar-container active">
+            <div class="calendar-header">
+                <div class="calendar-title" id="monthTitle">Loading...</div>
+                <div class="calendar-nav">
+                    <button class="nav-btn" onclick="changeMonth(-1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="nav-btn" onclick="goToToday()">Today</button>
+                    <button class="nav-btn" onclick="changeMonth(1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="monthGrid" class="month-grid">
+                <!-- Calendar will be populated here -->
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading schedule...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table View -->
+        <div id="tableView" class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Training</th>
+                        <th>Category</th>
+                        <th>Instructor</th>
+                        <th>Server</th>
+                        <th>Zeus</th>
+                        <th>Status</th>
+                        <th>Booked By</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="bookingsTable">
+                    <tr>
+                        <td colspan="10" class="loading">
+                            <div class="spinner"></div>
+                            <p>Loading bookings...</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Event Details Modal -->
+        <div id="eventModal" class="modal">
+            <div class="modal-content">
+                <button class="close-modal" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+                
+                <h2 class="modal-header">Training Session Details</h2>
+                
+                <div class="modal-body">
+                    <div class="detail-row">
+                        <div class="detail-label">Training:</div>
+                        <div class="detail-value" id="modalTraining">-</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Category:</div>
+                        <div class="detail-value" id="modalCategory">-</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Date:</div>
+                        <div class="detail-value" id="modalDate">-</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Time:</div>
+                        <div class="detail-value" id="modalTime">-</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Duration:</div>
+                        <div class="detail-value" id="modalDuration">-</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Instructor:</div>
+                        <div class="detail-value" id="modalInstructor">-</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Server:</div>
+                        <div class="detail-value" id="modalServer">-</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Zeus Required:</div>
+                        <div class="detail-value" id="modalZeus">-</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Status:</div>
+                        <div class="detail-value" id="modalStatus">-</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Booked By:</div>
+                        <div class="detail-value" id="modalBookedBy">-</div>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="btn-modal primary" onclick="updateStatus('Completed')">
+                        <i class="fas fa-check"></i> Mark Complete
+                    </button>
+                    <button class="btn-modal danger" onclick="cancelBooking()">
+                        <i class="fas fa-times"></i> Cancel Booking
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const config = {
+            googleAppsScriptUrl: 'https://script.google.com/macros/s/AKfycbwGZOXvdRUEXRGpt770eGtxEr858kf0LxgY3Onk8E7pVH7LY3raTUH1AE0KVU4Yg39rPQ/exec'
+        };
+
+        // State
+        let currentView = 'month';
+        let currentMonth = new Date();
+        let bookings = [];
+        let filteredBookings = [];
+        let selectedBooking = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadBookings();
+            // Auto-refresh every 60 seconds
+            setInterval(loadBookings, 60000);
+        });
+
+        // Check authentication
+        function checkAuth() {
+            const authorized = sessionStorage.getItem('authorized');
+            if (authorized !== 'true') {
+                alert('Please login first');
+                window.location.href = 'index.html';
+                return false;
+            }
+            return true;
+        }
+
+        // Load bookings
+        async function loadBookings() {
+            try {
+                const userEmail = sessionStorage.getItem('userEmail');
+                
+                const response = await fetch(config.googleAppsScriptUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'getBookings',
+                        userEmail: userEmail
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    bookings = result.data.bookings;
+                    applyFilters();
+                    updateStats();
+                } else {
+                    console.error('Failed to load bookings:', result.message);
+                }
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+            }
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const serverFilter = document.getElementById('serverFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            filteredBookings = bookings.filter(booking => {
+                if (serverFilter && booking.server !== serverFilter) return false;
+                if (statusFilter && booking.status !== statusFilter) return false;
+                return true;
+            });
+            
+            renderView();
+        }
+
+        // Update statistics
+        function updateStats() {
+            const now = new Date();
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+            
+            let monthCount = 0;
+            let upcomingCount = 0;
+            let completedCount = 0;
+            let cancelledCount = 0;
+            
+            bookings.forEach(booking => {
+                const bookingDate = new Date(booking.date);
+                
+                if (bookingDate >= monthStart) {
+                    monthCount++;
+                }
+                
+                if (bookingDate > now && booking.status === 'Scheduled') {
+                    upcomingCount++;
+                }
+                
+                if (booking.status === 'Completed') {
+                    completedCount++;
+                }
+                
+                if (booking.status === 'Cancelled') {
+                    cancelledCount++;
+                }
+            });
+            
+            document.getElementById('monthTotal').textContent = monthCount;
+            document.getElementById('upcomingTotal').textContent = upcomingCount;
+            document.getElementById('completedTotal').textContent = completedCount;
+            document.getElementById('cancelledTotal').textContent = cancelledCount;
+        }
+
+        // Switch view
+        function switchView(view) {
+            currentView = view;
+            
+            // Update buttons
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update view containers
+            if (view === 'month') {
+                document.getElementById('monthView').classList.add('active');
+                document.getElementById('tableView').classList.remove('active');
+            } else {
+                document.getElementById('monthView').classList.remove('active');
+                document.getElementById('tableView').classList.add('active');
+            }
+            
+            renderView();
+        }
+
+        // Render current view
+        function renderView() {
+            if (currentView === 'month') {
+                renderMonthView();
+            } else {
+                renderTableView();
+            }
+        }
+
+        // Render month view
+        function renderMonthView() {
+            const grid = document.getElementById('monthGrid');
+            const year = currentMonth.getFullYear();
+            const month = currentMonth.getMonth();
+            
+            // Update title
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                              'July', 'August', 'September', 'October', 'November', 'December'];
+            document.getElementById('monthTitle').textContent = `${monthNames[month]} ${year}`;
+            
+            // Calculate days
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const prevLastDay = new Date(year, month, 0);
+            const startDay = firstDay.getDay();
+            const today = new Date();
+            
+            let html = '';
+            
+            // Day headers
+            const dayHeaders = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+            dayHeaders.forEach(day => {
+                html += `<div class="day-header">${day}</div>`;
+            });
+            
+            // Previous month days
+            for (let i = startDay - 1; i >= 0; i--) {
+                const day = prevLastDay.getDate() - i;
+                html += `<div class="day-cell other-month"><div class="day-number">${day}</div></div>`;
+            }
+            
+            // Current month days
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const date = new Date(year, month, day);
+                const isToday = date.toDateString() === today.toDateString();
+                const dayBookings = getDayBookings(date);
+                
+                html += `<div class="day-cell ${isToday ? 'today' : ''}">
+                    <div class="day-number">${day}</div>`;
+                
+                dayBookings.slice(0, 3).forEach(booking => {
+                    const statusClass = booking.status.toLowerCase();
+                    const zeusClass = booking.zeus === 'Yes' ? 'zeus' : '';
+                    html += `<div class="event-pill ${statusClass} ${zeusClass}" 
+                             onclick="showBookingDetails('${booking.eventId || booking.timestamp}')">
+                        ${booking.time} ${booking.training}
+                    </div>`;
+                });
+                
+                if (dayBookings.length > 3) {
+                    html += `<div style="font-size: 0.75em; color: var(--grey-light);">
+                        +${dayBookings.length - 3} more
+                    </div>`;
+                }
+                
+                html += `</div>`;
+            }
+            
+            // Next month days
+            const remainingDays = 42 - (startDay + lastDay.getDate());
+            for (let day = 1; day <= remainingDays; day++) {
+                html += `<div class="day-cell other-month"><div class="day-number">${day}</div></div>`;
+            }
+            
+            grid.innerHTML = html;
+        }
+
+        // Get bookings for a specific day
+        function getDayBookings(date) {
+            return filteredBookings.filter(booking => {
+                const bookingDate = new Date(booking.date);
+                return bookingDate.toDateString() === date.toDateString();
+            }).sort((a, b) => {
+                const timeA = a.time || '00:00';
+                const timeB = b.time || '00:00';
+                return timeA.localeCompare(timeB);
+            });
+        }
+
+        // Render table view
+        function renderTableView() {
+            const tbody = document.getElementById('bookingsTable');
+            
+            if (filteredBookings.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="10" style="text-align: center; padding: 40px;">
+                            No bookings found
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Sort by date and time
+            const sorted = [...filteredBookings].sort((a, b) => {
+                const dateA = new Date(a.date + ' ' + (a.time || '00:00'));
+                const dateB = new Date(b.date + ' ' + (b.time || '00:00'));
+                return dateA - dateB;
+            });
+            
+            tbody.innerHTML = sorted.map(booking => `
+                <tr>
+                    <td>${new Date(booking.date).toLocaleDateString()}</td>
+                    <td>${booking.time || '-'}</td>
+                    <td>${booking.training}</td>
+                    <td>${booking.category}</td>
+                    <td>${booking.instructor}</td>
+                    <td>${booking.server}</td>
+                    <td>${booking.zeus}</td>
+                    <td>
+                        <span class="status-badge ${booking.status.toLowerCase()}">
+                            ${booking.status}
+                        </span>
+                    </td>
+                    <td>${booking.bookedBy || booking.discordName}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-action" onclick="showBookingDetails('${booking.eventId || booking.timestamp}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn-action danger" onclick="deleteBooking('${booking.eventId}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Show booking details
+        function showBookingDetails(id) {
+            const booking = bookings.find(b => b.eventId === id || b.timestamp === id);
+            if (!booking) return;
+            
+            selectedBooking = booking;
+            
+            document.getElementById('modalTraining').textContent = booking.training;
+            document.getElementById('modalCategory').textContent = booking.category;
+            document.getElementById('modalDate').textContent = new Date(booking.date).toLocaleDateString();
+            document.getElementById('modalTime').textContent = booking.time || '-';
+            document.getElementById('modalDuration').textContent = `${booking.duration} minutes`;
+            document.getElementById('modalInstructor').textContent = booking.instructor;
+            document.getElementById('modalServer').textContent = booking.server;
+            document.getElementById('modalZeus').textContent = booking.zeus;
+            document.getElementById('modalStatus').textContent = booking.status;
+            document.getElementById('modalBookedBy').textContent = booking.bookedBy || booking.discordName;
+            
+            document.getElementById('eventModal').classList.add('active');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('eventModal').classList.remove('active');
+            selectedBooking = null;
+        }
+
+        // Delete booking
+        async function deleteBooking(eventId) {
+            if (!eventId) {
+                alert('Cannot delete this booking - no event ID');
+                return;
+            }
+            
+            if (!confirm('Are you sure you want to delete this booking?')) {
+                return;
+            }
+            
+            try {
+                const userEmail = sessionStorage.getItem('userEmail');
+                
+                const response = await fetch(config.googleAppsScriptUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'deleteBooking',
+                        eventId: eventId,
+                        userEmail: userEmail
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Booking deleted successfully');
+                    closeModal();
+                    loadBookings();
+                } else {
+                    alert('Failed to delete booking: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error deleting booking:', error);
+                alert('Error deleting booking');
+            }
+        }
+
+        // Update booking status
+        async function updateStatus(newStatus) {
+            // This would require an updateBooking endpoint in the backend
+            alert(`Status update to "${newStatus}" - Feature coming soon`);
+            // For now, just close the modal
+            closeModal();
+        }
+
+        // Cancel booking (same as delete but with different message)
+        async function cancelBooking() {
+            if (selectedBooking && selectedBooking.eventId) {
+                await deleteBooking(selectedBooking.eventId);
+            }
+        }
+
+        // Navigation functions
+        function changeMonth(direction) {
+            currentMonth.setMonth(currentMonth.getMonth() + direction);
+            renderMonthView();
+        }
+
+        function goToToday() {
+            currentMonth = new Date();
+            renderMonthView();
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('eventModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>

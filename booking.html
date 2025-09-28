@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>44th RAR - Training Server Booking System</title>
+    <title>44th RAR - Create Booking</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
     <style>
-        /* Military Font Stack - Fallback if Gunplay fails */
-        @import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Russo+One&family=Chakra+Petch:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Chakra+Petch:wght@400;600;700&display=swap');
 
         * {
             margin: 0;
@@ -26,6 +26,7 @@
             --white: #ffffff;
             --success: #4CAF50;
             --danger: #d32f2f;
+            --info: #2196F3;
             --warning: #FF9800;
         }
 
@@ -34,10 +35,11 @@
             background: var(--primary-black);
             color: var(--white);
             min-height: 100vh;
+            padding: 20px;
             position: relative;
         }
 
-        /* Tactical Grid Background */
+        /* Grid Background */
         body::before {
             content: '';
             position: fixed;
@@ -57,136 +59,128 @@
                     rgba(244, 182, 67, 0.03) 100px, 
                     rgba(244, 182, 67, 0.03) 101px);
             pointer-events: none;
-            z-index: 1;
+            z-index: -1;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
             position: relative;
-            z-index: 2;
+            z-index: 1;
         }
 
         /* Header */
         .header {
             text-align: center;
-            padding: 40px 20px 30px;
             margin-bottom: 40px;
-            position: relative;
-        }
-
-        .header::before,
-        .header::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            width: 30%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--primary-yellow), transparent);
-        }
-
-        .header::before {
-            left: 0;
-        }
-
-        .header::after {
-            right: 0;
-        }
-
-        .header-badge {
-            width: 150px;
-            height: 150px;
-            margin: 0 auto 20px;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="85" fill="none" stroke="%23F4B643" stroke-width="2" opacity="0.3"/><circle cx="100" cy="100" r="75" fill="none" stroke="%23F4B643" stroke-width="1" opacity="0.5"/><text x="100" y="120" font-family="Black Ops One" font-size="72" fill="%23F4B643" text-anchor="middle">44th</text></svg>') center/contain no-repeat;
-            filter: drop-shadow(0 0 20px rgba(244, 182, 67, 0.3));
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(244, 182, 67, 0.1), transparent);
+            border: 2px solid var(--primary-yellow);
+            border-radius: 10px;
         }
 
         .header h1 {
-            font-family: 'Black Ops One', sans-serif;
-            font-size: 3.2em;
+            font-family: 'Russo One', sans-serif;
+            font-size: 2.5em;
             color: var(--primary-yellow);
             text-transform: uppercase;
-            letter-spacing: 3px;
-            text-shadow: 
-                0 0 10px rgba(244, 182, 67, 0.5),
-                0 0 20px rgba(244, 182, 67, 0.3);
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(244, 182, 67, 0.5);
         }
 
-        /* Main Layout */
-        .main-container {
+        .header-subtitle {
+            color: var(--grey-light);
+            font-size: 1.1em;
+        }
+
+        /* Navigation */
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            background: transparent;
+            border: 2px solid var(--primary-yellow);
+            color: var(--primary-yellow);
+            text-decoration: none;
+            font-family: 'Russo One', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+        }
+
+        .nav-btn:hover {
+            background: var(--primary-yellow);
+            color: var(--primary-black);
+            transform: translateX(-5px);
+        }
+
+        /* Main Grid */
+        .main-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 350px;
             gap: 30px;
         }
 
-        @media (max-width: 1024px) {
-            .main-container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Panels */
-        .panel {
+        /* Form Container */
+        .form-container {
             background: var(--secondary-black);
-            border: 1px solid var(--grey-dark);
-            position: relative;
+            border: 2px solid var(--grey-medium);
+            border-radius: 15px;
+            padding: 40px;
         }
 
-        .panel::before {
-            content: '';
-            position: absolute;
-            top: -1px;
-            left: -1px;
-            right: -1px;
-            bottom: -1px;
-            background: linear-gradient(45deg, var(--primary-yellow), transparent);
-            opacity: 0.1;
-            pointer-events: none;
-        }
-
-        .panel-header {
-            background: var(--grey-dark);
-            padding: 15px 20px;
-            border-bottom: 2px solid var(--primary-yellow);
+        .form-title {
+            font-family: 'Russo One', sans-serif;
+            font-size: 1.8em;
+            color: var(--primary-yellow);
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             display: flex;
             align-items: center;
             gap: 15px;
         }
 
-        .panel-header h2 {
-            font-family: 'Russo One', sans-serif;
-            font-size: 1.4em;
-            color: var(--primary-yellow);
-            text-transform: uppercase;
-            letter-spacing: 3px;
-        }
-
-        .panel-body {
-            padding: 30px;
-        }
-
-        /* Form Styling */
-        .form-group {
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
             margin-bottom: 25px;
         }
 
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
         .form-label {
-            font-family: 'Russo One', sans-serif;
-            font-size: 0.9em;
-            color: var(--grey-light);
+            margin-bottom: 8px;
+            color: var(--white);
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
-            display: block;
+            letter-spacing: 1px;
+            font-size: 0.9em;
+        }
+
+        .required {
+            color: var(--danger);
         }
 
         .form-control {
-            width: 100%;
             padding: 12px 15px;
-            background: var(--primary-black);
+            background: var(--grey-dark);
             border: 1px solid var(--grey-medium);
             color: var(--white);
+            border-radius: 5px;
             font-family: 'Chakra Petch', monospace;
             font-size: 1em;
             transition: all 0.3s ease;
@@ -195,44 +189,124 @@
         .form-control:focus {
             outline: none;
             border-color: var(--primary-yellow);
-            background: rgba(244, 182, 67, 0.05);
-            box-shadow: 0 0 0 2px rgba(244, 182, 67, 0.1);
+            box-shadow: 0 0 10px rgba(244, 182, 67, 0.2);
         }
 
         select.form-control {
             cursor: pointer;
-            appearance: none;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23F4B643"><path d="M7 10l5 5 5-5z"/></svg>');
-            background-repeat: no-repeat;
-            background-position: right 15px center;
-            background-size: 20px;
-            padding-right: 45px;
-        }
-
-        /* Fix dropdown option background */
-        select.form-control option {
-            background: var(--primary-black);
-            color: var(--white);
         }
 
         textarea.form-control {
-            min-height: 100px;
             resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-help {
+            margin-top: 5px;
+            color: var(--grey-light);
+            font-size: 0.85em;
+            font-style: italic;
+        }
+
+        /* Duration Selector */
+        .duration-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .duration-input {
+            flex: 1;
+        }
+
+        .duration-label {
+            color: var(--grey-light);
+        }
+
+        /* Radio Groups */
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .radio-option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary-yellow);
+        }
+
+        /* Availability Check */
+        .availability-check {
+            background: var(--grey-dark);
+            border: 1px solid var(--grey-medium);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .check-btn {
+            padding: 12px 30px;
+            background: var(--info);
+            color: var(--white);
+            border: none;
+            border-radius: 30px;
+            font-family: 'Russo One', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 0;
+        }
+
+        .check-btn:hover {
+            background: #1976D2;
+            transform: scale(1.05);
+        }
+
+        .availability-result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .availability-result.available {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+
+        .availability-result.unavailable {
+            background: rgba(211, 47, 47, 0.2);
+            border: 1px solid var(--danger);
+            color: var(--danger);
         }
 
         /* Submit Button */
         .btn-submit {
             width: 100%;
-            padding: 15px;
-            background: var(--primary-yellow);
-            border: 2px solid var(--primary-yellow);
+            padding: 18px 30px;
+            background: linear-gradient(45deg, var(--primary-yellow), var(--accent-yellow));
             color: var(--primary-black);
-            font-family: 'Black Ops One', sans-serif;
-            font-size: 1.1em;
+            border: none;
+            border-radius: 30px;
+            font-family: 'Russo One', sans-serif;
+            font-size: 1.2em;
+            font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
             cursor: pointer;
             transition: all 0.3s ease;
+            margin-top: 30px;
             position: relative;
             overflow: hidden;
         }
@@ -240,150 +314,128 @@
         .btn-submit::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.5s ease;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
         }
 
         .btn-submit:hover::before {
-            left: 100%;
+            width: 600px;
+            height: 600px;
         }
 
         .btn-submit:hover {
-            background: transparent;
-            color: var(--primary-yellow);
-            box-shadow: 0 0 20px rgba(244, 182, 67, 0.3);
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(244, 182, 67, 0.4);
         }
 
-        .btn-submit:active {
-            transform: scale(0.98);
+        .btn-submit:disabled {
+            background: var(--grey-medium);
+            cursor: not-allowed;
+            transform: none;
         }
 
-        /* Schedule Display */
-        .schedule-container {
-            margin-top: 20px;
-        }
-
-        .schedule-date {
-            font-family: 'Black Ops One', sans-serif;
-            font-size: 1.6em;
-            color: var(--primary-yellow);
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: var(--grey-dark);
-            border-left: 4px solid var(--primary-yellow);
-        }
-
-        .schedule-empty {
-            text-align: center;
-            padding: 40px;
-            color: var(--grey-light);
-            font-style: italic;
-        }
-
-        .time-slot {
-            background: var(--grey-dark);
-            border: 1px solid var(--grey-medium);
-            margin-bottom: 10px;
+        /* Sidebar */
+        .sidebar {
             display: flex;
-            align-items: center;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        .time-slot::before {
+        .info-card {
+            background: var(--secondary-black);
+            border: 1px solid var(--info);
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .info-card::before {
             content: '';
             position: absolute;
-            left: 0;
             top: 0;
-            bottom: 0;
-            width: 4px;
-            background: var(--grey-medium);
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--info);
         }
 
-        .time-slot.available::before {
-            background: var(--success);
+        .info-card h3 {
+            color: var(--info);
+            margin-bottom: 15px;
+            font-family: 'Russo One', sans-serif;
+            text-transform: uppercase;
         }
 
-        .time-slot.booked::before {
-            background: var(--danger);
+        .info-card ul {
+            list-style: none;
         }
 
-        .time-slot:hover {
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        .info-card li {
+            padding: 8px 0;
+            color: var(--grey-light);
+            padding-left: 20px;
+            position: relative;
         }
 
-        .time-display {
+        .info-card li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--primary-yellow);
+        }
+
+        /* Conflicts List */
+        .conflicts-card {
+            background: var(--secondary-black);
+            border: 1px solid var(--warning);
+            border-radius: 10px;
             padding: 20px;
-            background: rgba(244, 182, 67, 0.1);
-            border-right: 1px solid var(--grey-medium);
-            min-width: 120px;
-            text-align: center;
         }
 
-        .time-text {
-            font-family: 'Russo One', sans-serif;
-            font-size: 1.2em;
-            color: var(--primary-yellow);
+        .conflicts-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--warning);
         }
 
-        .time-duration {
-            font-size: 0.8em;
-            color: var(--grey-light);
-            margin-top: 5px;
+        .conflict-item {
+            background: var(--grey-dark);
+            border-left: 3px solid var(--warning);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
         }
 
-        .slot-details {
-            flex: 1;
-            padding: 15px 20px;
-        }
-
-        .slot-training {
-            font-family: 'Russo One', sans-serif;
-            font-size: 1.1em;
+        /* Success Message */
+        .success-message {
+            display: none;
+            background: var(--success);
             color: var(--white);
-            margin-bottom: 8px;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+            animation: slideInDown 0.5s ease;
         }
 
-        .slot-info {
-            display: flex;
-            gap: 20px;
-            font-size: 0.9em;
-            color: var(--grey-light);
+        .success-message.show {
+            display: block;
         }
 
-        .slot-info span {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .slot-info i {
-            color: var(--primary-yellow);
-            font-size: 0.9em;
-        }
-
-        /* Status Messages */
-        .status-message {
-            margin-top: 20px;
-            padding: 15px 20px;
-            border-left: 4px solid;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
+        @keyframes slideInDown {
             from {
                 opacity: 0;
-                transform: translateY(-10px);
+                transform: translateY(-20px);
             }
             to {
                 opacity: 1;
@@ -391,39 +443,25 @@
             }
         }
 
-        .status-message.success {
-            background: rgba(76, 175, 80, 0.1);
-            border-color: var(--success);
-            color: var(--success);
-        }
-
-        .status-message.error {
-            background: rgba(211, 47, 47, 0.1);
-            border-color: var(--danger);
-            color: var(--danger);
-        }
-
-        .status-message.loading {
-            background: rgba(244, 182, 67, 0.1);
-            border-color: var(--primary-yellow);
-            color: var(--primary-yellow);
-        }
-
-        /* Loading Spinner */
+        /* Loading State */
         .loading {
+            display: none;
             text-align: center;
-            padding: 40px;
-            color: var(--primary-yellow);
+            padding: 20px;
+        }
+
+        .loading.show {
+            display: block;
         }
 
         .spinner {
-            display: inline-block;
             width: 40px;
             height: 40px;
             border: 3px solid var(--grey-medium);
             border-top-color: var(--primary-yellow);
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
         }
 
         @keyframes spin {
@@ -431,681 +469,623 @@
         }
 
         /* Responsive */
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                order: -1;
+            }
+        }
+
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2.2em;
+            .form-container {
+                padding: 25px;
             }
             
-            .header-badge {
-                width: 100px;
-                height: 100px;
-            }
-            
-            .time-display {
-                min-width: 100px;
-                padding: 15px;
-            }
-            
-            .slot-info {
-                flex-direction: column;
-                gap: 5px;
+            .form-row {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Navigation -->
+        <div class="nav-buttons">
+            <a href="trainer-index.html" class="nav-btn">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+            <a href="trainer-schedule.html" class="nav-btn">
+                <i class="fas fa-calendar"></i> View Schedule
+            </a>
+        </div>
+
         <!-- Header -->
-        <header class="header">
-            <div class="header-badge"></div>
-            <h1>44TH ROYAL ANGLIAN REGIMENT</h1>
-            <p style="font-family: 'Russo One', sans-serif; color: var(--grey-light); text-transform: uppercase; letter-spacing: 4px; margin-top: 10px;">Server Booking System</p>
-        </header>
+        <div class="header">
+            <h1>Create Instant Booking</h1>
+            <p class="header-subtitle">Book training sessions instantly - no approval needed!</p>
+        </div>
 
-        <!-- Main Content -->
-        <div class="main-container">
-            <!-- Booking Form Panel -->
-            <div class="panel">
-                <div class="panel-header">
-                    <i class="fas fa-crosshairs" style="color: var(--primary-yellow);"></i>
-                    <h2>Book Server Time</h2>
-                </div>
-                <div class="panel-body">
-                    <form id="bookingForm">
-                        <!-- Training Date (MOVED TO TOP) -->
-                        <div class="form-group">
-                            <label class="form-label">Training Date</label>
-                            <input type="date" id="date" class="form-control" required>
-                        </div>
+        <!-- Success Message -->
+        <div id="successMessage" class="success-message">
+            <h3><i class="fas fa-check-circle"></i> Booking Created Successfully!</h3>
+            <p>Your training session has been added to the calendar.</p>
+        </div>
 
-                        <!-- Training Category -->
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Booking Form -->
+            <div class="form-container">
+                <h2 class="form-title">
+                    <i class="fas fa-calendar-plus"></i> 
+                    New Training Session
+                </h2>
+                
+                <form id="bookingForm">
+                    <!-- Category & Training -->
+                    <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">Training Category</label>
+                            <label class="form-label">
+                                Training Category <span class="required">*</span>
+                            </label>
                             <select id="category" class="form-control" required>
                                 <option value="">-- SELECT CATEGORY --</option>
-                                <option value="Bootcamp">BOOTCAMP</option>
-                                <option value="Infantry">INFANTRY</option>
-                                <option value="MBT - Trooper">MBT - TROOPER</option>
-                                <option value="Pilot">PILOT</option>
-                                <option value="Vehicle">VEHICLE</option>
-                                <option value="Mech Inf">MECH INF</option>
-                                <option value="Motor Inf">MOTOR INF</option>
-                                <option value="Custom">CUSTOM</option>
+                                <option value="bootcamp">Bootcamp / GYN</option>
+                                <option value="infantry">Infantry</option>
+                                <option value="mbt">MBT - Trooper</option>
+                                <option value="pilot">Pilot</option>
+                                <option value="ifv">IFV</option>
+                                <option value="mechInf">Mech Inf</option>
+                                <option value="motorInf">Motor Inf</option>
+                                <option value="custom">Custom / Other</option>
                             </select>
                         </div>
-
-                        <!-- Training Module -->
+                        
                         <div class="form-group">
-                            <label class="form-label">Training Module</label>
+                            <label class="form-label">
+                                Specific Training <span class="required">*</span>
+                            </label>
                             <select id="training" class="form-control" required disabled>
-                                <option value="">-- SELECT MODULE --</option>
+                                <option value="">-- SELECT CATEGORY FIRST --</option>
                             </select>
                         </div>
+                    </div>
 
-                        <!-- Custom Training (Hidden by default) -->
-                        <div class="form-group" id="customTrainingGroup" style="display: none;">
-                            <label class="form-label">Custom Training Details</label>
-                            <input type="text" id="customTraining" class="form-control" 
-                                   placeholder="Specify training requirements">
-                        </div>
+                    <!-- Custom Training (hidden) -->
+                    <div class="form-group" id="customTrainingGroup" style="display: none;">
+                        <label class="form-label">
+                            Custom Training Details <span class="required">*</span>
+                        </label>
+                        <input type="text" id="customTraining" class="form-control" 
+                               placeholder="Enter custom training name">
+                    </div>
 
-                        <!-- Start Time -->
+                    <!-- Date & Time -->
+                    <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">Start Time</label>
-                            <select id="time" class="form-control" required>
-                                <option value="">-- SELECT TIME --</option>
-                            </select>
+                            <label class="form-label">
+                                Date <span class="required">*</span>
+                            </label>
+                            <input type="date" id="date" class="form-control" required>
+                            <span class="form-help">UTC+1 timezone</span>
                         </div>
-
-                        <!-- Duration -->
+                        
                         <div class="form-group">
-                            <label class="form-label">Duration</label>
+                            <label class="form-label">
+                                Start Time <span class="required">*</span>
+                            </label>
+                            <input type="time" id="time" class="form-control" required>
+                            <span class="form-help">24-hour format</span>
+                        </div>
+                    </div>
+
+                    <!-- Duration & Zeus -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">
+                                Duration <span class="required">*</span>
+                            </label>
                             <select id="duration" class="form-control" required>
-                                <option value="15">15 MINS</option>
-                                <option value="30">30 MINS</option>
-                                <option value="45">45 MINS</option>
-                                <option value="60">1 HOUR</option>
-                                <option value="75">1 HR 15 MINS</option>
-                                <option value="90">1 HR 30 MINS</option>
-                                <option value="105">1 HR 45 MINS</option>
-                                <option value="120" selected>2 HOURS</option>
-                                <option value="135">2 HRS 15 MINS</option>
-                                <option value="150">2 HRS 30 MINS</option>
-                                <option value="165">2 HRS 45 MINS</option>
-                                <option value="180">3 HOURS</option>
+                                <option value="">-- SELECT DURATION --</option>
+                                <option value="15">15 minutes</option>
+                                <option value="30">30 minutes</option>
+                                <option value="45">45 minutes</option>
+                                <option value="60">1 hour</option>
+                                <option value="75">1 hour 15 minutes</option>
+                                <option value="90">1 hour 30 minutes</option>
+                                <option value="105">1 hour 45 minutes</option>
+                                <option value="120">2 hours</option>
+                                <option value="135">2 hours 15 minutes</option>
+                                <option value="150">2 hours 30 minutes</option>
+                                <option value="165">2 hours 45 minutes</option>
+                                <option value="180">3 hours</option>
                             </select>
                         </div>
-
-                        <!-- Zeus Required -->
+                        
                         <div class="form-group">
-                            <label class="form-label">Zeus Required</label>
-                            <select id="zeus" class="form-control" required>
-                                <option value="No">NEGATIVE</option>
-                                <option value="Yes">AFFIRMATIVE</option>
-                            </select>
-                        </div>
-
-                        <!-- Server -->
-                        <div class="form-group">
-                            <label class="form-label">Server</label>
-                            <select id="server" class="form-control" required>
-                                <option value="PRIMARY">PRIMARY</option>
-                                <option value="BACKUP">BACKUP</option>
-                                <option value="US1">US1</option>
-                                <option value="US2">US2</option>
-                                <option value="US3">US3</option>
-                                <option value="EU1">EU1</option>
-                                <option value="EU2">EU2</option>
-                                <option value="EU3">EU3</option>
-                            </select>
-                        </div>
-
-                        <!-- Instructor -->
-                        <div class="form-group">
-                            <label class="form-label">Instructor</label>
-                            <select id="instructor" class="form-control" required disabled>
-                                <option value="">-- SELECT INSTRUCTOR --</option>
-                            </select>
-                        </div>
-
-                        <button type="submit" class="btn-submit">
-                            RESERVE SERVER TIME
-                        </button>
-                    </form>
-
-                    <div id="statusMessage"></div>
-                </div>
-            </div>
-
-            <!-- Schedule Display Panel -->
-            <div class="panel">
-                <div class="panel-header">
-                    <i class="fas fa-calendar-day" style="color: var(--primary-yellow);"></i>
-                    <h2>Server Schedule</h2>
-                </div>
-                <div class="panel-body">
-                    <div id="scheduleContainer">
-                        <div class="schedule-date" id="selectedDate">
-                            SELECT A DATE
-                        </div>
-                        <div class="schedule-container" id="daySchedule">
-                            <div class="schedule-empty">
-                                Select a date to view training schedule
+                            <label class="form-label">
+                                Zeus Required? <span class="required">*</span>
+                            </label>
+                            <div class="radio-group" style="margin-top: 12px;">
+                                <label class="radio-option">
+                                    <input type="radio" name="zeus" value="No" checked required>
+                                    <span>No</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="zeus" value="Yes" required>
+                                    <span>Yes</span>
+                                </label>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Server & Instructor -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">
+                                Server <span class="required">*</span>
+                            </label>
+                            <select id="server" class="form-control" required>
+                                <option value="">-- SELECT SERVER --</option>
+                                <option value="Server 6">SERVER 6</option>
+                                <option value="Server 7">SERVER 7</option>
+                                <option value="Backup">BACKUP</option>
+                                <option value="Other">OTHER (SPECIFY)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                Instructor <span class="required">*</span>
+                            </label>
+                            <select id="instructor" class="form-control" required disabled>
+                                <option value="">-- SELECT TRAINING FIRST --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Other Fields (hidden) -->
+                    <div class="form-row">
+                        <div class="form-group" id="serverOtherGroup" style="display: none;">
+                            <label class="form-label">
+                                Server Details <span class="required">*</span>
+                            </label>
+                            <input type="text" id="serverOther" class="form-control" 
+                                   placeholder="Enter server details">
+                        </div>
+                        
+                        <div class="form-group" id="instructorOtherGroup" style="display: none;">
+                            <label class="form-label">
+                                Instructor Name <span class="required">*</span>
+                            </label>
+                            <input type="text" id="instructorOther" class="form-control" 
+                                   placeholder="Enter instructor name">
+                        </div>
+                    </div>
+
+                    <!-- Availability Check -->
+                    <div class="availability-check">
+                        <button type="button" class="check-btn" onclick="checkAvailability()">
+                            <i class="fas fa-search"></i> CHECK AVAILABILITY
+                        </button>
+                        <div id="availabilityResult" class="availability-result"></div>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="loadingState" class="loading">
+                        <div class="spinner"></div>
+                        <p>Creating booking...</p>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <i class="fas fa-rocket"></i> CREATE INSTANT BOOKING
+                    </button>
+                </form>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Info Card -->
+                <div class="info-card">
+                    <h3><i class="fas fa-info-circle"></i> How It Works</h3>
+                    <ul>
+                        <li>Fill in training details</li>
+                        <li>Check availability (optional)</li>
+                        <li>Click create booking</li>
+                        <li>If slot is free - instant confirmation!</li>
+                        <li>15-minute buffer added automatically</li>
+                    </ul>
+                </div>
+
+                <!-- Rules Card -->
+                <div class="info-card">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Booking Rules</h3>
+                    <ul>
+                        <li>First come, first served</li>
+                        <li>No double bookings allowed</li>
+                        <li>15-minute gap between sessions</li>
+                        <li>Max duration: 3 hours</li>
+                        <li>All times in UTC+1</li>
+                    </ul>
+                </div>
+
+                <!-- Conflicts (hidden by default) -->
+                <div id="conflictsCard" class="conflicts-card" style="display: none;">
+                    <h3><i class="fas fa-calendar-times"></i> Conflicts Found</h3>
+                    <div id="conflictsList"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Security Check - MUST BE FIRST
-        (function() {
-            // Check if user is authorized (password: Grape44)
-            if (sessionStorage.getItem('authorized') !== 'true') {
-                const password = prompt('Enter instructor access code:');
-                if (password === 'Grape44') {
-                    sessionStorage.setItem('authorized', 'true');
-                } else {
-                    alert('Access Denied. Please login through the main page.');
-                    window.location.href = 'index.html';
-                    return;
-                }
-            }
-        })();
-
         // Configuration
         const config = {
-            googleCalendarId: '40bb8c9aa7df59e2b7e22a850ac9b67b942e4ea00632b04b7590c3a4d5caa39c@group.calendar.google.com',
-            googleSheetsId: '1Akxvu6mWzE1o4tSOo0K9p6sg6ClYqXkzhHP0VeygIUM',
-            googleSheetsApiKey: 'AIzaSyAbZxnOvJjuOxRMeyNtr4R6zP39XfUNv-Q',
-            discordWebhookUrl: 'https://discord.com/api/webhooks/1421502096246837318/7ZAuF4xp3IN7p0oWjuHVpNdG4y9myhuaxMNpPP2aNTFehVuoW3nsh9so5PUtyxxljOVk',
             googleAppsScriptUrl: 'https://script.google.com/macros/s/AKfycbwGZOXvdRUEXRGpt770eGtxEr858kf0LxgY3Onk8E7pVH7LY3raTUH1AE0KVU4Yg39rPQ/exec'
         };
 
-        // Training data structure
+        // Training data
         const trainingData = {
-            'Bootcamp': ['GYN'],
-            'Infantry': [
-                'LAT', 'HAT', 'Advanced AT Training', 'Engineer', 'Grenadier',
-                'Logistics', 'MG/AR', 'Marksman', 'Medic', 'Mortar', 'TOW',
-                'Fibua Tier 1', 'Section Battle Drills', 'Squad Leading Tier 1',
+            bootcamp: [
+                'GYN', 'LAT', 'HAT', 'Engineer', 'Grenadier', 'Logistics',
+                'MG/AR', 'Marksman', 'Medic', 'Mortar', 'TOW', 'Fibua Tier 1',
+                'Section Battle Drills', 'Squad Leading Tier 1', 
                 'Squad Leading Tier 2', 'Squad Leading Tier 3'
             ],
-            'MBT - Trooper': [
-                'Principles of MBT', 'Driving', 'Gunning',
-                'Commanding/Spotting', 'Positioning', 'Masters Test',
-                'Expert Cert'
+            infantry: [
+                'LAT', 'HAT', 'Advanced AT Training', 'Engineer', 'Grenadier', 
+                'Logistics', 'MG/AR', 'Marksman', 'Medic', 'Mortar', 'TOW', 
+                'Fibua Tier 1', 'Section Battle Drills', 'Squad Leading Tier 1', 
+                'Squad Leading Tier 2', 'Squad Leading Tier 3'
             ],
-            'Pilot': [
-                'Tier 1', 'Advanced J-Hooks', 'Safe Spotting',
-                'Emergency Procedures', 'Advanced Low Flying', 'Heli Teamwork',
-                'Insertion Tactics', 'Barrel Rolls'
+            mbt: [
+                'Principles of MBT', 'Driving', 'Gunning', 
+                'Commanding/Spotting', 'Positioning', 'Masters Test', 'Expert Cert'
             ],
-            'Vehicle': [
-                'IFV Qualified', 'IFV Certified', 
-                'Mech Infantry Qualified', 'Mech Infantry Certified'
+            pilot: [
+                'Tier 1', 'Advanced J-Hooks', 'Safe spotting', 
+                'Emergency procedures', 'Advanced low flying', 
+                'Heli teamwork', 'Insertion tactics', 'Barrel rolls'
             ],
-            'Mech Inf': [
-                'Fighting in Open Areas', 'Raiding Tactics', 
-                'Urban Areas', 'Small Unit Tactics',
-                'Squad Leading', 'Mech Inf Test'
+            ifv: ['IFV Qualified', 'IFV Certified'],
+            mechInf: [
+                'Fighting in Open Areas', 'Raiding Tactics', 'Urban Areas', 
+                'Small unit tactics', 'Squad leading', 'Mech Inf Test'
             ],
-            'Motor Inf': [
-                'Tier 1', 'Tier 2', 'Motor Inf Test'
-            ]
+            motorInf: ['Tier 1', 'Tier 2', 'Motor Inf Test'],
+            custom: ['Custom Training']
         };
 
-        // Instructor data - Will be loaded from Google Apps Script
-        let instructorData = {};
-        let dayBookings = [];
-
-        // Generate time slots
-        function generateTimeSlots() {
-            const timeSelect = document.getElementById('time');
-            timeSelect.innerHTML = '<option value="">-- SELECT TIME --</option>';
-            
-            for (let hour = 0; hour <= 23; hour++) {
-                for (let minute = 0; minute < 60; minute += 15) {
-                    const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-                    const option = document.createElement('option');
-                    option.value = time;
-                    option.textContent = `${time} HRS`;
-                    timeSelect.appendChild(option);
-                }
-            }
-        }
-
-        // Handle category change
-        document.getElementById('category').addEventListener('change', function() {
-            const category = this.value;
-            const trainingSelect = document.getElementById('training');
-            const instructorSelect = document.getElementById('instructor');
-            const customGroup = document.getElementById('customTrainingGroup');
-            
-            // Reset training dropdown
-            trainingSelect.innerHTML = '<option value="">-- SELECT MODULE --</option>';
-            trainingSelect.disabled = !category;
-            
-            // Reset instructor dropdown
-            instructorSelect.innerHTML = '<option value="">-- SELECT INSTRUCTOR --</option>';
-            instructorSelect.disabled = true;
-            
-            if (category === 'Custom') {
-                customGroup.style.display = 'block';
-                trainingSelect.disabled = true;
-                // Load instructors for this category
-                loadInstructorsForCategory(category);
-            } else {
-                customGroup.style.display = 'none';
-                if (category && trainingData[category]) {
-                    // Populate training options
-                    trainingData[category].forEach(training => {
-                        const option = document.createElement('option');
-                        option.value = training;
-                        option.textContent = training.toUpperCase();
-                        trainingSelect.appendChild(option);
-                    });
-                }
-                // Load instructors for this category
-                if (category) {
-                    loadInstructorsForCategory(category);
-                }
-            }
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            setupFormHandlers();
+            setMinDate();
         });
 
-        // Handle training selection change
-        document.getElementById('training').addEventListener('change', function() {
-            const category = document.getElementById('category').value;
-            const training = this.value;
-            
-            // Reload instructors when training changes
-            if (category) {
-                loadInstructorsForCategory(category);
+        // Check authentication
+        function checkAuth() {
+            const authorized = sessionStorage.getItem('authorized');
+            if (authorized !== 'true') {
+                alert('Please login first');
+                window.location.href = 'index.html';
+                return false;
             }
-        });
-
-        // Load instructors for specific category from Google Apps Script (using GET to avoid CORS)
-        async function loadInstructorsForCategory(category) {
-            const instructorSelect = document.getElementById('instructor');
-            instructorSelect.innerHTML = '<option value="">Loading instructors...</option>';
-            instructorSelect.disabled = true;
-            
-            try {
-                console.log('Fetching instructors for category:', category);
-                
-                // Use GET request to avoid CORS preflight
-                const url = `${config.googleAppsScriptUrl}?action=getInstructors&category=${encodeURIComponent(category)}`;
-                
-                const response = await fetch(url, {
-                    method: 'GET',
-                    mode: 'cors'
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const result = await response.json();
-                console.log('Instructor response:', result);
-                
-                instructorSelect.innerHTML = '<option value="">-- SELECT INSTRUCTOR --</option>';
-                
-                if (result.success && result.data) {
-                    const instructors = result.data.instructors;
-                    
-                    if (Array.isArray(instructors) && instructors.length > 0) {
-                        instructorSelect.disabled = false;
-                        
-                        instructors.forEach(instructor => {
-                            const option = document.createElement('option');
-                            option.value = instructor.name;
-                            option.textContent = instructor.name.toUpperCase();
-                            option.dataset.discord = instructor.discord || '';
-                            instructorSelect.appendChild(option);
-                        });
-                        
-                        console.log(`Added ${instructors.length} instructors`);
-                    } else if (typeof instructors === 'object') {
-                        // If it returns all categories, look for the current one
-                        const categoryInstructors = instructors[category];
-                        if (categoryInstructors && categoryInstructors.length > 0) {
-                            instructorSelect.disabled = false;
-                            
-                            categoryInstructors.forEach(instructor => {
-                                const option = document.createElement('option');
-                                option.value = instructor.name;
-                                option.textContent = instructor.name.toUpperCase();
-                                option.dataset.discord = instructor.discord || '';
-                                instructorSelect.appendChild(option);
-                            });
-                            
-                            console.log(`Added ${categoryInstructors.length} instructors`);
-                        }
-                    }
-                }
-                
-                // If no instructors found, enable manual entry
-                if (instructorSelect.options.length === 1) {
-                    console.log('No instructors found, adding fallback options');
-                    const fallbackOption = document.createElement('option');
-                    fallbackOption.value = 'Manual Entry';
-                    fallbackOption.textContent = 'MANUAL ENTRY';
-                    instructorSelect.appendChild(fallbackOption);
-                    instructorSelect.disabled = false;
-                }
-                
-            } catch (error) {
-                console.error('Error loading instructors:', error);
-                
-                // Fallback - enable dropdown with manual option
-                instructorSelect.innerHTML = '<option value="">-- SELECT INSTRUCTOR --</option>';
-                const fallbackOption = document.createElement('option');
-                fallbackOption.value = 'Manual Entry';
-                fallbackOption.textContent = 'MANUAL ENTRY';
-                instructorSelect.appendChild(fallbackOption);
-                instructorSelect.disabled = false;
-            }
+            return true;
         }
 
-        // Format duration display
-        function formatDuration(minutes) {
-            const hours = Math.floor(minutes / 60);
-            const mins = minutes % 60;
-            if (hours === 0) return `${mins}m`;
-            if (mins === 0) return `${hours}hr`;
-            return `${hours}hr ${mins}m`;
-        }
+        // Setup form handlers
+        function setupFormHandlers() {
+            // Category change
+            document.getElementById('category').addEventListener('change', function() {
+                updateTrainingOptions(this.value);
+                document.getElementById('instructor').innerHTML = 
+                    '<option value="">-- SELECT TRAINING FIRST --</option>';
+                document.getElementById('instructor').disabled = true;
+            });
 
-        // Update schedule display (using GET to avoid CORS)
-        async function updateSchedule(date) {
-            const scheduleDiv = document.getElementById('daySchedule');
-            const selectedDateDiv = document.getElementById('selectedDate');
-            
-            // Format date for display
-            const dateObj = new Date(date + 'T00:00:00');
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            selectedDateDiv.textContent = dateObj.toLocaleDateString('en-US', options).toUpperCase();
-            
-            scheduleDiv.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-            
-            try {
-                // Load from Google Apps Script using GET to avoid CORS
-                const startDate = new Date(date + 'T00:00:00');
-                const endDate = new Date(date + 'T23:59:59');
-                
-                // Use GET request to avoid CORS issues
-                const url = `${config.googleAppsScriptUrl}?action=getBookings&startDate=${encodeURIComponent(startDate.toISOString())}&endDate=${encodeURIComponent(endDate.toISOString())}`;
-                
-                const response = await fetch(url, {
-                    method: 'GET',
-                    mode: 'cors'
-                });
-                
-                const result = await response.json();
-                
-                if (result.success && result.data.bookings && result.data.bookings.length > 0) {
-                    dayBookings = result.data.bookings;
-                    
-                    // Sort by time
-                    const sortedBookings = result.data.bookings
-                        .sort((a, b) => new Date(a.start) - new Date(b.start));
-                    
-                    let html = '';
-                    sortedBookings.forEach(booking => {
-                        const startTime = new Date(booking.start);
-                        const endTime = new Date(booking.end);
-                        const duration = (endTime - startTime) / (1000 * 60);
-                        
-                        html += `
-                            <div class="time-slot booked">
-                                <div class="time-display">
-                                    <div class="time-text">${startTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-                                    <div class="time-duration">${formatDuration(duration)}</div>
-                                </div>
-                                <div class="slot-details">
-                                    <div class="slot-training">${(booking.training || booking.title || 'Training').toUpperCase()}</div>
-                                    <div class="slot-info">
-                                        <span><i class="fas fa-user"></i> ${booking.instructor || 'TBD'}</span>
-                                        <span><i class="fas fa-server"></i> ${booking.server || 'Primary'}</span>
-                                        <span><i class="fas fa-gamepad"></i> Zeus: ${booking.zeus || 'No'}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    
-                    scheduleDiv.innerHTML = html;
+            // Training change
+            document.getElementById('training').addEventListener('change', function() {
+                const category = document.getElementById('category').value;
+                handleTrainingChange(this.value);
+                if (this.value && this.value !== 'Custom Training') {
+                    loadInstructors(category, this.value);
+                }
+            });
+
+            // Server change
+            document.getElementById('server').addEventListener('change', function() {
+                const otherGroup = document.getElementById('serverOtherGroup');
+                if (this.value === 'Other') {
+                    otherGroup.style.display = 'block';
+                    document.getElementById('serverOther').required = true;
                 } else {
-                    scheduleDiv.innerHTML = '<div class="schedule-empty">No server bookings for this date</div>';
+                    otherGroup.style.display = 'none';
+                    document.getElementById('serverOther').required = false;
                 }
-            } catch (error) {
-                console.error('Error loading schedule:', error);
-                // Fallback to Calendar API
-                loadFromCalendarAPI(date);
-            }
-        }
+            });
 
-        // Fallback: Load from Calendar API
-        async function loadFromCalendarAPI(date) {
-            const scheduleDiv = document.getElementById('daySchedule');
-            const startDate = new Date(date + 'T00:00:00');
-            const endDate = new Date(date + 'T23:59:59');
-            
-            const url = `https://www.googleapis.com/calendar/v3/calendars/${config.googleCalendarId}/events?` +
-                `key=${config.googleSheetsApiKey}` +
-                `&timeMin=${startDate.toISOString()}` +
-                `&timeMax=${endDate.toISOString()}` +
-                `&singleEvents=true` +
-                `&orderBy=startTime`;
-            
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                if (data.items && data.items.length > 0) {
-                    let html = '';
-                    data.items.forEach(event => {
-                        const startTime = new Date(event.start.dateTime || event.start.date);
-                        const endTime = new Date(event.end.dateTime || event.end.date);
-                        const duration = (endTime - startTime) / (1000 * 60);
-                        
-                        html += `
-                            <div class="time-slot booked">
-                                <div class="time-display">
-                                    <div class="time-text">${startTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-                                    <div class="time-duration">${formatDuration(duration)}</div>
-                                </div>
-                                <div class="slot-details">
-                                    <div class="slot-training">${(event.summary || 'Training').toUpperCase()}</div>
-                                    <div class="slot-info">
-                                        <span><i class="fas fa-calendar"></i> Scheduled</span>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    scheduleDiv.innerHTML = html;
+            // Instructor change
+            document.getElementById('instructor').addEventListener('change', function() {
+                const otherGroup = document.getElementById('instructorOtherGroup');
+                if (this.value === 'Other') {
+                    otherGroup.style.display = 'block';
+                    document.getElementById('instructorOther').required = true;
                 } else {
-                    scheduleDiv.innerHTML = '<div class="schedule-empty">No server bookings for this date</div>';
+                    otherGroup.style.display = 'none';
+                    document.getElementById('instructorOther').required = false;
                 }
-            } catch (error) {
-                console.error('Error loading calendar:', error);
-                scheduleDiv.innerHTML = '<div class="schedule-empty">Unable to load schedule</div>';
-            }
-        }
+            });
 
-        // Handle date change
-        document.getElementById('date').addEventListener('change', function() {
-            if (this.value) {
-                updateSchedule(this.value);
-            }
-        });
+            // Form submit
+            document.getElementById('bookingForm').addEventListener('submit', handleSubmit);
+        }
 
         // Set minimum date to today
         function setMinDate() {
             const today = new Date().toISOString().split('T')[0];
-            const dateInput = document.getElementById('date');
-            dateInput.min = today;
-            dateInput.value = today;
-            updateSchedule(today);
+            document.getElementById('date').min = today;
         }
 
-        // Format duration for display
-        function formatDurationText(minutes) {
-            const mins = parseInt(minutes);
-            if (mins < 60) return `${mins} mins`;
-            const hours = Math.floor(mins / 60);
-            const remainingMins = mins % 60;
-            if (remainingMins === 0) return `${hours} hour${hours > 1 ? 's' : ''}`;
-            return `${hours}hr ${remainingMins}mins`;
+        // Update training options
+        function updateTrainingOptions(category) {
+            const trainingSelect = document.getElementById('training');
+            const customGroup = document.getElementById('customTrainingGroup');
+            
+            customGroup.style.display = 'none';
+            document.getElementById('customTraining').value = '';
+            
+            if (!category) {
+                trainingSelect.innerHTML = '<option value="">-- SELECT CATEGORY FIRST --</option>';
+                trainingSelect.disabled = true;
+                return;
+            }
+            
+            const trainings = trainingData[category] || [];
+            
+            trainingSelect.innerHTML = '<option value="">-- SELECT TRAINING --</option>';
+            trainings.forEach(training => {
+                const option = document.createElement('option');
+                option.value = training;
+                option.textContent = training;
+                trainingSelect.appendChild(option);
+            });
+            
+            trainingSelect.disabled = false;
         }
 
-        // Handle form submission
-        document.getElementById('bookingForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const statusDiv = document.getElementById('statusMessage');
-            
-            // Show loading
-            statusDiv.className = 'status-message loading';
-            statusDiv.innerHTML = `
-                <div class="spinner"></div>
-                <div>
-                    <strong>PROCESSING...</strong><br>
-                    Reserving server time...
-                </div>
-            `;
-            
-            // Collect form data
-            const category = document.getElementById('category').value;
-            const isCustom = category === 'Custom';
-            const training = isCustom 
-                ? document.getElementById('customTraining').value 
-                : document.getElementById('training').value;
-            const instructor = document.getElementById('instructor').value;
-            
-            // Create start and end times
+        // Handle training change
+        function handleTrainingChange(training) {
+            const customGroup = document.getElementById('customTrainingGroup');
+            if (training === 'Custom Training') {
+                customGroup.style.display = 'block';
+                document.getElementById('customTraining').required = true;
+            } else {
+                customGroup.style.display = 'none';
+                document.getElementById('customTraining').required = false;
+            }
+        }
+
+        // Load instructors for training
+        async function loadInstructors(category, training) {
+            try {
+                const response = await fetch(config.googleAppsScriptUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'getInstructors',
+                        category: category,
+                        training: training
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    const instructorSelect = document.getElementById('instructor');
+                    instructorSelect.innerHTML = '<option value="">-- SELECT INSTRUCTOR --</option>';
+                    
+                    result.data.instructors.forEach(instructor => {
+                        const option = document.createElement('option');
+                        option.value = instructor.name;
+                        option.textContent = `${instructor.name} (${instructor.discord})`;
+                        instructorSelect.appendChild(option);
+                    });
+                    
+                    // Add "Other" option
+                    const otherOption = document.createElement('option');
+                    otherOption.value = 'Other';
+                    otherOption.textContent = 'OTHER (SPECIFY)';
+                    instructorSelect.appendChild(otherOption);
+                    
+                    instructorSelect.disabled = false;
+                } else {
+                    // If no instructors found, enable with just "Other" option
+                    const instructorSelect = document.getElementById('instructor');
+                    instructorSelect.innerHTML = `
+                        <option value="">-- SELECT INSTRUCTOR --</option>
+                        <option value="Other">OTHER (SPECIFY)</option>
+                    `;
+                    instructorSelect.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error loading instructors:', error);
+                // Enable with "Other" option on error
+                const instructorSelect = document.getElementById('instructor');
+                instructorSelect.innerHTML = `
+                    <option value="">-- SELECT INSTRUCTOR --</option>
+                    <option value="Other">OTHER (SPECIFY)</option>
+                `;
+                instructorSelect.disabled = false;
+            }
+        }
+
+        // Check availability
+        async function checkAvailability() {
             const date = document.getElementById('date').value;
             const time = document.getElementById('time').value;
             const duration = document.getElementById('duration').value;
             
-            const startDateTime = new Date(`${date}T${time}:00`);
-            const endDateTime = new Date(startDateTime);
-            endDateTime.setMinutes(endDateTime.getMinutes() + parseInt(duration));
+            if (!date || !time || !duration) {
+                alert('Please select date, time, and duration first');
+                return;
+            }
             
-            const bookingData = {
-                action: 'createBooking',
-                password: 'Grape44',
-                startTime: startDateTime.toISOString(),
-                endTime: endDateTime.toISOString(),
-                category: category,
-                training: training,
-                trainingType: training, // Alternative field name
-                duration: formatDurationText(duration),
-                zeus: document.getElementById('zeus').value,
-                server: document.getElementById('server').value,
-                instructor: instructor,
-                notes: isCustom ? `Custom Training: ${training}` : '',
-                bookedBy: instructor
-            };
-            
-            console.log('Submitting booking:', bookingData);
+            const resultDiv = document.getElementById('availabilityResult');
+            resultDiv.innerHTML = '<div class="spinner" style="margin: 0 auto;"></div>';
+            resultDiv.className = 'availability-result';
+            resultDiv.style.display = 'block';
             
             try {
                 const response = await fetch(config.googleAppsScriptUrl, {
                     method: 'POST',
-                    mode: 'cors',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(bookingData)
+                    body: JSON.stringify({
+                        action: 'checkAvailability',
+                        date: date,
+                        time: time,
+                        duration: parseInt(duration)
+                    })
                 });
-                
+
                 const result = await response.json();
-                console.log('Booking result:', result);
+                
+                if (result.success && result.data.available) {
+                    resultDiv.className = 'availability-result available';
+                    resultDiv.innerHTML = `
+                        <i class="fas fa-check-circle"></i> 
+                        <strong>Slot Available!</strong><br>
+                        You can book this time slot.
+                    `;
+                    document.getElementById('conflictsCard').style.display = 'none';
+                } else {
+                    resultDiv.className = 'availability-result unavailable';
+                    resultDiv.innerHTML = `
+                        <i class="fas fa-times-circle"></i> 
+                        <strong>Slot Unavailable</strong><br>
+                        There are conflicts at this time.
+                    `;
+                    
+                    // Show conflicts
+                    if (result.data && result.data.conflicts) {
+                        showConflicts(result.data.conflicts);
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking availability:', error);
+                resultDiv.className = 'availability-result unavailable';
+                resultDiv.innerHTML = 'Error checking availability';
+            }
+        }
+
+        // Show conflicts
+        function showConflicts(conflicts) {
+            const conflictsCard = document.getElementById('conflictsCard');
+            const conflictsList = document.getElementById('conflictsList');
+            
+            conflictsList.innerHTML = conflicts.map(conflict => `
+                <div class="conflict-item">
+                    <strong>${conflict.title}</strong><br>
+                    ${new Date(conflict.start).toLocaleString()} - 
+                    ${new Date(conflict.end).toLocaleTimeString()}
+                </div>
+            `).join('');
+            
+            conflictsCard.style.display = 'block';
+        }
+
+        // Handle form submission
+        async function handleSubmit(e) {
+            e.preventDefault();
+            
+            if (!checkAuth()) return;
+            
+            // Get form values
+            const formData = {
+                category: document.getElementById('category').value,
+                training: document.getElementById('training').value,
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value,
+                duration: parseInt(document.getElementById('duration').value),
+                zeus: document.querySelector('input[name="zeus"]:checked').value,
+                server: document.getElementById('server').value,
+                instructor: document.getElementById('instructor').value,
+                userEmail: sessionStorage.getItem('userEmail')
+            };
+            
+            // Handle custom fields
+            if (formData.training === 'Custom Training') {
+                formData.training = document.getElementById('customTraining').value;
+            }
+            
+            if (formData.server === 'Other') {
+                formData.serverOther = document.getElementById('serverOther').value;
+            }
+            
+            if (formData.instructor === 'Other') {
+                formData.instructorOther = document.getElementById('instructorOther').value;
+            }
+            
+            // Show loading
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('loadingState').classList.add('show');
+            
+            try {
+                const response = await fetch(config.googleAppsScriptUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'createBooking',
+                        ...formData
+                    })
+                });
+
+                const result = await response.json();
                 
                 if (result.success) {
-                    statusDiv.className = 'status-message success';
-                    statusDiv.innerHTML = `
-                        <i class="fas fa-check-circle"></i>
-                        <div>
-                            <strong>SERVER TIME RESERVED</strong><br>
-                            Training slot successfully booked on ${bookingData.server.toUpperCase()} server
-                        </div>
-                    `;
+                    // Show success
+                    document.getElementById('successMessage').classList.add('show');
                     
-                    // Clear form
-                    this.reset();
-                    setMinDate(); // Reset date to today
+                    // Reset form
+                    document.getElementById('bookingForm').reset();
+                    document.getElementById('training').innerHTML = 
+                        '<option value="">-- SELECT CATEGORY FIRST --</option>';
+                    document.getElementById('training').disabled = true;
+                    document.getElementById('instructor').innerHTML = 
+                        '<option value="">-- SELECT TRAINING FIRST --</option>';
+                    document.getElementById('instructor').disabled = true;
+                    document.getElementById('availabilityResult').style.display = 'none';
+                    document.getElementById('conflictsCard').style.display = 'none';
                     
-                    // Update schedule display
-                    updateSchedule(date);
+                    // Hide success after 5 seconds
+                    setTimeout(() => {
+                        document.getElementById('successMessage').classList.remove('show');
+                    }, 5000);
                 } else {
-                    statusDiv.className = 'status-message error';
-                    statusDiv.innerHTML = `
-                        <i class="fas fa-exclamation-circle"></i>
-                        <div>
-                            <strong>BOOKING FAILED</strong><br>
-                            ${result.message || 'Time slot may already be booked'}
-                        </div>
-                    `;
+                    alert('Booking failed: ' + result.message);
+                    
+                    // Show conflicts if any
+                    if (result.data && result.data.conflicts) {
+                        showConflicts(result.data.conflicts);
+                    }
                 }
             } catch (error) {
                 console.error('Booking error:', error);
-                statusDiv.className = 'status-message error';
-                statusDiv.innerHTML = `
-                    <i class="fas fa-exclamation-circle"></i>
-                    <div>
-                        <strong>ERROR</strong><br>
-                        Failed to create booking. Please try again.
-                    </div>
-                `;
+                alert('Failed to create booking. Please try again.');
+            } finally {
+                document.getElementById('submitBtn').disabled = false;
+                document.getElementById('loadingState').classList.remove('show');
             }
-            
-            // Clear message after 5 seconds
-            setTimeout(() => {
-                statusDiv.innerHTML = '';
-                statusDiv.className = '';
-            }, 5000);
-        });
-
-        // Test function for debugging instructors (using GET)
-        window.testInstructorFetch = async function() {
-            console.log('Testing instructor fetch...');
-            
-            try {
-                // Use GET request to avoid CORS
-                const url = `${config.googleAppsScriptUrl}?action=getInstructors&category=${encodeURIComponent('MBT - Trooper')}`;
-                
-                const response = await fetch(url, {
-                    method: 'GET',
-                    mode: 'cors'
-                });
-                
-                const data = await response.json();
-                console.log('Test result:', data);
-                
-                if (data.success) {
-                    console.log('Instructors found:', data.data.instructors);
-                }
-                
-                return data;
-            } catch (error) {
-                console.error('Test failed:', error);
-            }
-        };
-
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            generateTimeSlots();
-            setMinDate();
-            
-            // Log for debugging
-            console.log('Booking system initialized');
-            console.log('To test instructors, run: testInstructorFetch()');
-        });
+        }
     </script>
 </body>
 </html>
