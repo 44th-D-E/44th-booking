@@ -873,7 +873,7 @@
         // Load instructors for training
         async function loadInstructors(category, training) {
             try {
-                const response = await fetch(`${config.googleAppsScriptUrl}?action=getInstructors&category=${encodeURIComponent(category)}&training=${encodeURIComponent(training)}`);;
+                const response = await fetch(`${config.googleAppsScriptUrl}?action=getInstructors&category=${encodeURIComponent(category)}&training=${encodeURIComponent(training)}`);
                 const result = await response.json();
         
                 if (result.success) {
@@ -1065,5 +1065,6 @@
 </body>
 
 </html>
+
 
 
