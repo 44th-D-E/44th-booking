@@ -1003,7 +1003,18 @@
                 
                 if (result.success) {
                     console.log('Booking created successfully!');
-                    window.location.href = 'trainer-index.html';
+                    console.log('Full result:', result); // Debug Discord webhook
+                    
+                    // Show success message before redirect
+                    const successMsg = document.createElement('div');
+                    successMsg.style.cssText = 'position:fixed;top:20px;right:20px;background:#4CAF50;color:white;padding:15px 20px;border-radius:5px;z-index:9999;font-weight:bold;';
+                    successMsg.innerHTML = '✅ Booking Created Successfully!<br>Discord notification sent.';
+                    document.body.appendChild(successMsg);
+                    
+                    // Redirect after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = 'trainer-index.html';
+                    }, 2000);
                 } else {
                     console.log('Failed to create booking: ' + result.message);
                     submitBtn.disabled = false;
