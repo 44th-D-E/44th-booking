@@ -800,20 +800,20 @@
             });
         }
 
-        function updateTopRequestedChart(data) {
+                function updateTopRequestedChart(data) {
             const ctx = document.getElementById('topRequestedChart').getContext('2d');
-            
+    
             // Get top 10 requested trainings
             const sorted = Object.entries(data)
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 10);
-            
+    
             if (charts.topRequested) {
                 charts.topRequested.destroy();
             }
-            
+    
             charts.topRequested = new Chart(ctx, {
-                type: 'horizontalBar',
+                type: 'bar',  // <-- CHANGE FROM 'horizontalBar' TO 'bar'
                 data: {
                     labels: sorted.map(item => item[0]),
                     datasets: [{
@@ -827,14 +827,14 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    indexAxis: 'y',
+                    indexAxis: 'y',  // This makes it horizontal
                     scales: {
                         x: {
                             beginAtZero: true,
                             grid: { color: '#2d2d2d' },
                             ticks: { color: '#ffffff' }
                         },
-                        y: {
+                    y: {
                             grid: { color: '#2d2d2d' },
                             ticks: { color: '#ffffff' }
                         }
@@ -848,18 +848,18 @@
 
         function updateInstructorChart(data) {
             const ctx = document.getElementById('instructorChart').getContext('2d');
-            
-            // Get top 10 instructors
+    
+                // Get top 10 instructors
             const sorted = Object.entries(data)
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 10);
-            
-            if (charts.instructor) {
+    
+             if (charts.instructor) {
                 charts.instructor.destroy();
             }
-            
+    
             charts.instructor = new Chart(ctx, {
-                type: 'horizontalBar',
+                type: 'bar',  // <-- CHANGE FROM 'horizontalBar' TO 'bar'
                 data: {
                     labels: sorted.map(item => item[0]),
                     datasets: [{
@@ -873,7 +873,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    indexAxis: 'y',
+                    indexAxis: 'y',  // This makes it horizontal
                     scales: {
                         x: {
                             beginAtZero: true,
@@ -888,7 +888,7 @@
                     plugins: {
                         legend: { display: false }
                     }
-                }
+            }
             });
         }
 
@@ -938,3 +938,4 @@
     </script>
 </body>
 </html>
+
