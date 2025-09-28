@@ -873,13 +873,16 @@
       // Load instructors for training
 async function loadInstructors(category, training) {
     try {
-        const response = await fetch(`${config.googleAppsScriptUrl}?action=getInstructors&category=${encodeURIComponent(category)}&training=${encodeURIComponent(training)}`);
-        const result = await response.json();
+        const url = `${config.googleAppsScriptUrl}?action=getInstructors&category=${encodeURIComponent(category)}&training=${encodeURIComponent(training)}`;
         
         // ADD THIS DEBUG LINE
-        console.log('Instructor response:', result);
+        console.log('Fetching URL:', url);
+        console.log('Category:', category, 'Training:', training);
         
-        const instructorSelect = document.getElementById('instructor');
+        const response = await fetch(url);
+        const result = await response.json();
+        
+        console.log('Instructor response:', result);
         
         if (result.success && result.data.instructors && result.data.instructors.length > 0) {
             instructorSelect.innerHTML = '<option value="">-- SELECT INSTRUCTOR --</option>';
@@ -1062,6 +1065,7 @@ async function loadInstructors(category, training) {
 </body>
 
 </html>
+
 
 
 
