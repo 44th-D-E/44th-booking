@@ -425,8 +425,8 @@
                 <div class="form-group">
                     <label class="form-label" for="discordName">Discord Name</label>
                     <input type="text" id="discordName" class="form-control" 
-                           placeholder="YourName#1234" required>
-                    <span class="form-help">Enter your Discord username with tag</span>
+                           placeholder="YourName" required>
+                    <span class="form-help">Enter your Discord username</span>
                 </div>
 
                 <!-- Category -->
@@ -603,8 +603,7 @@
             
             try {
                 // Submit to backend
-                const response = await fetch(`${config.googleAppsScriptUrl}?action=submitRequest&requesterName=${encodeURIComponent(formData.requesterName)}&category=${encodeURIComponent(formData.category)}&training=${encodeURIComponent(formData.training)}&notes=${encodeURIComponent(formData.notes)}`);
-
+                const response = await fetch(`${config.googleAppsScriptUrl}?action=submitRequest&requesterName=${encodeURIComponent(discordName)}&category=${encodeURIComponent(category)}&training=${encodeURIComponent(training)}&notes=${encodeURIComponent(notes)}`);
                 const result = await response.json();
                 
                 if (result.success) {
@@ -637,6 +636,7 @@
 </body>
 
 </html>
+
 
 
 
