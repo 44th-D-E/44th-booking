@@ -666,8 +666,8 @@
                 html += `<div class="day-header ${isToday ? 'today' : ''}">${days[d]}<br>${date.getDate()}</div>`;
             }
             
-            // Time slots (8 AM to 10 PM)
-            for (let hour = 8; hour <= 22; hour++) {
+            // Time slots (10 AM to 11 PM BST)
+            for (let hour = 10; hour <= 23; hour++) {
                 html += `<div class="time-slot">${hour}:00</div>`;
                 
                 for (let d = 0; d < 7; d++) {
