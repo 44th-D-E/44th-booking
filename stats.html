@@ -469,7 +469,7 @@
             try {
                 const userEmail = sessionStorage.getItem('userEmail');
                 
-                const response = await fetch(`${url}?action=someAction&param=${encodeURIComponent(value)}`);
+                const response = await fetch(`${config.googleAppsScriptUrl}?action=getStats&userEmail=${encodeURIComponent(userEmail)}`);
 
                 const result = await response.json();
                 
@@ -807,5 +807,6 @@
 </body>
 
 </html>
+
 
 
