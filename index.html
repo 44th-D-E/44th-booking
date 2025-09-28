@@ -3,571 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>44th D&E Booking System</title>
-    
-    <!-- Fix CORS headers -->
-    <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
-    
-    <!-- Google Sign-In - load before your scripts -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    
+    <title>44th Bookings - D&E Training System</title>
+    <link rel="icon" type="image/png" href="Logo.png">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Russo+One&family=Chakra+Petch:wght@400;600;700&display=swap');
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        :root {
-            --primary-black: #0d0d0d;
-            --secondary-black: #1a1a1a;
-            --primary-yellow: #F4B643;
-            --accent-yellow: #FFD700;
-            --grey-dark: #2d2d2d;
-            --grey-medium: #4a4a4a;
-            --grey-light: #8a8a8a;
-            --white: #ffffff;
-            --success: #4CAF50;
-            --danger: #d32f2f;
-        }
-
         body {
-            font-family: 'Chakra Petch', monospace;
-            background: var(--primary-black);
-            color: var(--white);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             min-height: 100vh;
             display: flex;
-            align-items: center;
             justify-content: center;
-            position: relative;
-            padding: 20px;
-        }
-
-        /* Animated Grid Background */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                repeating-linear-gradient(0deg, 
-                    transparent, 
-                    transparent 100px, 
-                    rgba(244, 182, 67, 0.03) 100px, 
-                    rgba(244, 182, 67, 0.03) 101px),
-                repeating-linear-gradient(90deg, 
-                    transparent, 
-                    transparent 100px, 
-                    rgba(244, 182, 67, 0.03) 100px, 
-                    rgba(244, 182, 67, 0.03) 101px);
-            animation: grid-move 10s linear infinite;
-            pointer-events: none;
-        }
-
-        @keyframes grid-move {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(100px, 100px); }
-        }
-
-        .container {
-            max-width: 1200px;
-            width: 100%;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Header */
-        .header {
-            text-align: center;
-            margin-bottom: 50px;
-            animation: fadeInDown 1s ease;
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .header-badge {
-            width: 180px;
-            height: 180px;
-            margin: 0 auto 30px;
-            display: flex;
             align-items: center;
-            justify-content: center;
-            background: radial-gradient(circle, rgba(244, 182, 67, 0.2), transparent);
-            border: 3px solid var(--primary-yellow);
-            border-radius: 50%;
-            box-shadow: 0 0 50px rgba(244, 182, 67, 0.5);
-            animation: pulse 2s infinite;
-            position: relative;
         }
 
-        .header-badge img {
-            width: 140px;
-            height: 140px;
-            object-fit: contain;
+        .login-container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
         }
 
-        /* Fallback if no logo */
-        /* Fallback if no logo */
-        .header-badge:not(:has(img))::after {
-            content: '44';
-            position: absolute;
-            font-family: 'Black Ops One', sans-serif;
-            font-size: 4em;
-            color: var(--primary-yellow);
-            text-shadow: 0 0 20px rgba(244, 182, 67, 0.8);
-        }
-        }
-
-        .header-badge img + ::after {
-            display: none;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.8; }
-        }
-
-        .header h1 {
-            font-family: 'Black Ops One', sans-serif;
-            font-size: 3.5em;
-            color: var(--primary-yellow);
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            margin-bottom: 10px;
-            text-shadow: 0 0 30px rgba(244, 182, 67, 0.5);
-        }
-
-        .header-subtitle {
-            font-family: 'Russo One', sans-serif;
-            color: var(--grey-light);
-            font-size: 1.2em;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        /* Options Grid */
-        .options-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
-        .option-card {
-            background: var(--secondary-black);
-            border: 2px solid var(--grey-medium);
-            border-radius: 15px;
-            padding: 40px 30px;
+        .logo-section {
             text-align: center;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            animation: fadeInUp 1s ease;
+            margin-bottom: 2rem;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1rem;
         }
 
-        .option-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, transparent, var(--primary-yellow), transparent);
-            animation: scan 2s linear infinite;
+        h1 {
+            color: #1e3c72;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
         }
 
-        @keyframes scan {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+        .subtitle {
+            color: #666;
+            font-size: 0.95rem;
         }
 
-        .option-card:hover {
-            transform: translateY(-10px);
-            border-color: var(--primary-yellow);
-            box-shadow: 0 20px 40px rgba(244, 182, 67, 0.2);
+        .form-group {
+            margin-bottom: 1.5rem;
         }
 
-        .option-icon {
-            font-size: 3.5em;
-            color: var(--primary-yellow);
-            margin-bottom: 20px;
+        label {
             display: block;
-            animation: float 3s ease-in-out infinite;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .option-title {
-            font-family: 'Russo One', sans-serif;
-            font-size: 1.8em;
-            color: var(--white);
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .access-label {
-            display: inline-block;
-            padding: 5px 15px;
-            background: rgba(244, 182, 67, 0.1);
-            border: 1px solid var(--primary-yellow);
-            border-radius: 20px;
-            color: var(--primary-yellow);
-            font-size: 0.9em;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .access-label.public {
-            background: rgba(76, 175, 80, 0.1);
-            border-color: var(--success);
-            color: var(--success);
-        }
-
-        .option-description {
-            color: var(--grey-light);
-            line-height: 1.6;
-            margin-bottom: 30px;
-            font-size: 1.05em;
-        }
-
-        .btn-action {
-            padding: 15px 35px;
-            background: linear-gradient(45deg, var(--primary-yellow), var(--accent-yellow));
-            color: var(--primary-black);
-            border: none;
-            border-radius: 30px;
-            font-family: 'Russo One', sans-serif;
-            font-size: 1em;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-action::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .btn-action:hover::before {
-            width: 300px;
-            height: 300px;
-        }
-
-        .btn-action:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(244, 182, 67, 0.4);
-        }
-
-        /* Google Sign-In Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
+        input[type="email"] {
             width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
+            padding: 0.75rem;
+            border: 2px solid #e1e1e1;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
         }
 
-        .modal.active {
-            display: flex;
-            animation: fadeIn 0.3s ease;
+        input[type="email"]:focus {
+            outline: none;
+            border-color: #2a5298;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-content {
-            background: var(--secondary-black);
-            border: 2px solid var(--primary-yellow);
-            border-radius: 15px;
-            padding: 40px;
-            max-width: 450px;
-            width: 90%;
-            text-align: center;
-            position: relative;
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .modal-header {
-            font-family: 'Russo One', sans-serif;
-            font-size: 1.8em;
-            color: var(--primary-yellow);
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .modal-description {
-            color: var(--grey-light);
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
+        .login-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: #2a5298;
+            color: white;
             border: none;
-            color: var(--grey-light);
-            font-size: 1.5em;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: color 0.3s ease;
+            transition: background 0.3s;
         }
 
-        .close-modal:hover {
-            color: var(--primary-yellow);
+        .login-btn:hover {
+            background: #1e3c72;
         }
 
-        /* Google Sign-In Button Container */
-        .google-signin-container {
-            display: flex;
-            justify-content: center;
-            margin: 30px 0;
+        .login-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
         }
 
-        /* Loading State */
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--grey-medium);
-            border-top-color: var(--primary-yellow);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
+        .info-box {
+            margin-top: 1.5rem;
+            padding: 0.75rem;
+            background: #f0f7ff;
+            border-left: 3px solid #2a5298;
+            border-radius: 3px;
+            font-size: 0.85rem;
+            color: #555;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .error-message {
+            color: #d32f2f;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: none;
         }
 
-        /* Footer */
-        .footer {
+        .loading {
+            display: none;
             text-align: center;
-            color: var(--grey-light);
-            font-size: 0.9em;
-            margin-top: 50px;
-            animation: fadeIn 1.5s ease;
+            color: #2a5298;
+            margin-top: 1rem;
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2.5em;
-            }
-            
-            .options-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .option-card {
-                padding: 30px 20px;
-            }
+        .public-links {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e1e1e1;
+            text-align: center;
+        }
+
+        .public-links a {
+            color: #2a5298;
+            text-decoration: none;
+            margin: 0 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .public-links a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
+    <div class="login-container">
+        <div class="logo-section">
+            <img src="Logo.png" alt="44th Logo" class="logo" onerror="this.style.display='none'">
+            <h1>44th D&E System</h1>
+            <p class="subtitle">Training Management Portal</p>
+        </div>
 
-    <div id="g_id_onload"
-         data-client_id="810988176883-mft5ved25drb88shoo4hsut878if8b4g.apps.googleusercontent.com"
-         data-callback="handleCredentialResponse"
-         data-auto_prompt="false">
-    </div>
-    
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-badge">
-                <img src="Logo.png" alt="44th RAR Badge" onerror="this.style.display='none'">
-            </div>
-            <h1>44th Royal Anglian Regiment</h1>
-            <p class="header-subtitle">Training Management System</p>
-        </header>
-
-        <!-- Options -->
-        <div class="options-grid">
-            <!-- Booking Portal (Restricted) -->
-            <div class="option-card">
-                <i class="fas fa-calendar-plus option-icon"></i>
-                <h2 class="option-title">Booking Portal</h2>
-                <span class="access-label">
-                    <i class="fas fa-lock"></i> Restricted Access
-                </span>
-                <p class="option-description">
-                    Access the automated training booking system. 
-                    Create instant bookings, view schedules, and access analytics.
-                    <strong>D&E and authorized trainers only.</strong>
-                </p>
-                <button class="btn-action" onclick="openAuthModal()">
-                    ACCESS BOOKING PORTAL
-                </button>
-            </div>
-
-            <!-- Request Training (Public) -->
-            <div class="option-card">
-                <i class="fas fa-hand-paper option-icon"></i>
-                <h2 class="option-title">Request Training</h2>
-                <span class="access-label public">
-                    <i class="fas fa-globe"></i> Public Access
-                </span>
-                <p class="option-description">
-                    Let us know what training you'd like to see offered. 
-                    Your requests help us understand demand and schedule 
-                    the most needed training sessions.
-                </p>
-                <a href="request.html" class="btn-action">
-                    SUBMIT REQUEST
-                </a>
+        <div class="form-group">
+            <label for="emailInput">Email Address</label>
+            <input type="email" id="emailInput" placeholder="Enter your authorized email" 
+                   onkeypress="if(event.key==='Enter') checkAccess()">
+            <div id="errorMessage" class="error-message">
+                Email not authorized. Please contact the D&E team.
             </div>
         </div>
 
-        <!-- Footer -->
-        <footer class="footer">
-            <p>© 2025 44th Royal Anglian Regiment | Automated Booking System v2.0</p>
-        </footer>
-    </div>
+        <button class="login-btn" onclick="checkAccess()" id="loginBtn">
+            Access System
+        </button>
 
-    <!-- Google Sign-In Modal -->
-    <div id="authModal" class="modal">
-        <div class="modal-content">
-            <button class="close-modal" onclick="closeAuthModal()">
-                <i class="fas fa-times"></i>
-            </button>
-            
-            <h3 class="modal-header">Authentication Required</h3>
-            <p class="modal-description">
-                Sign in with your authorized Google account to access the booking portal.
-                Only D&E officers and approved trainers have access.
-            </p>
-            
-            <div id="loadingState" style="display: none;">
-                <div class="loading-spinner"></div>
-                <p style="color: var(--grey-light);">Authenticating...</p>
-            </div>
-            
-            <div id="googleSignIn" class="google-signin-container">
-                <div id="g_id_onload"
-                     data-client_id="810988176883-mft5ved25drb88shoo4hsut878if8b4g.apps.googleusercontent.com"
-                     data-callback="handleCredentialResponse"
-                     data-auto_prompt="false">
-                </div>
-                <div class="g_id_signin"
-                     data-type="standard"
-                     data-size="large"
-                     data-theme="filled_black"
-                     data-text="sign_in_with"
-                     data-shape="rectangular"
-                     data-logo_alignment="left">
-                </div>
-            </div>
-            
-            <div id="authError" style="display: none; color: var(--danger); margin-top: 20px;">
-                <i class="fas fa-exclamation-circle"></i> 
-                <span id="errorMessage">Authentication failed</span>
-            </div>
+        <div class="loading" id="loading">
+            Checking authorization...
+        </div>
+
+        <div class="info-box">
+            <strong>Note:</strong> Use your authorized military email. 
+            Public users can submit training requests below.
+        </div>
+
+        <div class="public-links">
+            <a href="request.html">Submit Training Request</a> |
+            <a href="schedule.html">View Schedule</a>
         </div>
     </div>
 
     <script>
-        // Configuration
-        const config = {
-            googleAppsScriptUrl: 'https://script.google.com/macros/s/AKfycbwGZOXvdRUEXRGpt770eGtxEr858kf0LxgY3Onk8E7pVH7LY3raTUH1AE0KVU4Yg39rPQ/exec'
-        };
-
-        // Open authentication modal
-        function openAuthModal() {
-            document.getElementById('authModal').classList.add('active');
-            document.getElementById('authError').style.display = 'none';
-        }
-
-        // Close authentication modal
-        function closeAuthModal() {
-            document.getElementById('authModal').classList.remove('active');
-            document.getElementById('authError').style.display = 'none';
-        }
-
-        // Handle the credential response
-        function handleCredentialResponse(response) {
-            // Send token to your Apps Script for verification
-            fetch(config.googleAppsScriptUrl + '?action=verifyToken', {
-                method: 'POST',
-                body: JSON.stringify({ credential: response.credential }),
-                headers: { 'Content-Type': 'application/json' }
-            })
-            .then(res => res.json())
-            .then(data => {
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwGZOXvdRUEXRGpt770eGtxEr858kf0LxgY3Onk8E7pVH7LY3raTUH1AE0KVU4Yg39rPQ/exec';
+        
+        async function checkAccess() {
+            const emailInput = document.getElementById('emailInput');
+            const email = emailInput.value.trim();
+            const errorMsg = document.getElementById('errorMessage');
+            const loading = document.getElementById('loading');
+            const loginBtn = document.getElementById('loginBtn');
+            
+            // Hide error message
+            errorMsg.style.display = 'none';
+            
+            // Validate email
+            if (!email || !email.includes('@')) {
+                errorMsg.textContent = 'Please enter a valid email address';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            // Show loading
+            loading.style.display = 'block';
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Checking...';
+            
+            try {
+                // Check if email is in access sheet
+                const response = await fetch(SCRIPT_URL + '?action=checkAccess&email=' + encodeURIComponent(email));
+                const data = await response.json();
+                
                 if (data.authorized) {
-                    localStorage.setItem('userEmail', data.email);
-                    localStorage.setItem('userRole', data.role);
-                    window.location.href = 'trainer-index.html';
+                    // Store user info
+                    localStorage.setItem('userEmail', email);
+                    localStorage.setItem('userRole', data.role || 'trainer');
+                    localStorage.setItem('userName', data.name || email.split('@')[0]);
+                    
+                    // Redirect based on role
+                    if (data.role === 'd&e') {
+                        window.location.href = 'trainer-index.html';
+                    } else {
+                        window.location.href = 'trainer-index.html';
+                    }
                 } else {
-                    alert('Not authorized. Contact D&E team.');
+                    errorMsg.textContent = 'Email not authorized. Contact D&E team for access.';
+                    errorMsg.style.display = 'block';
                 }
-            });
+            } catch (error) {
+                console.error('Auth error:', error);
+                errorMsg.textContent = 'Connection error. Please try again.';
+                errorMsg.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Access System';
+            }
         }
+        
+        // Check for Enter key
+        document.getElementById('emailInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                checkAccess();
+            }
+        });
     </script>
 </body>
 </html>
-
-
-
