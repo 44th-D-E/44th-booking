@@ -914,12 +914,19 @@
         function applyFilters() {
             const serverFilter = document.getElementById('serverFilter').value;
             const statusFilter = document.getElementById('statusFilter').value;
+            const now = new Date();
             
             filteredBookings = bookings.filter(booking => {
+                // Filter out past events (only show in-progress and future trainings)
+                const bookingDateTime = new Date(booking.date + ' ' + (booking.time || '00:00'));
+                const bookingEndTime = new Date(bookingDateTime.getTime() + (parseInt(booking.duration || 60) * 60000));
+                
+                if (bookingEndTime < now) return false; // Skip past events
+                
                 if (serverFilter && booking.server !== serverFilter) return false;
                 if (statusFilter && booking.status !== statusFilter) return false;
                 return true;
-            });
+            }).slice(0, 25); // Limit to 25 trainings
             
             renderView();
         }

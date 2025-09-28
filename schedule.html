@@ -723,10 +723,17 @@
                 return;
             }
             
-            // Sort events by date
-            const sortedEvents = [...events].sort((a, b) => 
-                new Date(a.start) - new Date(b.start)
-            );
+            // Filter to show only in-progress and future trainings (up to 25)
+            const now = new Date();
+            const futureEvents = events.filter(event => {
+                const eventEnd = new Date(event.end);
+                return eventEnd >= now; // Include events that haven't ended yet
+            });
+            
+            // Sort events by date and limit to 25
+            const sortedEvents = futureEvents
+                .sort((a, b) => new Date(a.start) - new Date(b.start))
+                .slice(0, 25);
             
             let html = '';
             sortedEvents.forEach(event => {

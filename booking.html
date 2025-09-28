@@ -197,9 +197,25 @@
         /* Checkbox */
         .checkbox-group {
             display: flex;
-            align-items: center;
+            flex-direction: column;
             gap: 10px;
             margin-top: 10px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            color: var(--white);
+            font-size: 0.95em;
+        }
+
+        .checkbox-label input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary-yellow);
         }
 
         .checkbox-group input[type="checkbox"] {
@@ -517,11 +533,18 @@
                         <input type="text" id="instructorOther" class="form-control" placeholder="Discord#0000">
                     </div>
 
-                    <!-- Zeus Required -->
+                    <!-- Mod Requirements -->
                     <div class="form-group">
+                        <label class="form-label">Mod Requirements (Optional)</label>
                         <div class="checkbox-group">
-                            <input type="checkbox" id="zeusRequired">
-                            <label for="zeusRequired">Zeus Required</label>
+                            <label class="checkbox-label">
+                                <input type="radio" name="modRequired" value="zeus" id="zeusRequired">
+                                Zeus Mod Required
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="radio" name="modRequired" value="gyn" id="gynRequired">
+                                GYN Mod Required
+                            </label>
                         </div>
                     </div>
 
@@ -587,10 +610,7 @@
         // Training data structure
         const trainingData = {
             bootcamp: [
-                'GYN', 'LAT', 'HAT', 'Engineer', 'Grenadier', 'Logistics',
-                'MG/AR', 'Marksman', 'Medic', 'Mortar', 'TOW', 'Fibua Tier 1',
-                'Section Battle Drills', 'Squad Leading Tier 1', 
-                'Squad Leading Tier 2', 'Squad Leading Tier 3'
+                'GYN'
             ],
             infantry: [
                 'LAT', 'HAT', 'Advanced AT Training', 'Engineer', 'Grenadier', 
@@ -618,21 +638,23 @@
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
-            checkAuth();
+            // Temporarily disable auth check for debugging
+            // checkAuth();
             setupFormHandlers();
             setMinDate();
             populateTimeDropdown();
         });
 
-        // Populate time dropdown with 15-minute intervals
+        // Populate time dropdown with 15-minute intervals (10:00 - 23:00 London BST)
         function populateTimeDropdown() {
             const timeSelect = document.getElementById('time');
-            for (let hour = 0; hour < 24; hour++) {
+            // Start from 10:00 (1000) and end at 23:00 (2300)
+            for (let hour = 10; hour <= 23; hour++) {
                 for (let min = 0; min < 60; min += 15) {
                     const timeStr = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
                     const option = document.createElement('option');
                     option.value = timeStr;
-                    option.textContent = timeStr;
+                    option.textContent = `${timeStr} BST`;
                     timeSelect.appendChild(option);
                 }
             }
@@ -644,7 +666,7 @@
             const authorized = sessionStorage.getItem('authorized');
             
             if (!userEmail || authorized !== 'true') {
-                alert('Please login first');
+                console.log('Authentication required - redirecting to login');
                 window.location.href = 'trainer-index.html';
                 return false;
             }
@@ -878,7 +900,7 @@
             const duration = document.getElementById('duration').value;
             
             if (!date || !time || !duration) {
-                alert('Please select date, time, and duration first');
+                console.log('Please select date, time, and duration first');
                 return;
             }
             
@@ -907,11 +929,11 @@
                     }
                     resultDiv.style.display = 'block';
                 } else {
-                    alert('Error checking availability: ' + result.message);
+                    console.log('Error checking availability: ' + result.message);
                 }
             } catch (error) {
                 console.error('Error checking availability:', error);
-                alert('Failed to check availability');
+                console.log('Failed to check availability');
             }
         }
 
@@ -926,6 +948,7 @@
             const category = document.getElementById('category').value;
             
             // Get form data
+            const modRequired = document.querySelector('input[name="modRequired"]:checked');
             const formData = {
                 userEmail: sessionStorage.getItem('userEmail'),
                 category: category,
@@ -939,18 +962,19 @@
                 instructor: document.getElementById('instructor').value === 'Other' ? 
                             document.getElementById('instructorOther').value : 
                             document.getElementById('instructor').value,
-                zeusRequired: document.getElementById('zeusRequired').checked ? 'Yes' : 'No'
+                zeusRequired: modRequired && modRequired.value === 'zeus' ? 'Yes' : 'No',
+                gynRequired: modRequired && modRequired.value === 'gyn' ? 'Yes' : 'No'
             };
             
             // Validate - instructor is optional for events
             if (!formData.category || !formData.training || !formData.date || 
                 !formData.time || !formData.duration || !formData.server) {
-                alert('Please fill in all required fields');
+                console.log('Please fill in all required fields');
                 return;
             }
             
             if (category !== 'event' && !formData.instructor) {
-                alert('Please select an instructor for training sessions');
+                console.log('Please select an instructor for training sessions');
                 return;
             }
             
@@ -964,20 +988,20 @@
             loadingState.classList.add('show');
             
             try {
-                const response = await fetch(`${config.googleAppsScriptUrl}?action=createBooking&userEmail=${encodeURIComponent(formData.userEmail)}&category=${encodeURIComponent(formData.category)}&training=${encodeURIComponent(formData.training)}&date=${encodeURIComponent(formData.date)}&time=${encodeURIComponent(formData.time)}&duration=${encodeURIComponent(formData.duration)}&server=${encodeURIComponent(formData.server)}&instructor=${encodeURIComponent(formData.instructor)}&zeusRequired=${encodeURIComponent(formData.zeusRequired)}`);
+                const response = await fetch(`${config.googleAppsScriptUrl}?action=createBooking&userEmail=${encodeURIComponent(formData.userEmail)}&category=${encodeURIComponent(formData.category)}&training=${encodeURIComponent(formData.training)}&date=${encodeURIComponent(formData.date)}&time=${encodeURIComponent(formData.time)}&duration=${encodeURIComponent(formData.duration)}&server=${encodeURIComponent(formData.server)}&instructor=${encodeURIComponent(formData.instructor)}&zeusRequired=${encodeURIComponent(formData.zeusRequired)}&gynRequired=${encodeURIComponent(formData.gynRequired)}`);
                 
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert('Booking created successfully!');
+                    console.log('Booking created successfully!');
                     window.location.href = 'trainer-index.html';
                 } else {
-                    alert('Failed to create booking: ' + result.message);
+                    console.log('Failed to create booking: ' + result.message);
                     submitBtn.disabled = false;
                 }
             } catch (error) {
                 console.error('Booking error:', error);
-                alert('Failed to create booking. Please try again.');
+                console.log('Failed to create booking. Please try again.');
                 submitBtn.disabled = false;
             } finally {
                 loadingState.classList.remove('show');

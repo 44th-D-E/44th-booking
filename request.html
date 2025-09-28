@@ -261,6 +261,30 @@
             font-style: italic;
         }
 
+        /* Checkbox */
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            color: var(--white);
+            font-size: 0.95em;
+        }
+
+        .checkbox-label input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary-yellow);
+        }
+
         /* Submit Button */
         .btn-submit {
             width: 100%;
@@ -469,6 +493,8 @@
                     <span class="form-help">Help us understand your training needs</span>
                 </div>
 
+
+
                 <!-- Loading State -->
                 <div id="loadingState" class="loading">
                     <div class="spinner"></div>
@@ -489,13 +515,10 @@
     googleAppsScriptUrl: 'https://script.google.com/macros/s/AKfycbwGZOXvdRUEXRGpt770eGtxEr858kf0LxgY3Onk8E7pVH7LY3raTUH1AE0KVU4Yg39rPQ/exec'
 };
 
-        // Training data structure
+        // Training data structure (matches booking.html exactly)
         const trainingData = {
             bootcamp: [
-                'GYN', 'LAT', 'HAT', 'Engineer', 'Grenadier', 'Logistics',
-                'MG/AR', 'Marksman', 'Medic', 'Mortar', 'TOW', 'Fibua Tier 1',
-                'Section Battle Drills', 'Squad Leading Tier 1', 
-                'Squad Leading Tier 2', 'Squad Leading Tier 3'
+                'GYN'
             ],
             infantry: [
                 'LAT', 'HAT', 'Advanced AT Training', 'Engineer', 'Grenadier', 
@@ -504,20 +527,20 @@
                 'Squad Leading Tier 2', 'Squad Leading Tier 3'
             ],
             mbt: [
-                'Principles of MBT', 'Driving', 'Gunning', 
-                'Commanding/Spotting', 'Positioning', 'Masters Test', 'Expert Cert'
+                'Principles of MBT', 'Principles of Driving', 'Principles of Gunning', 
+                'Principles Commanding/Spotting', 'Positioning', 'MBT Masters Test', 'Expert Certification Exam'
             ],
             pilot: [
-                'Tier 1', 'Advanced J-Hooks', 'Safe spotting', 
-                'Emergency procedures', 'Advanced low flying', 
-                'Heli teamwork', 'Insertion tactics', 'Barrel rolls'
+                'Tier 1 Pilot', 'Advanced J-Hooks', 'Safe Spotting', 
+                'Emergency Procedures', 'Advanced Low Flying', 
+                'Heli Teamwork', 'Insertion Tactics', 'Barrel Rolls'
             ],
-            ifv: ['IFV Qualified', 'IFV Certified'],
+            ifv: ['IFV Qualified', 'IFV Certified', 'Mechanised Infantry Qualified', 'Mechanised Infantry Certified'],
             mechInf: [
-                'Fighting in Open Areas', 'Raiding Tactics', 'Urban Areas', 
-                'Small unit tactics', 'Squad leading', 'Mech Inf Test'
+                'Fighting in Open Areas', 'Raiding Tactics', 'Fighting in Urban Areas', 
+                'Small Unit Tactics', 'Squad Leading', 'Mech Inf Test'
             ],
-            motorInf: ['Tier 1', 'Tier 2', 'Motor Inf Test'],
+            motorInf: ['Motor Infantry Tier 1', 'Motor Infantry Tier 2', 'Motor Infantry Test'],
             custom: ['Custom Training']
         };
 
@@ -586,6 +609,8 @@
             const category = document.getElementById('category').value;
             let training = document.getElementById('training').value;
             const notes = document.getElementById('notes').value.trim();
+            
+
             
             // Handle custom training
             if (training === 'Custom Training') {
