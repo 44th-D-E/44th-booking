@@ -4,7 +4,7 @@
     <link rel="icon" type="image/png" href="Logo.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>44th RAR - Create Booking</title>
+    <title>44th SMS - Create Booking</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
     <style>
@@ -418,7 +418,7 @@
         <!-- Header -->
         <div class="header">
             <h1>Create Instant Booking</h1>
-            <p class="header-subtitle">Book training sessions instantly - no approval needed!</p>
+            <p class="header-subtitle">Book training sessions or events instantly - no approval needed!</p>
         </div>
 
         <div class="booking-grid">
@@ -426,14 +426,14 @@
             <div class="form-container">
                 <h2 class="form-title">
                     <i class="fas fa-calendar-plus"></i>
-                    NEW TRAINING SESSION
+                    NEW TRAINING SESSION / EVENT
                 </h2>
 
                 <form id="bookingForm">
                     <!-- Category and Training -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label" for="category">Training Category</label>
+                            <label class="form-label" for="category">Category</label>
                             <select id="category" class="form-control" required>
                                 <option value="">-- SELECT CATEGORY --</option>
                                 <option value="bootcamp">Bootcamp / GYN</option>
@@ -443,11 +443,12 @@
                                 <option value="ifv">IFV</option>
                                 <option value="mechInf">Mech Inf</option>
                                 <option value="motorInf">Motor Inf</option>
+                                <option value="event">Event</option>
                             </select>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="training">Specific Training</label>
+                            <label class="form-label" for="training" id="trainingLabel">Specific Training</label>
                             <select id="training" class="form-control" required disabled>
                                 <option value="">-- SELECT CATEGORY FIRST --</option>
                             </select>
@@ -464,7 +465,7 @@
                         <div class="form-group">
                             <label class="form-label" for="time">Start Time</label>
                             <select id="time" class="form-control" required>
-                            <option value="">-- SELECT TIME --</option>
+                                <option value="">-- SELECT TIME --</option>
                             </select>
                         </div>
                     </div>
@@ -504,15 +505,15 @@
 
                     <!-- Instructor -->
                     <div class="form-group">
-                        <label class="form-label" for="instructor">Instructor</label>
+                        <label class="form-label" for="instructor" id="instructorLabel">Lead Instructor</label>
                         <select id="instructor" class="form-control" required disabled>
-                            <option value="">-- SELECT INSTRUCTOR --</option>
+                            <option value="">-- SELECT TRAINING FIRST --</option>
                         </select>
                     </div>
 
                     <!-- Custom Instructor (hidden by default) -->
                     <div class="form-group" id="instructorOtherGroup" style="display: none;">
-                        <label class="form-label" for="instructorOther">Instructor Discord Name</label>
+                        <label class="form-label" for="instructorOther" id="instructorOtherLabel">Instructor Discord Name</label>
                         <input type="text" id="instructorOther" class="form-control" placeholder="Discord#0000">
                     </div>
 
@@ -553,7 +554,7 @@
                 <div class="info-card">
                     <h3><i class="fas fa-info-circle"></i> HOW IT WORKS</h3>
                     <ul>
-                        <li>Fill in training details</li>
+                        <li>Fill in training/event details</li>
                         <li>Check availability (optional)</li>
                         <li>Click create booking</li>
                         <li>If slot is free - instant confirmation!</li>
@@ -570,7 +571,7 @@
                         <li>15-minute gap between sessions</li>
                         <li>Max duration: 3 hours</li>
                         <li>All times in UTC+1</li>
-                        <li>These rules are for instant approval. Request outside this can still be requested directly through D&E</li>
+                        <li>These rules are for instant approval. Requests outside this can still be made directly through D&E</li>
                     </ul>
                 </div>
             </div>
@@ -611,7 +612,8 @@
                 'Fighting in Open Areas', 'Raiding Tactics', 'Urban Areas', 
                 'Small unit tactics', 'Squad leading', 'Mech Inf Test'
             ],
-            motorInf: ['Tier 1', 'Tier 2', 'Motor Inf Test']
+            motorInf: ['Tier 1', 'Tier 2', 'Motor Inf Test'],
+            event: [] // Events will use custom input
         };
 
         // Initialize on page load
@@ -619,20 +621,22 @@
             checkAuth();
             setupFormHandlers();
             setMinDate();
+            populateTimeDropdown();
         });
 
         // Populate time dropdown with 15-minute intervals
-        const timeSelect = document.getElementById('time');
-        for (let hour = 0; hour < 24; hour++) {
-            for (let min = 0; min < 60; min += 15) {
-                const timeStr = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
-                const option = document.createElement('option');
-                option.value = timeStr;
-                option.textContent = timeStr;
-                timeSelect.appendChild(option);
+        function populateTimeDropdown() {
+            const timeSelect = document.getElementById('time');
+            for (let hour = 0; hour < 24; hour++) {
+                for (let min = 0; min < 60; min += 15) {
+                    const timeStr = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
+                    const option = document.createElement('option');
+                    option.value = timeStr;
+                    option.textContent = timeStr;
+                    timeSelect.appendChild(option);
+                }
             }
         }
-        
 
         // Check authentication
         function checkAuth() {
@@ -651,9 +655,25 @@
         function setupFormHandlers() {
             // Category change handler
             document.getElementById('category').addEventListener('change', function() {
-                updateTrainingOptions(this.value);
-                // Reset instructor when category changes
+                const category = this.value;
+                updateTrainingOptions(category);
+                
+                // Update instructor label based on category
+                const instructorLabel = document.getElementById('instructorLabel');
+                const instructorOtherLabel = document.getElementById('instructorOtherLabel');
                 const instructorSelect = document.getElementById('instructor');
+                
+                if (category === 'event') {
+                    instructorLabel.textContent = 'Event Admin';
+                    instructorOtherLabel.textContent = 'Event Admin Discord Name';
+                    instructorSelect.required = false;
+                } else {
+                    instructorLabel.textContent = 'Lead Instructor';
+                    instructorOtherLabel.textContent = 'Lead Instructor Discord Name';
+                    instructorSelect.required = true;
+                }
+                
+                // Reset instructor when category changes
                 instructorSelect.innerHTML = '<option value="">-- SELECT TRAINING FIRST --</option>';
                 instructorSelect.disabled = true;
             });
@@ -662,7 +682,15 @@
             document.getElementById('training').addEventListener('change', function() {
                 const category = document.getElementById('category').value;
                 if (category && this.value) {
-                    loadInstructors(category, this.value);
+                    if (category === 'event') {
+                        // For events, enable instructor but don't load from database
+                        const instructorSelect = document.getElementById('instructor');
+                        instructorSelect.innerHTML = '<option value="">-- OPTIONAL --</option>';
+                        instructorSelect.innerHTML += '<option value="Other">Specify Admin</option>';
+                        instructorSelect.disabled = false;
+                    } else {
+                        loadInstructors(category, this.value);
+                    }
                 }
             });
 
@@ -684,7 +712,10 @@
                 const otherGroup = document.getElementById('instructorOtherGroup');
                 if (this.value === 'Other') {
                     otherGroup.style.display = 'block';
-                    document.getElementById('instructorOther').required = true;
+                    const category = document.getElementById('category').value;
+                    if (category !== 'event') {
+                        document.getElementById('instructorOther').required = true;
+                    }
                 } else {
                     otherGroup.style.display = 'none';
                     document.getElementById('instructorOther').required = false;
@@ -711,25 +742,73 @@
 
         // Update training options based on category
         function updateTrainingOptions(category) {
-            const trainingSelect = document.getElementById('training');
+            const trainingContainer = document.getElementById('training').parentElement;
+            const trainingLabel = document.getElementById('trainingLabel');
             
             if (!category) {
+                // Reset to select
+                let trainingSelect = document.getElementById('training');
+                if (trainingSelect.tagName === 'INPUT') {
+                    const newSelect = document.createElement('select');
+                    newSelect.id = 'training';
+                    newSelect.className = 'form-control';
+                    newSelect.required = true;
+                    newSelect.disabled = true;
+                    trainingSelect.replaceWith(newSelect);
+                    trainingSelect = newSelect;
+                }
                 trainingSelect.innerHTML = '<option value="">-- SELECT CATEGORY FIRST --</option>';
                 trainingSelect.disabled = true;
                 return;
             }
             
-            const trainings = trainingData[category] || [];
-            
-            trainingSelect.innerHTML = '<option value="">-- SELECT TRAINING --</option>';
-            trainings.forEach(training => {
-                const option = document.createElement('option');
-                option.value = training;
-                option.textContent = training;
-                trainingSelect.appendChild(option);
-            });
-            
-            trainingSelect.disabled = false;
+            if (category === 'event') {
+                // For events, replace select with text input
+                trainingLabel.textContent = 'Event Name/Description';
+                let currentElement = document.getElementById('training');
+                if (currentElement.tagName === 'SELECT') {
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.id = 'training';
+                    input.className = 'form-control';
+                    input.placeholder = 'Enter event name or description';
+                    input.required = true;
+                    currentElement.replaceWith(input);
+                    
+                    // Trigger change event to enable instructor field
+                    input.addEventListener('input', function() {
+                        if (this.value) {
+                            const instructorSelect = document.getElementById('instructor');
+                            instructorSelect.innerHTML = '<option value="">-- OPTIONAL --</option>';
+                            instructorSelect.innerHTML += '<option value="Other">Specify Admin</option>';
+                            instructorSelect.disabled = false;
+                        }
+                    });
+                }
+            } else {
+                // For trainings, use select dropdown
+                trainingLabel.textContent = 'Specific Training';
+                let currentElement = document.getElementById('training');
+                if (currentElement.tagName === 'INPUT') {
+                    const select = document.createElement('select');
+                    select.id = 'training';
+                    select.className = 'form-control';
+                    select.required = true;
+                    currentElement.replaceWith(select);
+                    currentElement = select;
+                }
+                
+                const trainings = trainingData[category] || [];
+                const trainingSelect = document.getElementById('training');
+                trainingSelect.innerHTML = '<option value="">-- SELECT TRAINING --</option>';
+                trainings.forEach(training => {
+                    const option = document.createElement('option');
+                    option.value = training;
+                    option.textContent = training;
+                    trainingSelect.appendChild(option);
+                });
+                trainingSelect.disabled = false;
+            }
         }
 
         // Load instructors for training
@@ -844,11 +923,12 @@
             
             const submitBtn = document.getElementById('submitBtn');
             const loadingState = document.getElementById('loadingState');
+            const category = document.getElementById('category').value;
             
             // Get form data
             const formData = {
                 userEmail: sessionStorage.getItem('userEmail'),
-                category: document.getElementById('category').value,
+                category: category,
                 training: document.getElementById('training').value,
                 date: document.getElementById('date').value,
                 time: document.getElementById('time').value,
@@ -862,11 +942,21 @@
                 zeusRequired: document.getElementById('zeusRequired').checked ? 'Yes' : 'No'
             };
             
-            // Validate
+            // Validate - instructor is optional for events
             if (!formData.category || !formData.training || !formData.date || 
-                !formData.time || !formData.duration || !formData.server || !formData.instructor) {
+                !formData.time || !formData.duration || !formData.server) {
                 alert('Please fill in all required fields');
                 return;
+            }
+            
+            if (category !== 'event' && !formData.instructor) {
+                alert('Please select an instructor for training sessions');
+                return;
+            }
+            
+            // For events without instructor, set a default
+            if (category === 'event' && !formData.instructor) {
+                formData.instructor = 'TBD';
             }
             
             // Show loading state
@@ -896,7 +986,3 @@
     </script>
 </body>
 </html>
-
-
-
-
