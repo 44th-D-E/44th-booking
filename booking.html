@@ -568,7 +568,7 @@
                             <label class="form-label">
                                 Date <span class="required">*</span>
                             </label>
-                            <input type="date" id="date" class="form-control" required>
+                            <input type="time" id="time" class="form-control" required step="900">
                             <span class="form-help">UTC+1 timezone</span>
                         </div>
                         
@@ -938,7 +938,7 @@ async function loadInstructors(category, training) {
             resultDiv.style.display = 'block';
             
             try {
-                const response = await fetch(`${url}?action=someAction&param=${encodeURIComponent(value)}`);
+                const response = await fetch(`${config.googleAppsScriptUrl}?action=checkAvailability&date=${encodeURIComponent(date)}&time=${encodeURIComponent(time)}&duration=${encodeURIComponent(duration)}`);
 
                 const result = await response.json();
                 
@@ -1023,8 +1023,7 @@ async function loadInstructors(category, training) {
             document.getElementById('loadingState').classList.add('show');
             
             try {
-                const response = await fetch(`${url}?action=someAction&param=${encodeURIComponent(value)}`);
-
+                const response = await fetch(`${config.googleAppsScriptUrl}?action=createBooking&userEmail=${encodeURIComponent(formData.userEmail)}&category=${encodeURIComponent(formData.category)}&training=${encodeURIComponent(formData.training)}&date=${encodeURIComponent(formData.date)}&time=${encodeURIComponent(formData.time)}&duration=${encodeURIComponent(formData.duration)}&server=${encodeURIComponent(formData.server)}&instructor=${encodeURIComponent(formData.instructor)}&zeusRequired=${encodeURIComponent(formData.zeusRequired)}`);
                 const result = await response.json();
                 
                 if (result.success) {
@@ -1066,6 +1065,7 @@ async function loadInstructors(category, training) {
 </body>
 
 </html>
+
 
 
 
