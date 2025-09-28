@@ -90,19 +90,31 @@ function handleGetInstructors(data) {
       // Category-based: pilot, mbt, ifv, mechInf, bootcamp instructors can teach any training in their category
       // Module-specific: infantry and other instructors are certified for specific trainings
       
+      // Map form category values to Google Sheet category names
+      const categoryMapping = {
+        'bootcamp': 'GYN',
+        'infantry': 'Infantry', 
+        'mbt': 'MBT - Trooper',
+        'pilot': 'Pilot',
+        'ifv': 'IFV',
+        'mechinf': 'Mech Inf',
+        'motorinf': 'Motor Inf'
+      };
+      
       const categoryBasedTypes = ['pilot', 'mbt', 'ifv', 'mechinf', 'motorinf', 'bootcamp'];
       const isCategoryBased = categoryBasedTypes.includes(data.category.toLowerCase());
+      const sheetCategoryName = categoryMapping[data.category.toLowerCase()] || data.category;
       
       if (category && instructor) {
         if (isCategoryBased) {
           // Match by category for category-based instructors
-          if (category.toLowerCase() === data.category.toLowerCase()) {
+          if (category.toLowerCase() === sheetCategoryName.toLowerCase()) {
             instructors.push(instructor);
           }
         } else {
           // Match by specific training for module-specific instructors
           if (training && 
-              category.toLowerCase() === data.category.toLowerCase() && 
+              category.toLowerCase() === sheetCategoryName.toLowerCase() && 
               training.toLowerCase() === data.training.toLowerCase()) {
             instructors.push(instructor);
           }
