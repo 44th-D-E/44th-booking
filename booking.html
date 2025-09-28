@@ -462,7 +462,9 @@
 
                         <div class="form-group">
                             <label class="form-label" for="time">Start Time</label>
-                            <input type="time" id="time" class="form-control" required step="900">
+                            <select id="time" class="form-control" required>
+                            <option value="">-- SELECT TIME --</option>
+                            </select>
                         </div>
                     </div>
 
@@ -617,6 +619,19 @@
             setupFormHandlers();
             setMinDate();
         });
+
+        // Populate time dropdown with 15-minute intervals
+        const timeSelect = document.getElementById('time');
+        for (let hour = 0; hour < 24; hour++) {
+            for (let min = 0; min < 60; min += 15) {
+                const timeStr = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
+                const option = document.createElement('option');
+                option.value = timeStr;
+                option.textContent = timeStr;
+                timeSelect.appendChild(option);
+            }
+        }
+        
 
         // Check authentication
         function checkAuth() {
@@ -880,3 +895,4 @@
     </script>
 </body>
 </html>
+
