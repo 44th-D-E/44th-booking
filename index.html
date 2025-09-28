@@ -118,13 +118,15 @@
         }
 
         /* Fallback if no logo */
-        .header-badge::after {
+        /* Fallback if no logo */
+        .header-badge:not(:has(img))::after {
             content: '44';
             position: absolute;
             font-family: 'Black Ops One', sans-serif;
             font-size: 4em;
             color: var(--primary-yellow);
             text-shadow: 0 0 20px rgba(244, 182, 67, 0.8);
+        }
         }
 
         .header-badge img + ::after {
@@ -606,3 +608,4 @@
 </body>
 
 </html>
+
