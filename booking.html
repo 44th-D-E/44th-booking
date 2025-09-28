@@ -706,9 +706,10 @@
                     <ul>
                         <li>First come, first served</li>
                         <li>No double bookings allowed</li>
-                        <li>15-minute gap between sessions</li>
+                        <li>15-minute gap between sessions. This allows for time to clear and set up the server between trainings.</li>
                         <li>Max duration: 3 hours</li>
                         <li>All times in UTC+1</li>
+                        <li><b>These rules are for instant approval. Request outside this can still be requested directly throught D&E</b></li>
                     </ul>
                 </div>
 
@@ -872,17 +873,7 @@
         // Load instructors for training
         async function loadInstructors(category, training) {
             try {
-                const response = await fetch(config.googleAppsScriptUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        action: 'getInstructors',
-                        category: category,
-                        training: training
-                    })
-                });
+                const response = await fetch(`${url}?action=someAction&param=${encodeURIComponent(value)}`);
 
                 const result = await response.json();
                 
@@ -942,18 +933,7 @@
             resultDiv.style.display = 'block';
             
             try {
-                const response = await fetch(config.googleAppsScriptUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        action: 'checkAvailability',
-                        date: date,
-                        time: time,
-                        duration: parseInt(duration)
-                    })
-                });
+                const response = await fetch(`${url}?action=someAction&param=${encodeURIComponent(value)}`);
 
                 const result = await response.json();
                 
@@ -1038,16 +1018,7 @@
             document.getElementById('loadingState').classList.add('show');
             
             try {
-                const response = await fetch(config.googleAppsScriptUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        action: 'createBooking',
-                        ...formData
-                    })
-                });
+                const response = await fetch(`${url}?action=someAction&param=${encodeURIComponent(value)}`);
 
                 const result = await response.json();
                 
@@ -1090,3 +1061,4 @@
 </body>
 
 </html>
+
