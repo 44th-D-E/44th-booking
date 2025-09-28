@@ -6,15 +6,7 @@
     <title>44th RAR - Training Server Booking System</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* Military Font Stack */
-        @font-face {
-            font-family: 'Gunplay';
-            src: url('https://cdn.jsdelivr.net/gh/max32002/webfont@master/Gunplay/Gunplay-Regular.woff2') format('woff2'),
-                 url('https://cdn.jsdelivr.net/gh/max32002/webfont@master/Gunplay/Gunplay-Regular.woff') format('woff');
-            font-weight: normal;
-            font-style: normal;
-        }
-
+        /* Military Font Stack - Fallback if Gunplay fails */
         @import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Russo+One&family=Chakra+Petch:wght@400;600;700&display=swap');
 
         * {
@@ -111,7 +103,7 @@
         }
 
         .header h1 {
-            font-family: 'Gunplay', 'Black Ops One', sans-serif;
+            font-family: 'Black Ops One', sans-serif;
             font-size: 3.2em;
             color: var(--primary-yellow);
             text-transform: uppercase;
@@ -235,7 +227,7 @@
             background: var(--primary-yellow);
             border: 2px solid var(--primary-yellow);
             color: var(--primary-black);
-            font-family: 'Gunplay', 'Black Ops One', sans-serif;
+            font-family: 'Black Ops One', sans-serif;
             font-size: 1.1em;
             text-transform: uppercase;
             letter-spacing: 3px;
@@ -276,7 +268,7 @@
         }
 
         .schedule-date {
-            font-family: 'Gunplay', 'Black Ops One', sans-serif;
+            font-family: 'Black Ops One', sans-serif;
             font-size: 1.6em;
             color: var(--primary-yellow);
             text-align: center;
@@ -734,7 +726,7 @@
             }
         });
 
-        // Load instructors for specific category from Google Apps Script
+        // Load instructors for specific category from Google Apps Script (using GET to avoid CORS)
         async function loadInstructorsForCategory(category) {
             const instructorSelect = document.getElementById('instructor');
             instructorSelect.innerHTML = '<option value="">Loading instructors...</option>';
@@ -743,16 +735,12 @@
             try {
                 console.log('Fetching instructors for category:', category);
                 
-                const response = await fetch(config.googleAppsScriptUrl, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'getInstructors',
-                        category: category
-                    })
+                // Use GET request to avoid CORS preflight
+                const url = `${config.googleAppsScriptUrl}?action=getInstructors&category=${encodeURIComponent(category)}`;
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    mode: 'cors'
                 });
                 
                 if (!response.ok) {
@@ -830,7 +818,7 @@
             return `${hours}hr ${mins}m`;
         }
 
-        // Update schedule display
+        // Update schedule display (using GET to avoid CORS)
         async function updateSchedule(date) {
             const scheduleDiv = document.getElementById('daySchedule');
             const selectedDateDiv = document.getElementById('selectedDate');
@@ -843,20 +831,16 @@
             scheduleDiv.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
             
             try {
-                // Load from Google Apps Script
+                // Load from Google Apps Script using GET to avoid CORS
                 const startDate = new Date(date + 'T00:00:00');
                 const endDate = new Date(date + 'T23:59:59');
                 
-                const response = await fetch(config.googleAppsScriptUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'getBookings',
-                        startDate: startDate.toISOString(),
-                        endDate: endDate.toISOString()
-                    })
+                // Use GET request to avoid CORS issues
+                const url = `${config.googleAppsScriptUrl}?action=getBookings&startDate=${encodeURIComponent(startDate.toISOString())}&endDate=${encodeURIComponent(endDate.toISOString())}`;
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    mode: 'cors'
                 });
                 
                 const result = await response.json();
@@ -1087,21 +1071,17 @@
             }, 5000);
         });
 
-        // Test function for debugging instructors
+        // Test function for debugging instructors (using GET)
         window.testInstructorFetch = async function() {
             console.log('Testing instructor fetch...');
             
             try {
-                const response = await fetch(config.googleAppsScriptUrl, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'getInstructors',
-                        category: 'MBT - Trooper'
-                    })
+                // Use GET request to avoid CORS
+                const url = `${config.googleAppsScriptUrl}?action=getInstructors&category=${encodeURIComponent('MBT - Trooper')}`;
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    mode: 'cors'
                 });
                 
                 const data = await response.json();
@@ -1110,6 +1090,8 @@
                 if (data.success) {
                     console.log('Instructors found:', data.data.instructors);
                 }
+                
+                return data;
             } catch (error) {
                 console.error('Test failed:', error);
             }
