@@ -421,9 +421,9 @@
             </div>
             
             <div class="stat-card">
-                <i class="fas fa-server stat-icon"></i>
-                <div class="stat-value" id="serverUtilization">0%</div>
-                <div class="stat-label">Server Utilization</div>
+                <i class="fas fa-clock stat-icon"></i>  <!-- Changed icon to clock -->
+                <div class="stat-value" id="serverUtilization">0h</div>
+                <div class="stat-label">Hours This Week</div>  <!-- Changed label -->
             </div>
         </div>
 
@@ -484,7 +484,27 @@
             }
             return true;
         }
-
+        // Calculate hours booked this week - ADD THIS FUNCTION HERE
+        function calculateWeeklyHours(events) {
+            const now = new Date();
+            const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    
+            // Filter events for this week
+            const weekEvents = events.filter(e => {
+                const eventDate = new Date(e.start);
+                return eventDate >= now && eventDate <= weekFromNow;
+            });
+    
+            // Calculate total hours
+            let totalHours = 0;
+            weekEvents.forEach(event => {
+                const duration = (new Date(event.end) - new Date(event.start)) / (1000 * 60 * 60);
+                totalHours += duration;
+            });
+    
+            // Return rounded to 1 decimal place
+            return totalHours.toFixed(1);
+        }
         // Load user info
         function loadUserInfo() {
             const userName = sessionStorage.getItem('userName');
@@ -528,7 +548,7 @@
             
                     // Set other stats (you can update these based on real data if needed)
                     document.getElementById('totalRequests').textContent = '0';
-                    document.getElementById('serverUtilization').textContent = Math.round(events.length * 5) + '%';
+                    document.getElementById('serverUtilization').textContent = calculateWeeklyHours(events) + 'h';
             
                     // Get next 3 upcoming events
                     const upcomingEvents = events
@@ -656,5 +676,6 @@
     </script>
 </body>
 </html>
+
 
 
