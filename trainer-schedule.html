@@ -1144,7 +1144,7 @@
             try {
                 const userEmail = sessionStorage.getItem('userEmail');
                 
-                const response = await fetch(`${config.googleAppsScriptUrl}?action=getBookings`);
+                const response = await fetch(`${config.googleAppsScriptUrl}?action=deleteBooking&eventId=${encodeURIComponent(eventId)}&userEmail=${encodeURIComponent(userEmail)}`);
 
                 const result = await response.json();
                 
@@ -1198,5 +1198,6 @@
 </body>
 
 </html>
+
 
 
