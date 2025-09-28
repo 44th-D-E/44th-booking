@@ -469,16 +469,7 @@
             try {
                 const userEmail = sessionStorage.getItem('userEmail');
                 
-                const response = await fetch(config.googleAppsScriptUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        action: 'getStats',
-                        userEmail: userEmail
-                    })
-                });
+                const response = await fetch(`${url}?action=someAction&param=${encodeURIComponent(value)}`);
 
                 const result = await response.json();
                 
@@ -816,3 +807,4 @@
 </body>
 
 </html>
+
