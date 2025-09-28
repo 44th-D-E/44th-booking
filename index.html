@@ -3,18 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>44th RAR - Training System</title>
+    <title>44th RAR - Training Management System</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Sign-In -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
     <style>
-        /* Military Font Stack */
-        @font-face {
-            font-family: 'Gunplay';
-            src: url('https://cdn.jsdelivr.net/gh/max32002/webfont@master/Gunplay/Gunplay-Regular.woff2') format('woff2'),
-                 url('https://cdn.jsdelivr.net/gh/max32002/webfont@master/Gunplay/Gunplay-Regular.woff') format('woff');
-            font-weight: normal;
-            font-style: normal;
-        }
-
         @import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Russo+One&family=Chakra+Petch:wght@400;600;700&display=swap');
 
         * {
@@ -45,10 +40,10 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            overflow: hidden;
+            padding: 20px;
         }
 
-        /* Animated Background */
+        /* Animated Grid Background */
         body::before {
             content: '';
             position: fixed;
@@ -67,117 +62,125 @@
                     transparent 100px, 
                     rgba(244, 182, 67, 0.03) 100px, 
                     rgba(244, 182, 67, 0.03) 101px);
+            animation: grid-move 10s linear infinite;
             pointer-events: none;
-            z-index: 1;
         }
 
-        /* Animated lines */
-        .scan-line {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--primary-yellow), transparent);
-            opacity: 0.5;
-            animation: scan 4s linear infinite;
-            z-index: 1;
-        }
-
-        @keyframes scan {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(100vh); }
+        @keyframes grid-move {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(100px, 100px); }
         }
 
         .container {
-            width: 90%;
             max-width: 1200px;
+            width: 100%;
             position: relative;
-            z-index: 2;
+            z-index: 1;
         }
 
         /* Header */
         .header {
             text-align: center;
-            margin-bottom: 60px;
-            animation: fadeIn 1s ease-out;
+            margin-bottom: 50px;
+            animation: fadeInDown 1s ease;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .header-badge {
             width: 180px;
             height: 180px;
             margin: 0 auto 30px;
-            object-fit: contain;
-            filter: drop-shadow(0 0 30px rgba(244, 182, 67, 0.5));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle, rgba(244, 182, 67, 0.2), transparent);
+            border: 3px solid var(--primary-yellow);
+            border-radius: 50%;
+            box-shadow: 0 0 50px rgba(244, 182, 67, 0.5);
             animation: pulse 2s infinite;
+            position: relative;
+        }
+
+        .header-badge img {
+            width: 140px;
+            height: 140px;
+            object-fit: contain;
+        }
+
+        /* Fallback if no logo */
+        .header-badge::after {
+            content: '44';
+            position: absolute;
+            font-family: 'Black Ops One', sans-serif;
+            font-size: 4em;
+            color: var(--primary-yellow);
+            text-shadow: 0 0 20px rgba(244, 182, 67, 0.8);
+        }
+
+        .header-badge img + ::after {
+            display: none;
         }
 
         @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
         }
 
         .header h1 {
-            font-family: 'Gunplay', 'Black Ops One', sans-serif;
-            font-size: 4em;
+            font-family: 'Black Ops One', sans-serif;
+            font-size: 3.5em;
             color: var(--primary-yellow);
             text-transform: uppercase;
-            letter-spacing: 4px;
-            text-shadow: 
-                0 0 20px rgba(244, 182, 67, 0.5),
-                0 0 40px rgba(244, 182, 67, 0.3);
+            letter-spacing: 3px;
             margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(244, 182, 67, 0.5);
         }
 
         .header-subtitle {
             font-family: 'Russo One', sans-serif;
-            font-size: 1.4em;
             color: var(--grey-light);
+            font-size: 1.2em;
+            letter-spacing: 2px;
             text-transform: uppercase;
-            letter-spacing: 6px;
         }
 
-        /* Main Options */
+        /* Options Grid */
         .options-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 40px;
-            margin-bottom: 40px;
-        }
-
-        @media (max-width: 900px) {
-            .options-grid {
-                grid-template-columns: 1fr;
-            }
+            gap: 30px;
+            margin-bottom: 30px;
         }
 
         .option-card {
-            background: linear-gradient(135deg, var(--secondary-black) 0%, var(--grey-dark) 100%);
+            background: var(--secondary-black);
             border: 2px solid var(--grey-medium);
-            padding: 40px;
+            border-radius: 15px;
+            padding: 40px 30px;
+            text-align: center;
             position: relative;
             overflow: hidden;
             transition: all 0.3s ease;
-            animation: slideUp 0.8s ease-out;
-            animation-fill-mode: both;
+            animation: fadeInUp 1s ease;
         }
 
-        .option-card:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        @keyframes slideUp {
-            from { 
-                opacity: 0; 
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
                 transform: translateY(30px);
             }
-            to { 
-                opacity: 1; 
+            to {
+                opacity: 1;
                 transform: translateY(0);
             }
         }
@@ -187,104 +190,114 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 3px;
-            background: var(--primary-yellow);
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--primary-yellow), transparent);
+            animation: scan 2s linear infinite;
         }
 
-        .option-card:hover::before {
-            transform: scaleX(1);
+        @keyframes scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
 
         .option-card:hover {
+            transform: translateY(-10px);
             border-color: var(--primary-yellow);
-            box-shadow: 0 10px 40px rgba(244, 182, 67, 0.2);
-            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(244, 182, 67, 0.2);
         }
 
         .option-icon {
-            font-size: 3em;
+            font-size: 3.5em;
             color: var(--primary-yellow);
             margin-bottom: 20px;
             display: block;
-            filter: drop-shadow(0 0 10px rgba(244, 182, 67, 0.5));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
         .option-title {
-            font-family: 'Black Ops One', sans-serif;
+            font-family: 'Russo One', sans-serif;
             font-size: 1.8em;
             color: var(--white);
-            text-transform: uppercase;
             margin-bottom: 15px;
-            letter-spacing: 2px;
-        }
-
-        .option-description {
-            color: var(--grey-light);
-            margin-bottom: 30px;
-            line-height: 1.6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .access-label {
             display: inline-block;
             padding: 5px 15px;
-            background: var(--grey-dark);
+            background: rgba(244, 182, 67, 0.1);
+            border: 1px solid var(--primary-yellow);
+            border-radius: 20px;
             color: var(--primary-yellow);
             font-size: 0.9em;
+            margin-bottom: 20px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 25px;
-            border-left: 3px solid var(--primary-yellow);
+        }
+
+        .access-label.public {
+            background: rgba(76, 175, 80, 0.1);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .option-description {
+            color: var(--grey-light);
+            line-height: 1.6;
+            margin-bottom: 30px;
+            font-size: 1.05em;
         }
 
         .btn-action {
-            width: 100%;
-            padding: 18px;
-            background: var(--primary-yellow);
-            border: 2px solid var(--primary-yellow);
+            padding: 15px 35px;
+            background: linear-gradient(45deg, var(--primary-yellow), var(--accent-yellow));
             color: var(--primary-black);
-            font-family: 'Gunplay', 'Black Ops One', sans-serif;
-            font-size: 1.2em;
+            border: none;
+            border-radius: 30px;
+            font-family: 'Russo One', sans-serif;
+            font-size: 1em;
+            font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 3px;
+            letter-spacing: 1px;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
             text-decoration: none;
             display: inline-block;
-            text-align: center;
         }
 
         .btn-action::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.5s ease;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
         }
 
         .btn-action:hover::before {
-            left: 100%;
+            width: 300px;
+            height: 300px;
         }
 
         .btn-action:hover {
-            background: transparent;
-            color: var(--primary-yellow);
-            box-shadow: 0 0 30px rgba(244, 182, 67, 0.4);
-            transform: scale(1.02);
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(244, 182, 67, 0.4);
         }
 
-        .btn-action:active {
-            transform: scale(0.98);
-        }
-
-        /* Modal for Access Control */
+        /* Google Sign-In Modal */
         .modal {
             display: none;
             position: fixed;
@@ -303,31 +316,50 @@
             animation: fadeIn 0.3s ease;
         }
 
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
         .modal-content {
             background: var(--secondary-black);
             border: 2px solid var(--primary-yellow);
+            border-radius: 15px;
             padding: 40px;
-            max-width: 500px;
+            max-width: 450px;
             width: 90%;
+            text-align: center;
             position: relative;
-            animation: slideDown 0.3s ease;
+            animation: slideUp 0.3s ease;
         }
 
-        @keyframes slideDown {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .modal-header {
-            font-family: 'Black Ops One', sans-serif;
+            font-family: 'Russo One', sans-serif;
             font-size: 1.8em;
             color: var(--primary-yellow);
-            text-transform: uppercase;
             margin-bottom: 20px;
-            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .modal-close {
+        .modal-description {
+            color: var(--grey-light);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .close-modal {
             position: absolute;
             top: 15px;
             right: 15px;
@@ -336,75 +368,42 @@
             color: var(--grey-light);
             font-size: 1.5em;
             cursor: pointer;
-            transition: color 0.3s;
+            transition: color 0.3s ease;
         }
 
-        .modal-close:hover {
+        .close-modal:hover {
             color: var(--primary-yellow);
         }
 
-        .form-group {
-            margin-bottom: 25px;
+        /* Google Sign-In Button Container */
+        .google-signin-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
         }
 
-        .form-label {
-            font-family: 'Russo One', sans-serif;
-            font-size: 0.9em;
-            color: var(--grey-light);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
-            display: block;
+        /* Loading State */
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--grey-medium);
+            border-top-color: var(--primary-yellow);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
         }
 
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            background: var(--primary-black);
-            border: 1px solid var(--grey-medium);
-            color: var(--white);
-            font-family: 'Chakra Petch', monospace;
-            font-size: 1em;
-            transition: all 0.3s ease;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-yellow);
-            background: rgba(244, 182, 67, 0.05);
-        }
-
-        .error-message {
-            display: none;
-            padding: 10px;
-            background: rgba(211, 47, 47, 0.1);
-            border: 1px solid var(--danger);
-            color: var(--danger);
-            margin-top: 10px;
-            font-size: 0.9em;
-        }
-
-        .error-message.show {
-            display: block;
-            animation: shake 0.3s ease;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         /* Footer */
         .footer {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
             text-align: center;
             color: var(--grey-light);
             font-size: 0.9em;
-            z-index: 2;
+            margin-top: 50px;
+            animation: fadeIn 1.5s ease;
         }
 
         /* Responsive */
@@ -413,30 +412,30 @@
                 font-size: 2.5em;
             }
             
-            .option-card {
-                padding: 30px 20px;
+            .options-grid {
+                grid-template-columns: 1fr;
             }
             
-            .option-title {
-                font-size: 1.4em;
+            .option-card {
+                padding: 30px 20px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="scan-line"></div>
-    
     <div class="container">
         <!-- Header -->
         <header class="header">
-            <img src="Logo.png" alt="44th RAR Badge" class="header-badge">
-            <h1>44TH ROYAL ANGLIAN REGIMENT</h1>
+            <div class="header-badge">
+                <img src="Logo.png" alt="44th RAR Badge" onerror="this.style.display='none'">
+            </div>
+            <h1>44th Royal Anglian Regiment</h1>
             <p class="header-subtitle">Training Management System</p>
         </header>
 
-        <!-- Main Options -->
+        <!-- Options -->
         <div class="options-grid">
-            <!-- Booking Portal (Restricted Access) -->
+            <!-- Booking Portal (Restricted) -->
             <div class="option-card">
                 <i class="fas fa-calendar-plus option-icon"></i>
                 <h2 class="option-title">Booking Portal</h2>
@@ -444,163 +443,165 @@
                     <i class="fas fa-lock"></i> Restricted Access
                 </span>
                 <p class="option-description">
-                    Access the training management system. Reserve server time, 
-                    view statistics, and manage training schedules.
+                    Access the automated training booking system. 
+                    Create instant bookings, view schedules, and access analytics.
+                    <strong>D&E and authorized trainers only.</strong>
                 </p>
-                <button class="btn-action" onclick="checkAccess()">
+                <button class="btn-action" onclick="openAuthModal()">
                     ACCESS BOOKING PORTAL
                 </button>
             </div>
 
-            <!-- Request Training (All Members) -->
+            <!-- Request Training (Public) -->
             <div class="option-card">
                 <i class="fas fa-hand-paper option-icon"></i>
                 <h2 class="option-title">Request Training</h2>
-                <span class="access-label" style="border-color: var(--success); color: var(--success);">
-                    <i class="fas fa-users"></i> All Members
+                <span class="access-label public">
+                    <i class="fas fa-globe"></i> Public Access
                 </span>
                 <p class="option-description">
-                    Submit a request for training.
+                    Let us know what training you'd like to see offered. 
+                    Your requests help us understand demand and schedule 
+                    the most needed training sessions.
                 </p>
                 <a href="request.html" class="btn-action">
                     SUBMIT REQUEST
                 </a>
             </div>
         </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2025 44th Royal Anglian Regiment | Automated Training System v2.0</p>
+        </footer>
     </div>
 
-    <!-- Access Modal -->
-    <div id="accessModal" class="modal">
+    <!-- Google Sign-In Modal -->
+    <div id="authModal" class="modal">
         <div class="modal-content">
-            <button class="modal-close" onclick="closeModal()">&times;</button>
-            <h3 class="modal-header">Access Verification</h3>
+            <button class="close-modal" onclick="closeAuthModal()">
+                <i class="fas fa-times"></i>
+            </button>
             
-            <form id="accessForm">
-                <div class="form-group">
-                    <label class="form-label">Access Code</label>
-                    <input type="password" id="accessCode" class="form-control" 
-                           placeholder="Enter access code" required autofocus>
+            <h3 class="modal-header">Authentication Required</h3>
+            <p class="modal-description">
+                Sign in with your authorized Google account to access the booking portal.
+                Only D&E officers and approved trainers have access.
+            </p>
+            
+            <div id="loadingState" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p style="color: var(--grey-light);">Authenticating...</p>
+            </div>
+            
+            <div id="googleSignIn" class="google-signin-container">
+                <div id="g_id_onload"
+                     data-client_id="YOUR_GOOGLE_CLIENT_ID"
+                     data-callback="handleCredentialResponse"
+                     data-auto_prompt="false">
                 </div>
-                
-                <button type="submit" class="btn-action">
-                    VERIFY ACCESS
-                </button>
-                
-                <div id="errorMessage" class="error-message">
-                    Invalid access code. Please try again.
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-size="large"
+                     data-theme="filled_black"
+                     data-text="sign_in_with"
+                     data-shape="rectangular"
+                     data-logo_alignment="left">
                 </div>
-            </form>
+            </div>
+            
+            <div id="authError" style="display: none; color: var(--danger); margin-top: 20px;">
+                <i class="fas fa-exclamation-circle"></i> 
+                <span id="errorMessage">Authentication failed</span>
+            </div>
         </div>
     </div>
-
-    <footer class="footer">
-        <p>&copy; 2025 44th Royal Anglian Regiment - D&E </p>
-    </footer>
 
     <script>
         // Configuration
         const config = {
-            // Simple access code for instructors
-            accessCode: 'Grape44',
-            
-            // URLs
-            bookingUrl: 'booking.html',
-            requestUrl: 'request.html',
-            statsUrl: 'stats.html'
+            googleAppsScriptUrl: 'https://script.google.com/macros/s/AKfycbwGZOXvdRUEXRGpt770eGtxEr858kf0LxgY3Onk8E7pVH7LY3raTUH1AE0KVU4Yg39rPQ/exec'
         };
 
-        // Check access
-        function checkAccess() {
-            const modal = document.getElementById('accessModal');
-            modal.classList.add('active');
-            document.getElementById('errorMessage').classList.remove('show');
-            document.getElementById('accessCode').value = '';
-            document.getElementById('accessCode').focus();
+        // Open authentication modal
+        function openAuthModal() {
+            document.getElementById('authModal').classList.add('active');
+            document.getElementById('authError').style.display = 'none';
         }
 
-        // Close modal
-        function closeModal() {
-            const modal = document.getElementById('accessModal');
-            modal.classList.remove('active');
-            document.getElementById('accessForm').reset();
-            document.getElementById('errorMessage').classList.remove('show');
+        // Close authentication modal
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.remove('active');
+            document.getElementById('authError').style.display = 'none';
         }
 
-        // Handle access form submission
-        document.getElementById('accessForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        // Handle Google Sign-In response
+        function handleCredentialResponse(response) {
+            // Show loading state
+            document.getElementById('googleSignIn').style.display = 'none';
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('authError').style.display = 'none';
             
-            const accessCode = document.getElementById('accessCode').value;
-            const errorMessage = document.getElementById('errorMessage');
+            // Decode JWT to get user email
+            const payload = JSON.parse(atob(response.credential.split('.')[1]));
+            const userEmail = payload.email;
+            const userName = payload.name;
             
-            // Check access code
-            if (accessCode === config.accessCode) {
-                // Store authorization in session
-                sessionStorage.setItem('authorized', 'true');
-                
-                // Show success briefly
-                errorMessage.textContent = 'Access granted. Redirecting...';
-                errorMessage.style.background = 'rgba(76, 175, 80, 0.1)';
-                errorMessage.style.borderColor = 'var(--success)';
-                errorMessage.style.color = 'var(--success)';
-                errorMessage.classList.add('show');
-                
-                // Redirect to booking system after short delay
-                setTimeout(() => {
-                    window.location.href = config.bookingUrl;
-                }, 500);
-            } else {
-                // Show error
-                errorMessage.textContent = 'Invalid access code. Please try again.';
-                errorMessage.style.background = 'rgba(211, 47, 47, 0.1)';
-                errorMessage.style.borderColor = 'var(--danger)';
-                errorMessage.style.color = 'var(--danger)';
-                errorMessage.classList.add('show');
-                
-                // Clear the input
-                document.getElementById('accessCode').value = '';
-                document.getElementById('accessCode').focus();
-            }
-        });
+            // Verify authorization with backend
+            checkAuthorization(userEmail, userName);
+        }
 
-        // Close modal on outside click
-        document.getElementById('accessModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
-            }
-        });
-
-        // Close modal on escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeModal();
-            }
-        });
-
-        // Clear any existing session on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Optional: Clear session if you want to require login each time
-            // sessionStorage.removeItem('authorized');
-            
-            // Add keyboard shortcut hint
-            const accessModal = document.getElementById('accessModal');
-            if (accessModal) {
-                accessModal.addEventListener('shown', function() {
-                    document.getElementById('accessCode').focus();
+        // Check if user is authorized
+        async function checkAuthorization(email, name) {
+            try {
+                const response = await fetch(config.googleAppsScriptUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'checkAuth',
+                        userEmail: email
+                    })
                 });
-            }
-        });
 
-        // Prevent back button from bypassing auth
-        window.addEventListener('pageshow', function(event) {
-            if (event.persisted) {
-                // Page was loaded from cache (back button)
-                // Could optionally clear auth here
+                const result = await response.json();
+                
+                if (result.success && result.data.authorized) {
+                    // Store user info in session
+                    sessionStorage.setItem('userEmail', email);
+                    sessionStorage.setItem('userName', result.data.name || name);
+                    sessionStorage.setItem('userDiscord', result.data.discordName);
+                    sessionStorage.setItem('userRole', result.data.role);
+                    sessionStorage.setItem('authorized', 'true');
+                    
+                    // Redirect to trainer dashboard
+                    window.location.href = 'trainer-index.html';
+                } else {
+                    // Show error
+                    document.getElementById('loadingState').style.display = 'none';
+                    document.getElementById('googleSignIn').style.display = 'block';
+                    document.getElementById('authError').style.display = 'block';
+                    document.getElementById('errorMessage').textContent = 
+                        'You are not authorized to access this system. Please contact D&E for access.';
+                }
+            } catch (error) {
+                console.error('Authorization error:', error);
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('googleSignIn').style.display = 'block';
+                document.getElementById('authError').style.display = 'block';
+                document.getElementById('errorMessage').textContent = 
+                    'Authentication error. Please try again.';
             }
-        });
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('authModal');
+            if (event.target === modal) {
+                closeAuthModal();
+            }
+        }
     </script>
 </body>
 </html>
-
-
-

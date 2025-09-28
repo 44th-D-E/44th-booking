@@ -3,19 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>44th RAR - Training Statistics Dashboard</title>
+    <title>44th RAR - Training Analytics Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <style>
-        /* Military Font Stack */
-        @font-face {
-            font-family: 'Gunplay';
-            src: url('https://cdn.jsdelivr.net/gh/max32002/webfont@master/Gunplay/Gunplay-Regular.woff2') format('woff2'),
-                 url('https://cdn.jsdelivr.net/gh/max32002/webfont@master/Gunplay/Gunplay-Regular.woff') format('woff');
-            font-weight: normal;
-            font-style: normal;
-        }
-
-        @import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Russo+One&family=Chakra+Petch:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Chakra+Petch:wght@400;600;700&display=swap');
 
         * {
             margin: 0;
@@ -43,7 +38,7 @@
             background: var(--primary-black);
             color: var(--white);
             min-height: 100vh;
-            position: relative;
+            padding: 20px;
         }
 
         /* Grid Background */
@@ -66,122 +61,63 @@
                     rgba(244, 182, 67, 0.03) 100px, 
                     rgba(244, 182, 67, 0.03) 101px);
             pointer-events: none;
-            z-index: 1;
+            z-index: -1;
         }
 
         .container {
-            max-width: 1600px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
             position: relative;
-            z-index: 2;
+            z-index: 1;
         }
 
         /* Header */
         .header {
             text-align: center;
-            padding: 30px 20px;
-            margin-bottom: 30px;
-            border-bottom: 2px solid var(--grey-dark);
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(244, 182, 67, 0.1), transparent);
+            border: 2px solid var(--primary-yellow);
+            border-radius: 10px;
         }
 
         .header h1 {
-            font-family: 'Gunplay', 'Black Ops One', sans-serif;
-            font-size: 2.5em;
+            font-family: 'Russo One', sans-serif;
+            font-size: 3em;
             color: var(--primary-yellow);
             text-transform: uppercase;
             letter-spacing: 3px;
-            text-shadow: 0 0 10px rgba(244, 182, 67, 0.5);
             margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(244, 182, 67, 0.5);
         }
 
         .header-subtitle {
-            font-family: 'Russo One', sans-serif;
-            font-size: 1.1em;
             color: var(--grey-light);
-            text-transform: uppercase;
-            letter-spacing: 4px;
-        }
-
-        /* Controls Bar */
-        .controls-bar {
-            background: var(--secondary-black);
-            border: 1px solid var(--grey-dark);
-            padding: 20px;
-            margin-bottom: 30px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .filter-label {
-            font-family: 'Russo One', sans-serif;
-            font-size: 0.85em;
-            color: var(--grey-light);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .filter-control {
-            padding: 8px 12px;
-            background: var(--primary-black);
-            border: 1px solid var(--grey-medium);
-            color: var(--white);
-            font-family: 'Chakra Petch', monospace;
-            min-width: 180px;
-            cursor: pointer;
-        }
-
-        .filter-control:focus {
-            outline: none;
-            border-color: var(--primary-yellow);
-        }
-
-        /* Fix dropdown option background */
-        .filter-control option {
-            background: var(--primary-black);
-            color: var(--white);
-        }
-
-        .btn-refresh {
-            margin-left: auto;
-            padding: 10px 20px;
-            background: var(--primary-yellow);
-            border: 2px solid var(--primary-yellow);
-            color: var(--primary-black);
-            font-family: 'Russo One', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-refresh:hover {
-            background: transparent;
-            color: var(--primary-yellow);
+            font-size: 1.2em;
         }
 
         /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
 
         .stat-card {
-            background: linear-gradient(135deg, var(--secondary-black), var(--grey-dark));
+            background: var(--secondary-black);
             border: 1px solid var(--grey-medium);
+            border-radius: 10px;
             padding: 20px;
+            text-align: center;
             position: relative;
             overflow: hidden;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-yellow);
         }
 
         .stat-card::before {
@@ -189,22 +125,27 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 3px;
+            right: 0;
+            height: 4px;
             background: var(--primary-yellow);
         }
 
-        .stat-icon {
-            font-size: 2em;
-            color: var(--primary-yellow);
-            margin-bottom: 10px;
-            opacity: 0.8;
+        .stat-card.success::before {
+            background: var(--success);
+        }
+
+        .stat-card.warning::before {
+            background: var(--warning);
+        }
+
+        .stat-card.info::before {
+            background: var(--info);
         }
 
         .stat-value {
-            font-family: 'Black Ops One', sans-serif;
+            font-family: 'Russo One', sans-serif;
             font-size: 2.5em;
-            color: var(--white);
+            color: var(--primary-yellow);
             margin: 10px 0;
         }
 
@@ -215,125 +156,90 @@
             letter-spacing: 1px;
         }
 
-        /* Training Table */
-        .data-panel {
+        /* Chart Containers */
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-container {
             background: var(--secondary-black);
-            border: 1px solid var(--grey-dark);
-            margin-bottom: 30px;
+            border: 1px solid var(--grey-medium);
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
         }
 
-        .panel-header {
-            background: var(--grey-dark);
-            padding: 15px 20px;
-            border-bottom: 2px solid var(--primary-yellow);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .panel-header h2 {
+        .chart-title {
             font-family: 'Russo One', sans-serif;
-            font-size: 1.3em;
             color: var(--primary-yellow);
+            font-size: 1.3em;
+            margin-bottom: 20px;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
         }
 
+        /* Tables */
         .data-table {
-            width: 100%;
+            background: var(--secondary-black);
+            border: 1px solid var(--grey-medium);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
             overflow-x: auto;
+        }
+
+        .data-table h3 {
+            font-family: 'Russo One', sans-serif;
+            color: var(--primary-yellow);
+            margin-bottom: 20px;
+            text-transform: uppercase;
         }
 
         table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
         }
 
         th {
-            background: var(--primary-black);
+            background: var(--grey-dark);
+            color: var(--primary-yellow);
             padding: 12px;
             text-align: left;
-            font-family: 'Russo One', sans-serif;
-            color: var(--primary-yellow);
+            font-weight: 600;
             text-transform: uppercase;
-            font-size: 0.85em;
             letter-spacing: 1px;
-            border-bottom: 1px solid var(--grey-medium);
-            position: sticky;
-            top: 0;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        th:hover {
-            background: rgba(244, 182, 67, 0.1);
-        }
-
-        th.sortable::after {
-            content: ' ↕';
-            opacity: 0.5;
-            font-size: 0.8em;
-        }
-
-        th.sorted-asc::after {
-            content: ' ↑';
-            opacity: 1;
-        }
-
-        th.sorted-desc::after {
-            content: ' ↓';
-            opacity: 1;
+            border-bottom: 2px solid var(--primary-yellow);
         }
 
         td {
             padding: 10px 12px;
             border-bottom: 1px solid var(--grey-dark);
-            font-size: 0.95em;
-        }
-
-        tr:hover {
-            background: rgba(244, 182, 67, 0.05);
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 3px 8px;
-            font-size: 0.8em;
-            border-radius: 3px;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
-
-        .badge-high {
-            background: var(--danger);
             color: var(--white);
         }
 
-        .badge-medium {
-            background: var(--warning);
-            color: var(--primary-black);
+        tr:hover td {
+            background: rgba(244, 182, 67, 0.1);
         }
 
-        .badge-low {
-            background: var(--info);
-            color: var(--white);
-        }
-
-        /* Loading */
+        /* Loading State */
         .loading {
             text-align: center;
             padding: 40px;
-            color: var(--primary-yellow);
+            color: var(--grey-light);
         }
 
         .spinner {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             border: 3px solid var(--grey-medium);
             border-top-color: var(--primary-yellow);
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
         }
 
         @keyframes spin {
@@ -345,46 +251,56 @@
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            padding: 10px 20px;
+            padding: 12px 24px;
             background: transparent;
-            border: 1px solid var(--grey-medium);
-            color: var(--grey-light);
+            border: 2px solid var(--primary-yellow);
+            color: var(--primary-yellow);
             text-decoration: none;
             font-family: 'Russo One', sans-serif;
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 20px;
             transition: all 0.3s ease;
+            border-radius: 5px;
         }
 
         .back-button:hover {
-            border-color: var(--primary-yellow);
-            color: var(--primary-yellow);
+            background: var(--primary-yellow);
+            color: var(--primary-black);
             transform: translateX(-5px);
         }
 
-        /* No Data Message */
-        .no-data {
-            padding: 40px;
-            text-align: center;
-            color: var(--grey-light);
-            font-style: italic;
+        /* Refresh Button */
+        .refresh-btn {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            padding: 10px 20px;
+            background: var(--grey-dark);
+            border: 1px solid var(--grey-medium);
+            color: var(--white);
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            border-color: var(--primary-yellow);
+            color: var(--primary-yellow);
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .controls-bar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .btn-refresh {
-                margin-left: 0;
-                margin-top: 10px;
+            .charts-row {
+                grid-template-columns: 1fr;
             }
             
             .stats-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            
+            .header h1 {
+                font-size: 2em;
             }
         }
     </style>
@@ -392,533 +308,510 @@
 <body>
     <div class="container">
         <!-- Back Button -->
-        <a href="index.html" class="back-button">
-            <i class="fas fa-arrow-left"></i> Back to Main
+        <a href="trainer-index.html" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
         </a>
 
         <!-- Header -->
-        <header class="header">
-            <h1>Training Statistics Dashboard</h1>
-            <p class="header-subtitle">44th Royal Anglian Regiment</p>
-        </header>
-
-        <!-- Controls Bar -->
-        <div class="controls-bar">
-            <div class="filter-group">
-                <label class="filter-label">Category</label>
-                <select id="categoryFilter" class="filter-control">
-                    <option value="all">All Categories</option>
-                    <option value="bootcamp">Bootcamp / GYN</option>
-                    <option value="infantry">Infantry</option>
-                    <option value="mbt">MBT - Trooper</option>
-                    <option value="pilot">Pilot</option>
-                    <option value="ifv">IFV</option>
-                    <option value="mechInf">Mech Inf</option>
-                    <option value="motorInf">Motor Inf</option>
-                </select>
-            </div>
-
-            <div class="filter-group">
-                <label class="filter-label">Training</label>
-                <select id="trainingFilter" class="filter-control">
-                    <option value="all">All Trainings</option>
-                </select>
-            </div>
-
-            <div class="filter-group">
-                <label class="filter-label">Time Period</label>
-                <select id="periodFilter" class="filter-control">
-                    <option value="7">Last 7 Days</option>
-                    <option value="30">Last 30 Days</option>
-                    <option value="90">Last 90 Days</option>
-                    <option value="all">All Time</option>
-                </select>
-            </div>
-
-            <button class="btn-refresh" onclick="refreshData()">
-                <i class="fas fa-sync-alt"></i> REFRESH
+        <div class="header">
+            <button class="refresh-btn" onclick="refreshStats()">
+                <i class="fas fa-sync-alt"></i> Refresh
             </button>
+            <h1>Training Analytics</h1>
+            <p class="header-subtitle">44th Royal Anglian Regiment - Data-Driven Insights</p>
         </div>
 
-        <!-- Stats Overview -->
+        <!-- Key Metrics Cards -->
         <div class="stats-grid">
             <div class="stat-card">
-                <i class="fas fa-clipboard-list stat-icon"></i>
-                <div class="stat-value" id="totalRequests">0</div>
                 <div class="stat-label">Total Requests</div>
+                <div class="stat-value" id="totalRequests">0</div>
             </div>
-
-            <div class="stat-card">
-                <i class="fas fa-clock stat-icon"></i>
-                <div class="stat-value" id="pendingRequests">0</div>
-                <div class="stat-label">Pending</div>
+            
+            <div class="stat-card success">
+                <div class="stat-label">Total Bookings</div>
+                <div class="stat-value" id="totalBookings">0</div>
             </div>
-
-            <div class="stat-card">
-                <i class="fas fa-fire stat-icon"></i>
-                <div class="stat-value" id="hottestTraining">-</div>
-                <div class="stat-label">Most Requested</div>
+            
+            <div class="stat-card info">
+                <div class="stat-label">Completion Rate</div>
+                <div class="stat-value" id="completionRate">0%</div>
             </div>
-
-            <div class="stat-card">
-                <i class="fas fa-users stat-icon"></i>
-                <div class="stat-value" id="uniqueRequesters">0</div>
-                <div class="stat-label">Unique Members</div>
+            
+            <div class="stat-card warning">
+                <div class="stat-label">Upcoming Sessions</div>
+                <div class="stat-value" id="upcomingSessions">0</div>
             </div>
         </div>
 
-        <!-- Training Requests Table -->
-        <div class="data-panel">
-            <div class="panel-header">
-                <i class="fas fa-table" style="color: var(--primary-yellow);"></i>
-                <h2>Training Request Details</h2>
+        <!-- Charts Row 1 -->
+        <div class="charts-row">
+            <!-- Requests by Category -->
+            <div class="chart-container">
+                <h3 class="chart-title">Training Demand by Category</h3>
+                <canvas id="requestsCategoryChart"></canvas>
             </div>
-            <div class="data-table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th class="sortable" onclick="sortTable(0)">Training</th>
-                            <th class="sortable" onclick="sortTable(1)">Category</th>
-                            <th class="sortable" onclick="sortTable(2)">Requests Since Last</th>
-                            <th class="sortable" onclick="sortTable(3)">Last Booking</th>
-                            <th class="sortable" onclick="sortTable(4)">Days Since</th>
-                            <th>Demand Level</th>
-                        </tr>
-                    </thead>
-                    <tbody id="trainingTableBody">
-                        <tr>
-                            <td colspan="6" class="loading">
-                                <div class="spinner"></div>
-                                <p>Loading training data...</p>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            
+            <!-- Bookings by Category -->
+            <div class="chart-container">
+                <h3 class="chart-title">Actual Bookings by Category</h3>
+                <canvas id="bookingsCategoryChart"></canvas>
             </div>
         </div>
 
-        <!-- Recent Requests -->
-        <div class="data-panel">
-            <div class="panel-header">
-                <i class="fas fa-history" style="color: var(--primary-yellow);"></i>
-                <h2>Recent Request Activity</h2>
+        <!-- Charts Row 2 -->
+        <div class="charts-row">
+            <!-- Server Utilization -->
+            <div class="chart-container">
+                <h3 class="chart-title">Server Utilization</h3>
+                <canvas id="serverChart"></canvas>
             </div>
-            <div class="data-table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Member</th>
-                            <th>Rank</th>
-                            <th>Training</th>
-                            <th>Category</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="recentRequestsBody">
-                        <tr>
-                            <td colspan="6" class="loading">
-                                <div class="spinner"></div>
-                                <p>Loading recent requests...</p>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            
+            <!-- Popular Times -->
+            <div class="chart-container">
+                <h3 class="chart-title">Peak Training Hours</h3>
+                <canvas id="timeChart"></canvas>
             </div>
+        </div>
+
+        <!-- Charts Row 3 -->
+        <div class="charts-row">
+            <!-- Top Requested Trainings -->
+            <div class="chart-container">
+                <h3 class="chart-title">Most Requested Trainings</h3>
+                <canvas id="topRequestedChart"></canvas>
+            </div>
+            
+            <!-- Instructor Workload -->
+            <div class="chart-container">
+                <h3 class="chart-title">Instructor Activity</h3>
+                <canvas id="instructorChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Activity Tables -->
+        <div class="data-table">
+            <h3>Recent Training Requests</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Member</th>
+                        <th>Category</th>
+                        <th>Training</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody id="recentRequestsTable">
+                    <tr>
+                        <td colspan="5" class="loading">
+                            <div class="spinner"></div>
+                            Loading data...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="data-table">
+            <h3>Upcoming Bookings</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Training</th>
+                        <th>Instructor</th>
+                        <th>Server</th>
+                    </tr>
+                </thead>
+                <tbody id="upcomingBookingsTable">
+                    <tr>
+                        <td colspan="5" class="loading">
+                            <div class="spinner"></div>
+                            Loading data...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
     <script>
-        // Security Check
-        (function() {
-            if (sessionStorage.getItem('authorized') !== 'true') {
-                alert('Access Denied. Please login through the main page.');
-                window.location.href = 'index.html';
-                return;
-            }
-        })();
-
         // Configuration
         const config = {
-            googleCalendarId: '40bb8c9aa7df59e2b7e22a850ac9b67b942e4ea00632b04b7590c3a4d5caa39c@group.calendar.google.com',
-            googleSheetsId: '1Akxvu6mWzE1o4tSOo0K9p6sg6ClYqXkzhHP0VeygIUM',
-            googleSheetsApiKey: 'AIzaSyAbZxnOvJjuOxRMeyNtr4R6zP39XfUNv-Q',
             googleAppsScriptUrl: 'https://script.google.com/macros/s/AKfycbwGZOXvdRUEXRGpt770eGtxEr858kf0LxgY3Onk8E7pVH7LY3raTUH1AE0KVU4Yg39rPQ/exec'
         };
 
-        // Training data structure
-        const trainingData = {
-            bootcamp: ['GYN'],
-            infantry: [
-                'LAT', 'HAT', 'Advanced AT Training', 'Engineer', 'Grenadier',
-                'Logistics', 'MG/AR', 'Marksman', 'Medic', 'Mortar', 'TOW',
-                'Fibua Tier 1', 'Section Battle Drills', 'Squad Leading Tier 1',
-                'Squad Leading Tier 2', 'Squad Leading Tier 3'
-            ],
-            mbt: [
-                'Principles of MBT', 'Principles of Driving', 'Principles of Gunning',
-                'Principles Commanding/Spotting', 'Positioning', 'MBT Masters Test',
-                'Expert Certification Exam'
-            ],
-            pilot: [
-                'Tier 1 Pilot', 'Advanced J-Hooks', 'Safe Spotting',
-                'Emergency Procedures', 'Advanced Low Flying', 'Heli Teamwork',
-                'Insertion Tactics', 'Barrel Rolls'
-            ],
-            ifv: [
-                'IFV Qualified', 'IFV Certified', 
-                'Mechanised Infantry Qualified', 'Mechanised Infantry Certified'
-            ],
-            mechInf: [
-                'Fighting in Open Areas', 'Raiding Tactics', 
-                'Fighting in Urban Areas', 'Small Unit Tactics',
-                'Squad Leading', 'Mech Inf Test'
-            ],
-            motorInf: [
-                'Motor Infantry Tier 1', 'Motor Infantry Tier 2', 'Motor Infantry Test'
-            ]
-        };
+        // Chart instances
+        let charts = {};
 
-        // Global data storage
-        let allBookings = [];
-        let allRequests = [];
-        let filteredData = [];
-
-        // Handle category filter change
-        document.getElementById('categoryFilter').addEventListener('change', function() {
-            const category = this.value;
-            const trainingSelect = document.getElementById('trainingFilter');
-            
-            trainingSelect.innerHTML = '<option value="all">All Trainings</option>';
-            
-            if (category !== 'all' && trainingData[category]) {
-                trainingData[category].forEach(training => {
-                    const option = document.createElement('option');
-                    option.value = training;
-                    option.textContent = training;
-                    trainingSelect.appendChild(option);
-                });
-            }
-            
-            filterAndDisplayData();
+        // Check authorization on load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadStats();
+            // Auto-refresh every 30 seconds
+            setInterval(loadStats, 30000);
         });
 
-        // Handle filter changes
-        document.getElementById('trainingFilter').addEventListener('change', filterAndDisplayData);
-        document.getElementById('periodFilter').addEventListener('change', filterAndDisplayData);
-
-        // Load all data
-        async function loadData() {
-            try {
-                // Load bookings from Calendar
-                await loadBookingsFromCalendar();
-                
-                // Load requests from Sheets
-                await loadRequestsFromSheets();
-                
-                // Calculate and display stats
-                calculateStats();
-                
-                // Display tables
-                displayTrainingTable();
-                displayRecentRequests();
-            } catch (error) {
-                console.error('Error loading data:', error);
-                // Use mock data if APIs fail
-                loadMockData();
+        // Check if user is authorized
+        function checkAuth() {
+            const userEmail = sessionStorage.getItem('userEmail');
+            if (!userEmail) {
+                alert('Please login first');
+                window.location.href = 'trainer-index.html';
+                return;
             }
         }
 
-        // Load bookings from Google Calendar
-        async function loadBookingsFromCalendar() {
-            const endDate = new Date();
-            const startDate = new Date();
-            startDate.setDate(startDate.getDate() - 90); // Last 90 days
-            
+        // Load all statistics
+        async function loadStats() {
             try {
+                const userEmail = sessionStorage.getItem('userEmail');
+                
                 const response = await fetch(config.googleAppsScriptUrl, {
                     method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({
-                        action: 'getBookings',
-                        startDate: startDate.toISOString(),
-                        endDate: endDate.toISOString()
+                        action: 'getStats',
+                        userEmail: userEmail
                     })
                 });
-                
+
                 const result = await response.json();
+                
                 if (result.success) {
-                    allBookings = result.data.bookings;
+                    updateDashboard(result.data);
+                } else {
+                    console.error('Failed to load stats:', result.message);
                 }
             } catch (error) {
-                console.error('Error loading bookings:', error);
-                // Fallback to Calendar API
-                const url = `https://www.googleapis.com/calendar/v3/calendars/${config.googleCalendarId}/events?` +
-                    `key=${config.googleSheetsApiKey}` +
-                    `&timeMin=${startDate.toISOString()}` +
-                    `&timeMax=${endDate.toISOString()}` +
-                    `&singleEvents=true` +
-                    `&orderBy=startTime`;
-                
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                if (data.items) {
-                    allBookings = data.items.map(event => ({
-                        title: event.summary || 'Training',
-                        start: event.start.dateTime || event.start.date,
-                        end: event.end.dateTime || event.end.date,
-                        description: event.description || ''
-                    }));
-                }
+                console.error('Error loading stats:', error);
             }
         }
 
-        // Load requests from Google Sheets
-        async function loadRequestsFromSheets() {
-            try {
-                const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${config.googleSheetsId}/values/Requests!A:F?key=${config.googleSheetsApiKey}`);
-                const data = await response.json();
-                
-                if (data.values && data.values.length > 1) {
-                    // Skip header row
-                    allRequests = data.values.slice(1).map(row => ({
-                        discord: row[0] || '',
-                        rank: row[1] || '',
-                        category: row[2] || '',
-                        training: row[3] || '',
-                        date: row[4] || new Date().toISOString(),
-                        status: row[5] || 'Pending'
-                    }));
-                }
-            } catch (error) {
-                console.error('Error loading requests:', error);
-                // Use mock data if API fails
-            }
+        // Update dashboard with data
+        function updateDashboard(data) {
+            // Update stat cards
+            document.getElementById('totalRequests').textContent = data.totalRequests || 0;
+            document.getElementById('totalBookings').textContent = data.totalBookings || 0;
+            document.getElementById('upcomingSessions').textContent = data.upcomingBookings.length || 0;
+            
+            // Calculate completion rate
+            const completionRate = data.totalBookings > 0 ? 
+                Math.round((data.completedBookings / data.totalBookings) * 100) : 0;
+            document.getElementById('completionRate').textContent = completionRate + '%';
+
+            // Update charts
+            updateRequestsCategoryChart(data.requestsByCategory);
+            updateBookingsCategoryChart(data.bookingsByCategory);
+            updateServerChart(data.bookingsByServer);
+            updateTimeChart(data.popularTimes);
+            updateTopRequestedChart(data.requestsByTraining);
+            updateInstructorChart(data.bookingsByInstructor);
+            
+            // Update tables
+            updateRecentRequestsTable(data.recentRequests);
+            updateUpcomingBookingsTable(data.upcomingBookings);
         }
 
-        // Load mock data (fallback)
-        function loadMockData() {
-            // Mock bookings
-            allBookings = [
-                { title: 'LAT Training - Primary - SGT Smith', start: '2025-09-25T14:00:00', end: '2025-09-25T16:00:00' },
-                { title: 'GYN Training - Backup - CPL Jones', start: '2025-09-24T10:00:00', end: '2025-09-24T12:00:00' },
-                { title: 'Marksman Training - Primary - LT Anderson', start: '2025-09-23T18:00:00', end: '2025-09-23T20:00:00' }
-            ];
+        // Chart update functions
+        function updateRequestsCategoryChart(data) {
+            const ctx = document.getElementById('requestsCategoryChart').getContext('2d');
             
-            // Mock requests
-            allRequests = [
-                { discord: 'Player1#1234', rank: 'PVT', category: 'infantry', training: 'LAT', date: '2025-09-27T12:00:00', status: 'Pending' },
-                { discord: 'Player2#5678', rank: 'CPL', category: 'infantry', training: 'HAT', date: '2025-09-26T15:00:00', status: 'Pending' },
-                { discord: 'Player3#9012', rank: 'SGT', category: 'bootcamp', training: 'GYN', date: '2025-09-25T09:00:00', status: 'Pending' }
-            ];
-            
-            calculateStats();
-            displayTrainingTable();
-            displayRecentRequests();
-        }
-
-        // Calculate statistics
-        function calculateStats() {
-            // Filter by selected period
-            const periodDays = document.getElementById('periodFilter').value;
-            const cutoffDate = new Date();
-            
-            if (periodDays !== 'all') {
-                cutoffDate.setDate(cutoffDate.getDate() - parseInt(periodDays));
+            if (charts.requestsCategory) {
+                charts.requestsCategory.destroy();
             }
             
-            const filteredRequests = periodDays === 'all' ? allRequests : 
-                allRequests.filter(r => new Date(r.date) >= cutoffDate);
-            
-            // Total requests
-            document.getElementById('totalRequests').textContent = filteredRequests.length;
-            
-            // Pending requests
-            const pending = filteredRequests.filter(r => r.status === 'Pending').length;
-            document.getElementById('pendingRequests').textContent = pending;
-            
-            // Most requested training
-            const trainingCounts = {};
-            filteredRequests.forEach(r => {
-                if (r.training) {
-                    trainingCounts[r.training] = (trainingCounts[r.training] || 0) + 1;
-                }
-            });
-            
-            const hottestTraining = Object.keys(trainingCounts).length > 0 ?
-                Object.keys(trainingCounts).reduce((a, b) => 
-                    trainingCounts[a] > trainingCounts[b] ? a : b
-                ) : '-';
-            
-            document.getElementById('hottestTraining').textContent = 
-                hottestTraining.length > 10 ? hottestTraining.substring(0, 10) + '...' : hottestTraining;
-            
-            // Unique members
-            const uniqueMembers = new Set(filteredRequests.map(r => r.discord)).size;
-            document.getElementById('uniqueRequesters').textContent = uniqueMembers;
-        }
-
-        // Display training table
-        function displayTrainingTable() {
-            const tbody = document.getElementById('trainingTableBody');
-            
-            // Get unique trainings from requests
-            const trainings = {};
-            
-            allRequests.forEach(request => {
-                if (!request.training) return;
-                
-                if (!trainings[request.training]) {
-                    trainings[request.training] = {
-                        training: request.training,
-                        category: request.category,
-                        requests: 0,
-                        lastBooking: null
-                    };
-                }
-                trainings[request.training].requests++;
-            });
-            
-            // Find last booking for each training
-            allBookings.forEach(booking => {
-                const trainingMatch = booking.title.match(/^([^-]+)/);
-                if (trainingMatch) {
-                    const training = trainingMatch[1].trim();
-                    if (trainings[training]) {
-                        const bookingDate = new Date(booking.start);
-                        if (!trainings[training].lastBooking || bookingDate > trainings[training].lastBooking) {
-                            trainings[training].lastBooking = bookingDate;
+            charts.requestsCategory = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(data),
+                    datasets: [{
+                        data: Object.values(data),
+                        backgroundColor: [
+                            '#F4B643', '#FFD700', '#FFA500', '#FF8C00',
+                            '#FF6347', '#DC143C', '#B22222', '#8B0000'
+                        ],
+                        borderColor: '#1a1a1a',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: '#ffffff',
+                                font: { size: 12 }
+                            }
                         }
                     }
                 }
             });
-            
-            // Build table rows
-            let html = '';
-            Object.values(trainings).forEach(item => {
-                const daysSince = item.lastBooking ? 
-                    Math.floor((new Date() - item.lastBooking) / (1000 * 60 * 60 * 24)) : 'Never';
-                
-                const demandLevel = item.requests > 10 || daysSince === 'Never' || daysSince > 14 ? 'HIGH' :
-                    item.requests > 5 || daysSince > 7 ? 'MEDIUM' : 'LOW';
-                
-                html += `
-                    <tr>
-                        <td><strong>${item.training}</strong></td>
-                        <td>${(item.category || 'Unknown').toUpperCase()}</td>
-                        <td>${item.requests}</td>
-                        <td>${item.lastBooking ? item.lastBooking.toLocaleDateString() : 'Never'}</td>
-                        <td>${daysSince}</td>
-                        <td><span class="badge badge-${demandLevel.toLowerCase()}">${demandLevel}</span></td>
-                    </tr>
-                `;
-            });
-            
-            tbody.innerHTML = html || '<tr><td colspan="6" class="no-data">No training data available</td></tr>';
         }
 
-        // Display recent requests
-        function displayRecentRequests() {
-            const tbody = document.getElementById('recentRequestsBody');
+        function updateBookingsCategoryChart(data) {
+            const ctx = document.getElementById('bookingsCategoryChart').getContext('2d');
             
-            // Sort by date descending
-            const sorted = [...allRequests].sort((a, b) => 
-                new Date(b.date) - new Date(a.date)
-            );
+            if (charts.bookingsCategory) {
+                charts.bookingsCategory.destroy();
+            }
             
-            // Display top 10
-            let html = '';
-            sorted.slice(0, 10).forEach(request => {
-                const date = new Date(request.date);
-                html += `
-                    <tr>
-                        <td>${date.toLocaleDateString()}</td>
-                        <td>${request.discord}</td>
-                        <td>${request.rank}</td>
-                        <td>${request.training}</td>
-                        <td>${(request.category || '').toUpperCase()}</td>
-                        <td><span class="badge badge-medium">${request.status || 'PENDING'}</span></td>
-                    </tr>
-                `;
-            });
-            
-            tbody.innerHTML = html || '<tr><td colspan="6" class="no-data">No recent requests</td></tr>';
-        }
-
-        // Filter and display data
-        function filterAndDisplayData() {
-            calculateStats();
-            displayTrainingTable();
-            displayRecentRequests();
-        }
-
-        // Sort table
-        let sortOrder = {};
-        function sortTable(columnIndex) {
-            const table = document.querySelector('.data-panel table');
-            const tbody = table.querySelector('tbody');
-            const rows = Array.from(tbody.querySelectorAll('tr'));
-            
-            // Toggle sort order
-            sortOrder[columnIndex] = sortOrder[columnIndex] === 'asc' ? 'desc' : 'asc';
-            
-            // Update header classes
-            const headers = table.querySelectorAll('th');
-            headers.forEach((header, index) => {
-                header.classList.remove('sorted-asc', 'sorted-desc');
-                if (index === columnIndex) {
-                    header.classList.add(`sorted-${sortOrder[columnIndex]}`);
+            charts.bookingsCategory = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(data),
+                    datasets: [{
+                        data: Object.values(data),
+                        backgroundColor: [
+                            '#4CAF50', '#45a049', '#388E3C', '#2E7D32',
+                            '#27632a', '#1B5E20', '#14532d', '#0f3a1f'
+                        ],
+                        borderColor: '#1a1a1a',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: '#ffffff',
+                                font: { size: 12 }
+                            }
+                        }
+                    }
                 }
             });
+        }
+
+        function updateServerChart(data) {
+            const ctx = document.getElementById('serverChart').getContext('2d');
             
-            // Sort rows
-            rows.sort((a, b) => {
-                const aValue = a.cells[columnIndex].textContent;
-                const bValue = b.cells[columnIndex].textContent;
-                
-                // Check if numeric
-                if (!isNaN(aValue) && !isNaN(bValue)) {
-                    return sortOrder[columnIndex] === 'asc' 
-                        ? parseFloat(aValue) - parseFloat(bValue)
-                        : parseFloat(bValue) - parseFloat(aValue);
+            if (charts.server) {
+                charts.server.destroy();
+            }
+            
+            charts.server = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(data),
+                    datasets: [{
+                        label: 'Bookings',
+                        data: Object.values(data),
+                        backgroundColor: '#2196F3',
+                        borderColor: '#1976D2',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#2d2d2d' },
+                            ticks: { color: '#ffffff' }
+                        },
+                        x: {
+                            grid: { color: '#2d2d2d' },
+                            ticks: { color: '#ffffff' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
                 }
-                
-                // String comparison
-                return sortOrder[columnIndex] === 'asc'
-                    ? aValue.localeCompare(bValue)
-                    : bValue.localeCompare(aValue);
             });
-            
-            // Reorder rows
-            rows.forEach(row => tbody.appendChild(row));
         }
 
-        // Refresh data
-        function refreshData() {
-            const tables = document.querySelectorAll('tbody');
-            tables.forEach(table => {
-                table.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="loading">
-                            <div class="spinner"></div>
-                            <p>Refreshing data...</p>
-                        </td>
-                    </tr>
-                `;
-            });
+        function updateTimeChart(data) {
+            const ctx = document.getElementById('timeChart').getContext('2d');
             
-            setTimeout(() => {
-                loadData();
-            }, 1000);
+            // Sort hours
+            const sortedHours = Object.keys(data).sort((a, b) => parseInt(a) - parseInt(b));
+            const sortedValues = sortedHours.map(hour => data[hour]);
+            
+            if (charts.time) {
+                charts.time.destroy();
+            }
+            
+            charts.time = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: sortedHours.map(h => h + ':00'),
+                    datasets: [{
+                        label: 'Sessions',
+                        data: sortedValues,
+                        borderColor: '#F4B643',
+                        backgroundColor: 'rgba(244, 182, 67, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#2d2d2d' },
+                            ticks: { color: '#ffffff' }
+                        },
+                        x: {
+                            grid: { color: '#2d2d2d' },
+                            ticks: { color: '#ffffff' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
         }
 
-        // Load data on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadData();
-        });
+        function updateTopRequestedChart(data) {
+            const ctx = document.getElementById('topRequestedChart').getContext('2d');
+            
+            // Get top 10 requested trainings
+            const sorted = Object.entries(data)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+            
+            if (charts.topRequested) {
+                charts.topRequested.destroy();
+            }
+            
+            charts.topRequested = new Chart(ctx, {
+                type: 'horizontalBar',
+                data: {
+                    labels: sorted.map(item => item[0]),
+                    datasets: [{
+                        label: 'Requests',
+                        data: sorted.map(item => item[1]),
+                        backgroundColor: '#FF9800',
+                        borderColor: '#F57C00',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: { color: '#2d2d2d' },
+                            ticks: { color: '#ffffff' }
+                        },
+                        y: {
+                            grid: { color: '#2d2d2d' },
+                            ticks: { color: '#ffffff' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
 
-        // Auto-refresh every 30 seconds
-        setInterval(refreshData, 30000);
+        function updateInstructorChart(data) {
+            const ctx = document.getElementById('instructorChart').getContext('2d');
+            
+            // Get top 10 instructors
+            const sorted = Object.entries(data)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+            
+            if (charts.instructor) {
+                charts.instructor.destroy();
+            }
+            
+            charts.instructor = new Chart(ctx, {
+                type: 'horizontalBar',
+                data: {
+                    labels: sorted.map(item => item[0]),
+                    datasets: [{
+                        label: 'Sessions',
+                        data: sorted.map(item => item[1]),
+                        backgroundColor: '#9C27B0',
+                        borderColor: '#7B1FA2',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: { color: '#2d2d2d' },
+                            ticks: { color: '#ffffff' }
+                        },
+                        y: {
+                            grid: { color: '#2d2d2d' },
+                            ticks: { color: '#ffffff' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // Update tables
+        function updateRecentRequestsTable(requests) {
+            const tbody = document.getElementById('recentRequestsTable');
+            
+            if (!requests || requests.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No recent requests</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = requests.slice(0, 10).map(req => `
+                <tr>
+                    <td>${new Date(req.date).toLocaleDateString()}</td>
+                    <td>${req.name}</td>
+                    <td>${req.category}</td>
+                    <td>${req.training}</td>
+                    <td>${req.notes || '-'}</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateUpcomingBookingsTable(bookings) {
+            const tbody = document.getElementById('upcomingBookingsTable');
+            
+            if (!bookings || bookings.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No upcoming bookings</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = bookings.slice(0, 10).map(booking => `
+                <tr>
+                    <td>${booking.date}</td>
+                    <td>${booking.time}</td>
+                    <td>${booking.training}</td>
+                    <td>${booking.instructor}</td>
+                    <td>${booking.server}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Manual refresh
+        function refreshStats() {
+            loadStats();
+        }
     </script>
 </body>
 </html>
