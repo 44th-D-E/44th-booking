@@ -79,6 +79,7 @@
             background: linear-gradient(135deg, rgba(244, 182, 67, 0.1), transparent);
             border: 2px solid var(--primary-yellow);
             border-radius: 10px;
+            position: relative;
         }
 
         .header h1 {
@@ -170,6 +171,11 @@
             border-radius: 10px;
             padding: 20px;
             position: relative;
+            height: 400px;
+        }
+
+        .chart-container canvas {
+            max-height: 320px !important;
         }
 
         .chart-title {
@@ -450,8 +456,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             checkAuth();
             loadStats();
-            // Auto-refresh every 30 seconds
-            setInterval(loadStats, 30000);
         });
 
         // Check if user is authorized
@@ -471,21 +475,16 @@
                 const result = await response.json();
                 
                 if (result.success && result.data) {
-                    // Ensure arrays exist with default empty arrays
                     const bookings = result.data.bookings || [];
                     const requests = result.data.requests || [];
-                    
-                    // Process the raw data into analytics format
                     const processedData = processStatsData(bookings, requests);
                     updateDashboard(processedData);
                 } else {
                     console.error('Failed to load stats:', result.message);
-                    // Show empty dashboard if no data
                     updateDashboard(getEmptyDashboardData());
                 }
             } catch (error) {
                 console.error('Error loading stats:', error);
-                // Show empty dashboard on error
                 updateDashboard(getEmptyDashboardData());
             }
         }
@@ -494,7 +493,6 @@
         function processStatsData(bookings, requests) {
             const now = new Date();
             
-            // Process bookings
             const upcomingBookings = [];
             let completedBookings = 0;
             const bookingsByCategory = {};
@@ -503,10 +501,8 @@
             const popularTimes = {};
             
             bookings.forEach(booking => {
-                // Parse date - booking[8] is date column
                 const bookingDate = new Date(booking[8]);
                 
-                // Count upcoming
                 if (bookingDate > now) {
                     upcomingBookings.push({
                         date: booking[8],
@@ -517,45 +513,36 @@
                     });
                 }
                 
-                // Count completed
                 if (booking[10] === 'Completed') {
                     completedBookings++;
                 }
                 
-                // By category - booking[2] is category
                 const category = booking[2] || 'Other';
                 bookingsByCategory[category] = (bookingsByCategory[category] || 0) + 1;
                 
-                // By server - booking[7] is server
                 const server = booking[7] || 'Unknown';
                 bookingsByServer[server] = (bookingsByServer[server] || 0) + 1;
                 
-                // By instructor - booking[6] is instructor
                 const instructor = booking[6] || 'Unknown';
                 bookingsByInstructor[instructor] = (bookingsByInstructor[instructor] || 0) + 1;
                 
-                // Popular times - booking[9] is time
                 if (booking[9]) {
                     const hour = booking[9].split(':')[0];
                     popularTimes[hour] = (popularTimes[hour] || 0) + 1;
                 }
             });
             
-            // Process requests
             const requestsByCategory = {};
             const requestsByTraining = {};
             const recentRequests = [];
             
             requests.forEach(request => {
-                // By category - request[2] is category
                 const category = request[2] || 'Other';
                 requestsByCategory[category] = (requestsByCategory[category] || 0) + 1;
                 
-                // By training - request[3] is training
                 const training = request[3] || 'Unknown';
                 requestsByTraining[training] = (requestsByTraining[training] || 0) + 1;
                 
-                // Recent requests
                 recentRequests.push({
                     date: request[0],
                     name: request[1] || 'Anonymous',
@@ -565,10 +552,7 @@
                 });
             });
             
-            // Sort recent requests by date
             recentRequests.sort((a, b) => new Date(b.date) - new Date(a.date));
-            
-            // Sort upcoming bookings by date
             upcomingBookings.sort((a, b) => new Date(a.date) - new Date(b.date));
             
             return {
@@ -605,17 +589,14 @@
 
         // Update dashboard with data
         function updateDashboard(data) {
-            // Update stat cards
             document.getElementById('totalRequests').textContent = data.totalRequests || 0;
             document.getElementById('totalBookings').textContent = data.totalBookings || 0;
             document.getElementById('upcomingSessions').textContent = data.upcomingBookings.length || 0;
             
-            // Calculate completion rate
             const completionRate = data.totalBookings > 0 ? 
                 Math.round((data.completedBookings / data.totalBookings) * 100) : 0;
             document.getElementById('completionRate').textContent = completionRate + '%';
 
-            // Update charts - only if data exists
             if (Object.keys(data.requestsByCategory).length > 0) {
                 updateRequestsCategoryChart(data.requestsByCategory);
             }
@@ -635,7 +616,6 @@
                 updateInstructorChart(data.bookingsByInstructor);
             }
             
-            // Update tables
             updateRecentRequestsTable(data.recentRequests);
             updateUpcomingBookingsTable(data.upcomingBookings);
         }
@@ -664,7 +644,7 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
+                    maintainAspectRatio: true,
                     plugins: {
                         legend: {
                             position: 'right',
@@ -701,7 +681,7 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
+                    maintainAspectRatio: true,
                     plugins: {
                         legend: {
                             position: 'right',
@@ -736,7 +716,7 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
+                    maintainAspectRatio: true,
                     scales: {
                         y: {
                             beginAtZero: true,
@@ -758,7 +738,6 @@
         function updateTimeChart(data) {
             const ctx = document.getElementById('timeChart').getContext('2d');
             
-            // Sort hours
             const sortedHours = Object.keys(data).sort((a, b) => parseInt(a) - parseInt(b));
             const sortedValues = sortedHours.map(hour => data[hour]);
             
@@ -781,7 +760,7 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
+                    maintainAspectRatio: true,
                     scales: {
                         y: {
                             beginAtZero: true,
@@ -800,20 +779,19 @@
             });
         }
 
-                function updateTopRequestedChart(data) {
+        function updateTopRequestedChart(data) {
             const ctx = document.getElementById('topRequestedChart').getContext('2d');
-    
-            // Get top 10 requested trainings
+            
             const sorted = Object.entries(data)
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 10);
-    
+            
             if (charts.topRequested) {
                 charts.topRequested.destroy();
             }
-    
+            
             charts.topRequested = new Chart(ctx, {
-                type: 'bar',  // <-- CHANGE FROM 'horizontalBar' TO 'bar'
+                type: 'bar',
                 data: {
                     labels: sorted.map(item => item[0]),
                     datasets: [{
@@ -826,15 +804,15 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
-                    indexAxis: 'y',  // This makes it horizontal
+                    maintainAspectRatio: true,
+                    indexAxis: 'y',
                     scales: {
                         x: {
                             beginAtZero: true,
                             grid: { color: '#2d2d2d' },
                             ticks: { color: '#ffffff' }
                         },
-                    y: {
+                        y: {
                             grid: { color: '#2d2d2d' },
                             ticks: { color: '#ffffff' }
                         }
@@ -848,18 +826,17 @@
 
         function updateInstructorChart(data) {
             const ctx = document.getElementById('instructorChart').getContext('2d');
-    
-                // Get top 10 instructors
+            
             const sorted = Object.entries(data)
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 10);
-    
-             if (charts.instructor) {
+            
+            if (charts.instructor) {
                 charts.instructor.destroy();
             }
-    
+            
             charts.instructor = new Chart(ctx, {
-                type: 'bar',  // <-- CHANGE FROM 'horizontalBar' TO 'bar'
+                type: 'bar',
                 data: {
                     labels: sorted.map(item => item[0]),
                     datasets: [{
@@ -872,8 +849,8 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
-                    indexAxis: 'y',  // This makes it horizontal
+                    maintainAspectRatio: true,
+                    indexAxis: 'y',
                     scales: {
                         x: {
                             beginAtZero: true,
@@ -888,7 +865,7 @@
                     plugins: {
                         legend: { display: false }
                     }
-            }
+                }
             });
         }
 
@@ -938,4 +915,3 @@
     </script>
 </body>
 </html>
-
