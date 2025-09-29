@@ -472,10 +472,7 @@
     <script>
         // Configuration
         const config = {
-            googleAppsScriptUrl: 'https://script.google.com/macros/s/AKfycbwGZOXvdRUEXRGpt770eGtxEr858kf0LxgY3Onk8E7pVH7LY3raTUH1AE0KVU4Yg39rPQ/exec'
-        };
-
-        // Check authentication
+            googleAppsScriptUrl: 'https://script.google.com/macros/s/AKfycbwGZOXvdRUEXRGpt770eGtxEr858kf0LxgY3Onk8E7pVH7LY3raTUH1AE0        // Check authentication
         function checkAuth() {
             const authorized = sessionStorage.getItem('authorized');
             if (!authorized || authorized !== 'true') {
@@ -484,7 +481,8 @@
             }
             return true;
         }
-        // Calculate hours booked this week - ADD THIS FUNCTION HERE
+
+        // Calculate hours booked this week
         function calculateWeeklyHours(events) {
             const now = new Date();
             const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -498,25 +496,115 @@
             // Calculate total hours
             let totalHours = 0;
             weekEvents.forEach(event => {
-                const duration = (new Date(event.end) - new Date(event.start)) / (1000 * 60 * 60);
+                const start = new Date(event.start);
+                const end = new Date(event.end);
+                const duration = (end - start) / (1000 * 60 * 60); // Convert to hours
                 totalHours += duration;
             });
     
             // Return rounded to 1 decimal place
             return totalHours.toFixed(1);
         }
-        // Load user info
+
+        // Load user info with new role system
         function loadUserInfo() {
             const userName = sessionStorage.getItem('userName');
             const userRole = sessionStorage.getItem('userRole');
+            const roleType = sessionStorage.getItem('roleType');
+            const permissions = JSON.parse(sessionStorage.getItem('permissions') || '{}');
             
-            document.getElementById('userName').textContent = userName || 'Trainer';
-            document.getElementById('userRole').textContent = userRole ? userRole.toUpperCase() : 'TRAINER';
+            // Update display name
+            document.getElementById('userName').textContent = userName || 'User';
+            
+            // Update role display with proper formatting
+            let roleDisplay = userRole || 'USER';
+            if (roleType === 'de') {
+                roleDisplay = userRole.toUpperCase();
+            } else if (roleType === 'training') {
+                roleDisplay = userRole.toUpperCase().replace('TRN', 'TRAINER');
+            }
+            
+            document.getElementById('userRole').textContent = roleDisplay;
+            
+            // Update navigation based on permissions
+            updateNavigationByRole(permissions, roleType);
         }
 
-        // Logout function
-        function logout() {
-            sessionStorage.clear();
+        // Update navigation based on user role and permissions
+        function updateNavigationByRole(permissions, roleType) {
+            // Get action cards
+            const actionCards = document.querySelectorAll('.action-card');
+            
+            actionCards.forEach(card => {
+                const cardTitle = card.querySelector('h3').textContent.toLowerCase();
+                
+                // Handle different card types based on permissions
+                if (cardTitle.includes('booking') && !permissions.createBookings) {
+                    card.style.opacity = '0.5';
+                    card.querySelector('.btn-primary').style.pointerEvents = 'none';
+                    card.querySelector('p').textContent = 'Access restricted - insufficient permissions';
+                }
+                
+                if (cardTitle.includes('analytics') && !permissions.viewOwnAnalytics && !permissions.viewAllAnalytics) {
+                    card.style.opacity = '0.5';
+                    card.querySelector('.btn-primary').style.pointerEvents = 'none';
+                    card.querySelector('p').textContent = 'Access restricted - insufficient permissions';
+                }
+            });
+            
+            // Add role-specific action cards
+            addRoleSpecificCards(permissions, roleType);
+        }
+
+        // Add role-specific action cards
+        function addRoleSpecificCards(permissions, roleType) {
+            const actionGrid = document.querySelector('.action-grid');
+            
+            // Add Complete Training card for trainers
+            if (permissions.completeTrainings) {
+                const completeCard = document.createElement('div');
+                completeCard.className = 'action-card';
+                completeCard.innerHTML = `
+                    <i class="fas fa-check-circle action-icon"></i>
+                    <h3>Complete Training</h3>
+                    <p>Mark training sessions as complete and record attendance data for analytics and reporting.</p>
+                    <a href="complete-training.html" class="btn-primary">
+                        <i class="fas fa-check"></i> Complete Session
+                    </a>
+                `;
+                actionGrid.appendChild(completeCard);
+            }
+            
+            // Add User Management card for D&E Admin
+            if (permissions.manageUsers) {
+                const userCard = document.createElement('div');
+                userCard.className = 'action-card';
+                userCard.innerHTML = `
+                    <i class="fas fa-users-cog action-icon"></i>
+                    <h3>User Management</h3>
+                    <p>Manage user access, roles, and permissions across the training management system.</p>
+                    <a href="user-management.html" class="btn-primary">
+                        <i class="fas fa-cog"></i> Manage Users
+                    </a>
+                `;
+                actionGrid.appendChild(userCard);
+            }
+            
+            // Add System Settings card for D&E Admin
+            if (permissions.systemSettings) {
+                const settingsCard = document.createElement('div');
+                settingsCard.className = 'action-card';
+                settingsCard.innerHTML = `
+                    <i class="fas fa-cogs action-icon"></i>
+                    <h3>System Settings</h3>
+                    <p>Configure system-wide settings, integrations, and administrative preferences.</p>
+                    <a href="system-settings.html" class="btn-primary">
+                        <i class="fas fa-wrench"></i> Settings
+                    </a>
+                `;
+                actionGrid.appendChild(settingsCard);
+            }
+        }         sessionStorage.clear();
             window.location.href = 'index.html';
         }
 

@@ -677,20 +677,48 @@
                 const data = await response.json();
                 
                 if (data.authorized) {
-                    // Store user info
+                    // Store user info with new role system
                     sessionStorage.setItem('userEmail', email);
-                    sessionStorage.setItem('userRole', data.role || 'trainer');
+                    sessionStorage.setItem('userRole', data.role || 'User');
+                    sessionStorage.setItem('roleType', data.roleType || 'unknown');
                     sessionStorage.setItem('userName', data.name || email.split('@')[0]);
                     sessionStorage.setItem('authorized', 'true');
+                    
+                    // Store permissions and qualifications
+                    sessionStorage.setItem('permissions', JSON.stringify(data.permissions || {}));
+                    sessionStorage.setItem('trainingQualifications', JSON.stringify(data.trainingQualifications || {}));
+                    
+                    // Store manager categories if applicable
+                    if (data.managerCategories) {
+                        sessionStorage.setItem('managerCategories', JSON.stringify(data.managerCategories));
+                    }
+                    
+                    // Store Discord name if available
+                    if (data.discordName) {
+                        sessionStorage.setItem('discordName', data.discordName);
+                    }
                     
                     // Redirect to trainer dashboard
                     window.location.href = 'trainer-index.html';
                 } else {
-                    // Show error
+                    // Show error with more specific message
                     emailAuth.style.display = 'block';
                     loadingState.style.display = 'none';
-                    errorText.textContent = 'Email not authorized. Contact D&E for access.';
+                    
+                    let errorMessage = 'Access denied. ';
+                    if (data.message) {
+                        errorMessage += data.message;
+                    } else {
+                        errorMessage += 'Contact D&E for access.';
+                    }
+                    
+                    errorText.textContent = errorMessage;
                     errorMsg.style.display = 'block';
+                    
+                    // Log debug info for troubleshooting
+                    if (data.debug) {
+                        console.log('Authentication debug:', data.debug);
+                    }
                 }
             } catch (error) {
                 console.error('Authorization error:', error);
