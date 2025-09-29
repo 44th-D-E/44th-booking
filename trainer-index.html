@@ -572,20 +572,7 @@
         function addRoleSpecificCards(permissions, roleType) {
             const actionGrid = document.querySelector('.action-grid');
             
-            // Add Complete Training card for trainers
-            if (permissions.completeTrainings) {
-                const completeCard = document.createElement('div');
-                completeCard.className = 'action-card';
-                completeCard.innerHTML = `
-                    <i class="fas fa-check-circle action-icon"></i>
-                    <h3>Complete Training</h3>
-                    <p>Mark training sessions as complete and record attendance data for analytics and reporting.</p>
-                    <a href="complete-training.html" class="btn-primary">
-                        <i class="fas fa-check"></i> Complete Session
-                    </a>
-                `;
-                actionGrid.appendChild(completeCard);
-            }
+            // Complete Training card removed - will be added during domain rollout
             
             // Add User Management card for D&E Admin
             if (permissions.manageUsers) {
