@@ -522,7 +522,8 @@
             // Update role display with proper formatting
             let roleDisplay = userRole || 'USER';
             if (roleType === 'de') {
-                roleDisplay = userRole.toUpperCase();
+                // Convert underscores to spaces and capitalize properly
+                roleDisplay = userRole.replace(/_/g, ' ').toUpperCase();
             } else if (roleType === 'training') {
                 // Fix role display for training roles
                 if (userRole === 'Sr. Trn') {
