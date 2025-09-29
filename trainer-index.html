@@ -521,7 +521,16 @@
             if (roleType === 'de') {
                 roleDisplay = userRole.toUpperCase();
             } else if (roleType === 'training') {
-                roleDisplay = userRole.toUpperCase().replace('TRN', 'TRAINER');
+                // Fix role display for training roles
+                if (userRole === 'Sr. Trn') {
+                    roleDisplay = 'SENIOR TRAINER';
+                } else if (userRole === 'Trn') {
+                    roleDisplay = 'TRAINER';
+                } else if (userRole === 'Manager') {
+                    roleDisplay = 'MANAGER';
+                } else {
+                    roleDisplay = userRole.toUpperCase();
+                }
             }
             
             document.getElementById('userRole').textContent = roleDisplay;
@@ -753,7 +762,16 @@
             activityList.innerHTML = '<p style="text-align: center; color: var(--danger);">Failed to load data. Please refresh the page.</p>';
         }
 
-                // Initialize on page load
+        // Logout function
+        function logout() {
+            // Clear all session storage
+            sessionStorage.clear();
+            
+            // Redirect to login page
+            window.location.href = 'index.html';
+        }
+
+        // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             if (checkAuth()) {
                 loadUserInfo();
