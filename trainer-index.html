@@ -472,7 +472,10 @@
     <script>
         // Configuration
         const config = {
-            googleAppsScriptUrl: 'https://script.google.com/macros/s/AKfycbwGZOXvdRUEXRGpt770eGtxEr858kf0LxgY3Onk8E7pVH7LY3raTUH1AE0        // Check authentication
+            googleAppsScriptUrl: 'https://script.google.com/macros/s/AKfycbwGZOXvdRUEXRGpt770eGtxEr858kf0LxgY3Onk8E7pVH7LY3raTUH1AE0KVU4Yg39rPQ/exec'
+        };
+
+        // Check authentication
         function checkAuth() {
             const authorized = sessionStorage.getItem('authorized');
             if (!authorized || authorized !== 'true') {
@@ -613,11 +616,9 @@
                 `;
                 actionGrid.appendChild(settingsCard);
             }
-        }         sessionStorage.clear();
-            window.location.href = 'index.html';
         }
 
-                // Load dashboard data from calendar
+        // Load dashboard data from calendar
         async function loadDashboardData() {
             try {
                 // Get calendar events
@@ -782,8 +783,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
